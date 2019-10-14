@@ -9,9 +9,13 @@ definitions:
         script:
           - npm install
           - npm run test:ci
-    - step: &createArtifact
-        name: Create artifact
+    - step: &runBuild
+        name: Run Build
+        caches:
+          - node
         script:
+          - npm install
+          - npm run build:prod
           - tar czfv application.tgz index.html elmulator.js
         artifacts:
           - application.tgz
@@ -28,6 +32,6 @@ definitions:
 pipelines:
   default:
     - step: *runTests
-    - step: *createArtifact
+    - step: *runBuild
     - step: *deployToProduction
    
