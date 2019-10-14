@@ -1,0 +1,15 @@
+image: node:10.15.3
+
+definitions:
+  steps:
+    - step: &installElm
+        name: Install Elm
+        caches:
+          - node
+        script:
+          - npm install
+    
+pipelines:
+  default:
+    - step: *installElm
+   
