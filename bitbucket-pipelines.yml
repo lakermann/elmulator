@@ -8,7 +8,7 @@ definitions:
           - node
         script:
           - npm install
-          - npm test
+          - mkdir test-reports && npm run test -- --report=json > ./test-reports/junit.xml
     
 pipelines:
   default:
