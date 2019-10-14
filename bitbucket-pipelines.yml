@@ -2,14 +2,15 @@ image: node:10.15.3
 
 definitions:
   steps:
-    - step: &installElm
-        name: Install Elm
+    - step: &runTests
+        name: Run Tests
         caches:
           - node
         script:
           - npm install
+          - npm test
     
 pipelines:
   default:
-    - step: *installElm
+    - step: *runTests
    
