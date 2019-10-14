@@ -9,8 +9,25 @@ definitions:
         script:
           - npm install
           - npm run test:ci
-    
+    - step: &createArtifact
+        name: Create artifact
+        script:
+          - tar czfv application.tgz index.html elmulator.js
+        artifacts:
+          - application.tgz
+    - step: &deployToProduction
+        name: Deploy to production
+        deployment: production
+        script:
+          - pipe: atlassian/heroku-deploy:0.1.1
+            variables:
+              HEROKU_API_KEY: $HEROKU_API_KEY
+              HEROKU_APP_NAME: $HEROKU_APP_NAME
+              ZIP_FILE: "application.tgz"
+
 pipelines:
   default:
     - step: *runTests
+    - step: *createArtifact
+    - step: *deployToProduction
    
