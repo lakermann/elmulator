@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/elm-test/bin/elm-test",
-    "test:ci": "mkdir -p test-reports && node_modules/elm-test/bin/elm-test --report=junit > ./test-reports/junit.xml",
-    "test:watch": "node_modules/elm-test/bin/elm-test --watch"
+    "test": "npx elm-test",
+    "test:ci": "mkdir -p test-reports && npx elm-test --report=junit > ./test-reports/junit.xml",
+    "test:watch": "npx elm-test --watch"
   },
   "author": "",
   "license": "",
