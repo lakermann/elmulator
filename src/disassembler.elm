@@ -2,6 +2,7 @@ module Disassembler exposing (main)
 
 import Browser
 import Bytes exposing (Bytes)
+import Bytes.Decode as Decode
 import File exposing (File)
 import File.Select as Select
 import Html exposing (Html, button, p, text)
@@ -103,9 +104,117 @@ type alias DisassembledProgram =
     List Instruction
 
 
+decodeFile : Bytes -> List Int
+decodeFile rawData =
+    let
+        listDecoder =
+            bytesListDecoder Decode.unsignedInt8 (Bytes.width rawData)
+    in
+    Maybe.withDefault [] (Decode.decode listDecoder rawData)
+
+
+bytesListDecoder : Decode.Decoder a -> Int -> Decode.Decoder (List a)
+bytesListDecoder decoder len =
+    Decode.loop ( len, [] ) (listStep decoder)
+
+
+listStep : Decode.Decoder a -> ( Int, List a ) -> Decode.Decoder (Decode.Step ( Int, List a ) (List a))
+listStep decoder ( n, xs ) =
+    if n <= 0 then
+        Decode.succeed (Decode.Done xs)
+
+    else
+        Decode.map (\x -> Decode.Loop ( n - 1, xs ++ [x] )) decoder
+
+hexToString : Int -> String
+hexToString num =
+    String.fromList <|
+        if num < 0 then
+            '-' :: unsafePositiveToDigits [] (negate num)
+
+        else
+            unsafePositiveToDigits [] num
+
+
+{-| ONLY EVER CALL THIS WITH POSITIVE INTEGERS!
+-}
+unsafePositiveToDigits : List Char -> Int -> List Char
+unsafePositiveToDigits digits num =
+    if num < 16 then
+        unsafeToDigit num :: digits
+
+    else
+        unsafePositiveToDigits (unsafeToDigit (modBy 16 num) :: digits) (num // 16)
+
+
+{-| ONLY EVER CALL THIS WITH INTEGERS BETWEEN 0 and 15!
+-}
+unsafeToDigit : Int -> Char
+unsafeToDigit num =
+    case num of
+        0 ->
+            '0'
+
+        1 ->
+            '1'
+
+        2 ->
+            '2'
+
+        3 ->
+            '3'
+
+        4 ->
+            '4'
+
+        5 ->
+            '5'
+
+        6 ->
+            '6'
+
+        7 ->
+            '7'
+
+        8 ->
+            '8'
+
+        9 ->
+            '9'
+
+        10 ->
+            'a'
+
+        11 ->
+            'b'
+
+        12 ->
+            'c'
+
+        13 ->
+            'd'
+
+        14 ->
+            'e'
+
+        15 ->
+            'f'
+
+        _ ->
+            -- if this ever gets called with a number over 15, it will never
+            -- terminate! If that happens, debug further by uncommenting this:
+            --
+            -- Debug.todo ("Tried to convert " ++ toString num ++ " to hexadecimal.")
+            unsafeToDigit num
+
+
 disassemble : Bytes -> String
 disassemble data =
-    "Hello, world"
+    let
+        decodedValues =
+            decodeFile data
+    in
+    String.join "\n" (List.map hexToString decodedValues)
 
 
 view : Model -> Html Msg
