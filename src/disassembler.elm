@@ -5,8 +5,7 @@ import Bytes exposing (Bytes)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
-import Html exposing (Html, button, p, text)
-import Html.Attributes exposing (style)
+import Html exposing (Html, button, pre, text)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
@@ -93,7 +92,7 @@ view model =
             button [ onClick RomRequested ] [ text "Load ROM" ]
 
         Just content ->
-            p [ style "white-space" "pre" ] [ text (disassemble content) ]
+            pre [ ] [ text (disassemble content) ]
 
 
 
