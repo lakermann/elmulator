@@ -69,9 +69,37 @@ update msg model =
 
 -- VIEW
 
+type alias OpCodeType = 
+  {
+    hexCode : Int,
+    name : String,
+    numberOfArguments : Int
+  }
+
+type InstructionType =
+  ZeroArgInstruction {
+      opCode: OpCodeType
+  }
+  | OneArgInstruction {
+      opCode: OpCodeType,
+      firstArg: Int
+  }
+  | TwoArgInstruction {
+      opCode: OpCodeType,
+      firstArg: Int,
+      secondArg: Int
+  }
+
+type alias Instruction = 
+    {
+        address: Int,
+        instruction: InstructionType
+    }
+
+type alias DisassembledProgram = List Instruction
+
 disassemble : Bytes -> String
 disassemble data = "Hello, world"
-
 
 view : Model -> Html Msg
 view model =
