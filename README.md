@@ -13,6 +13,10 @@
     ```json
     "elm.compiler": "./node_modules/.bin/elm",
     "elm.makeCommand": "./node_modules/.bin/elm-make"
+    "elm.formatCommand": "./node_modules/.bin/elm-format",
+    "[elm]": {
+        "editor.formatOnSave": true
+    }
     ```
 
 ## Documentation
