@@ -1,4 +1,5 @@
 node_modules/
+elm-stuff/
 .vscode
 .idea
 elmulator.iml
