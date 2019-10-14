@@ -16,7 +16,7 @@ definitions:
         script:
           - npm install
           - npm run build:prod
-          - tar czfv application.tgz index.html elmulator.js
+          - tar czfv application.tgz static.json index.html elmulator.js
         artifacts:
           - application.tgz
     - step: &deployToProduction
