@@ -16,25 +16,26 @@ import Task
 
 main : Program () Model Msg
 main =
-  Browser.element
-    { init = init
-    , view = view
-    , update = update
-    , subscriptions = subscriptions
-    }
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
 
 
 
 -- MODEL
 
+
 type alias Model =
-  { data : Maybe Bytes
-  }
+    { data : Maybe Bytes
+    }
 
 
-init : () -> (Model, Cmd Msg)
+init : () -> ( Model, Cmd Msg )
 init _ =
-  ( Model Nothing, Cmd.none )
+    ( Model Nothing, Cmd.none )
 
 
 
@@ -42,73 +43,79 @@ init _ =
 
 
 type Msg
-  = RomRequested
-  | RomSelected File
-  | RomLoaded Bytes
+    = RomRequested
+    | RomSelected File
+    | RomLoaded Bytes
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    RomRequested ->
-      ( model
-      , Select.file ["application/any"] RomSelected
-      )
+    case msg of
+        RomRequested ->
+            ( model
+            , Select.file [ "application/any" ] RomSelected
+            )
 
-    RomSelected file ->
-      ( model
-      , Task.perform RomLoaded (File.toBytes file)
-      )
+        RomSelected file ->
+            ( model
+            , Task.perform RomLoaded (File.toBytes file)
+            )
 
-    RomLoaded content ->
-      ( { model | data = Just content }
-      , Cmd.none
-      )
+        RomLoaded content ->
+            ( { model | data = Just content }
+            , Cmd.none
+            )
 
 
 
 -- VIEW
 
-type alias OpCodeType = 
-  {
-    hexCode : Int,
-    name : String,
-    numberOfArguments : Int
-  }
 
-type InstructionType =
-  ZeroArgInstruction {
-      opCode: OpCodeType
-  }
-  | OneArgInstruction {
-      opCode: OpCodeType,
-      firstArg: Int
-  }
-  | TwoArgInstruction {
-      opCode: OpCodeType,
-      firstArg: Int,
-      secondArg: Int
-  }
-
-type alias Instruction = 
-    {
-        address: Int,
-        instruction: InstructionType
+type alias OpCodeType =
+    { hexCode : Int
+    , name : String
+    , numberOfArguments : Int
     }
 
-type alias DisassembledProgram = List Instruction
+
+type InstructionType
+    = ZeroArgInstruction
+        { opCode : OpCodeType
+        }
+    | OneArgInstruction
+        { opCode : OpCodeType
+        , firstArg : Int
+        }
+    | TwoArgInstruction
+        { opCode : OpCodeType
+        , firstArg : Int
+        , secondArg : Int
+        }
+
+
+type alias Instruction =
+    { address : Int
+    , instruction : InstructionType
+    }
+
+
+type alias DisassembledProgram =
+    List Instruction
+
 
 disassemble : Bytes -> String
-disassemble data = "Hello, world"
+disassemble data =
+    "Hello, world"
+
 
 view : Model -> Html Msg
 view model =
-  case model.data of
-    Nothing ->
-      button [ onClick RomRequested ] [ text "Load ROM" ]
+    case model.data of
+        Nothing ->
+            button [ onClick RomRequested ] [ text "Load ROM" ]
 
-    Just content ->
-      p [ style "white-space" "pre" ] [ text (disassemble content) ]
+        Just content ->
+            p [ style "white-space" "pre" ] [ text (disassemble content) ]
 
 
 
@@ -117,4 +124,4 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-  Sub.none
+    Sub.none
