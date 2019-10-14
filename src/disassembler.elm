@@ -5,7 +5,7 @@ import Bytes exposing (Bytes)
 import Bytes.Decode as Decode
 import File exposing (File)
 import File.Select as Select
-import Hex exposing (toString)
+import Hex
 import Html exposing (Html, button, p, text)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
