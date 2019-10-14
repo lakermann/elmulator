@@ -6,7 +6,9 @@
   "scripts": {
     "test": "npx elm-test",
     "test:ci": "mkdir -p test-reports && npx elm-test --report=junit > ./test-reports/junit.xml",
-    "test:watch": "npx elm-test --watch"
+    "test:watch": "npx elm-test --watch",
+    "build:dev": "npx elm make src/disassembler.elm --output out/elmulator.js",
+    "build:prod": "npx elm make src/disassembler.elm --output out/elmulator.js --optimize"
   },
   "author": "",
   "license": "",
