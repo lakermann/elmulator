@@ -5,6 +5,7 @@ import Bytes exposing (Bytes)
 import Bytes.Decode as Decode
 import File exposing (File)
 import File.Select as Select
+import Hex exposing (toString)
 import Html exposing (Html, button, p, text)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
@@ -124,88 +125,7 @@ listStep decoder ( n, xs ) =
         Decode.succeed (Decode.Done xs)
 
     else
-        Decode.map (\x -> Decode.Loop ( n - 1, xs ++ [x] )) decoder
-
-hexToString : Int -> String
-hexToString num =
-    String.fromList <|
-        if num < 0 then
-            '-' :: unsafePositiveToDigits [] (negate num)
-
-        else
-            unsafePositiveToDigits [] num
-
-
-{-| ONLY EVER CALL THIS WITH POSITIVE INTEGERS!
--}
-unsafePositiveToDigits : List Char -> Int -> List Char
-unsafePositiveToDigits digits num =
-    if num < 16 then
-        unsafeToDigit num :: digits
-
-    else
-        unsafePositiveToDigits (unsafeToDigit (modBy 16 num) :: digits) (num // 16)
-
-
-{-| ONLY EVER CALL THIS WITH INTEGERS BETWEEN 0 and 15!
--}
-unsafeToDigit : Int -> Char
-unsafeToDigit num =
-    case num of
-        0 ->
-            '0'
-
-        1 ->
-            '1'
-
-        2 ->
-            '2'
-
-        3 ->
-            '3'
-
-        4 ->
-            '4'
-
-        5 ->
-            '5'
-
-        6 ->
-            '6'
-
-        7 ->
-            '7'
-
-        8 ->
-            '8'
-
-        9 ->
-            '9'
-
-        10 ->
-            'a'
-
-        11 ->
-            'b'
-
-        12 ->
-            'c'
-
-        13 ->
-            'd'
-
-        14 ->
-            'e'
-
-        15 ->
-            'f'
-
-        _ ->
-            -- if this ever gets called with a number over 15, it will never
-            -- terminate! If that happens, debug further by uncommenting this:
-            --
-            -- Debug.todo ("Tried to convert " ++ toString num ++ " to hexadecimal.")
-            unsafeToDigit num
+        Decode.map (\x -> Decode.Loop ( n - 1, xs ++ [ x ] )) decoder
 
 
 disassemble : Bytes -> String
@@ -214,7 +134,7 @@ disassemble data =
         decodedValues =
             decodeFile data
     in
-    String.join "\n" (List.map hexToString decodedValues)
+    String.join "\n" (List.map Hex.toString decodedValues)
 
 
 view : Model -> Html Msg
