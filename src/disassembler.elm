@@ -8,7 +8,7 @@ import FileDecoder exposing (decodeFile)
 import Html exposing (Html, button, p, text)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
-import Instruction exposing (InstructionType, instructionToString)
+import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
 import Task
 
