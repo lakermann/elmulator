@@ -1,11 +1,11 @@
 # 8080 By Opcode
 
-From http://www.emulator101.com/8080-by-opcode.html
+From <http://www.emulator101.com/8080-by-opcode.html>
 
-User manual at http://www.nj7p.info/Manuals/PDFs/Intel/9800153B.pdf
+User manual at <http://www.nj7p.info/Manuals/PDFs/Intel/9800153B.pdf>
 
 | Opcode | Instruction | size | flags | function |
-|--------|-------------|------|-------|----------| 
+|--------|-------------|------|-------|----------|
 | 0x00   |NOP          |1     |       |          |
 | 0x01 |LXI B,D16|3||B <- byte 3, C <- byte 2|
 | 0x02 |STAX B|1||(BC) <- A|
