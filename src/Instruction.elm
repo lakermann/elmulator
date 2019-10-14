@@ -1,5 +1,6 @@
 module Instruction exposing (DisassembledProgram, Instruction, instructionToString)
 
+import Hex as Hex
 import OpCode exposing (OpCode)
 
 
@@ -16,4 +17,10 @@ type alias DisassembledProgram =
 
 instructionToString : Instruction -> String
 instructionToString instruction =
-    instruction.opCode.information.name
+    let
+        address = String.padLeft 5 '0' (String.fromInt instruction.address)
+        payloadHex = List.map (\x -> String.padLeft 2 '0' x) (List.map Hex.toString instruction.payload)
+        payload = String.padLeft 8 ' ' (String.join " " payloadHex)
+        instructionName = instruction.opCode.information.name
+    in
+    address ++ ": " ++ payload ++ " -- " ++ instructionName
