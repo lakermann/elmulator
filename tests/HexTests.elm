@@ -1,9 +1,7 @@
 module HexTests exposing (..)
 
 import Expect
-import Fuzz exposing (int, intRange, list, string)
 import Hex
-import String
 import Test exposing (..)
 
 
