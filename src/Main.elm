@@ -9,7 +9,7 @@ import Cpu exposing (oneStep)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
-import Html exposing (Html, div, h1, h2, h3, pre, text)
+import Html exposing (Html, h1, h3, pre, text)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
@@ -55,6 +55,7 @@ type Msg
     | RomSelected File
     | RomLoaded Bytes
     | NextStepRequested MachineState
+    | Reset
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -86,6 +87,9 @@ update msg model =
                     ( model
                     , Cmd.none
                     )
+
+        Reset ->
+            init ()
 
 
 
@@ -137,7 +141,7 @@ view model =
                 , Grid.row []
                     [ Grid.col []
                         [ Button.button
-                            [ Button.success
+                            [ Button.outlineSuccess
                             , Button.attrs
                                 [ onClick RomRequested
                                 ]
@@ -157,16 +161,16 @@ view model =
                 , Grid.row []
                     [ Grid.col []
                         [ Button.button
-                            [ Button.success
+                            [ Button.outlineDanger
                             , Button.attrs
-                                [ onClick RomRequested
+                                [ onClick Reset
                                 ]
                             ]
-                            [ text "Load ROM" ]
+                            [ text "Reset" ]
                         ]
                     , Grid.col []
                         [ Button.button
-                            [ Button.primary
+                            [ Button.outlinePrimary
                             , Button.attrs
                                 [ onClick (NextStepRequested model.currentCpuState)
                                 ]
