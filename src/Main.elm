@@ -5,6 +5,7 @@ import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
 import Browser
 import Bytes exposing (Bytes)
+import Cpu exposing (oneStep)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
@@ -12,6 +13,7 @@ import Html exposing (Html, div, h1, h2, h3, pre, text)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
+import MachineState exposing (CpuState, MachineState(..))
 import Task
 
 
@@ -35,12 +37,13 @@ main =
 
 type alias Model =
     { data : Maybe Bytes
+    , currentCpuState : MachineState
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model Nothing, Cmd.none )
+    ( Model Nothing Cpu.init, Cmd.none )
 
 
 
@@ -51,6 +54,7 @@ type Msg
     = RomRequested
     | RomSelected File
     | RomLoaded Bytes
+    | NextStepRequested MachineState
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -71,6 +75,18 @@ update msg model =
             , Cmd.none
             )
 
+        NextStepRequested machineState ->
+            case machineState of
+                Valid currentCpuState ->
+                    ( { model | currentCpuState = oneStep currentCpuState }
+                    , Cmd.none
+                    )
+
+                Invalid maybe string ->
+                    ( model
+                    , Cmd.none
+                    )
+
 
 
 -- VIEW
@@ -86,6 +102,26 @@ disassemble data =
             disassembleToInstructions decodedFile
     in
     String.join "\n" (List.map instructionToString disassembledFile)
+
+
+cpustate : MachineState -> String
+cpustate state =
+    case state of
+        Invalid maybe string ->
+            ""
+
+        Valid cpuState ->
+            String.join "\n"
+                [ "a: " ++ String.fromInt cpuState.a
+                , "b: " ++ String.fromInt cpuState.b
+                , "d: " ++ String.fromInt cpuState.c
+                , "d: " ++ String.fromInt cpuState.d
+                , "e: " ++ String.fromInt cpuState.e
+                , "h: " ++ String.fromInt cpuState.h
+                , "l: " ++ String.fromInt cpuState.l
+                , "sp:" ++ String.fromInt cpuState.sp
+                , "pc:" ++ String.fromInt cpuState.pc
+                ]
 
 
 view : Model -> Html Msg
@@ -132,7 +168,7 @@ view model =
                         [ Button.button
                             [ Button.primary
                             , Button.attrs
-                                [ onClick RomRequested
+                                [ onClick (NextStepRequested model.currentCpuState)
                                 ]
                             ]
                             [ text "Next Step" ]
@@ -145,6 +181,7 @@ view model =
                         ]
                     , Grid.col []
                         [ h3 [] [ text "CPU State" ]
+                        , pre [] [ text (cpustate model.currentCpuState) ]
                         ]
                     ]
                 ]
