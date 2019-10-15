@@ -47,7 +47,7 @@ applyOpCodeToDisassemblyState : OpCode -> DisassemblyState -> DisassemblyState
 applyOpCodeToDisassemblyState opCode { currentPosition, remainingBytes, disassembledInstructions } =
     let
         length =
-            getOpCodeLength opCode.information.length
+            getOpCodeLength opCode.information.opCodeType
 
         newPosition =
             currentPosition + length

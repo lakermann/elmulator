@@ -3,7 +3,7 @@ module InstructionTests exposing (..)
 import MachineState exposing (CpuState, MachineStateDiff(..))
 import Expect
 import Instruction exposing (Instruction)
-import OpCode exposing (OpCode, OpCodeLength, OpCodeMetaData)
+import OpCode exposing (ImplOneByte, OpCode, OpCodeMetaData, OpCodeType)
 import Test exposing (..)
 
 
@@ -13,8 +13,13 @@ all =
         [ describe "instructionToString"
             [ test "for NOP" <|
                 \() ->
+                    let
+                      opCodeType = OpCode.OneByte (\cpuState -> Failed (Just cpuState) "not implemented yet")
+                      opCodeMetadata = OpCodeMetaData "NOP" opCodeType
+                      opCode = OpCode 0x00 opCodeMetadata
+                    in
                     Instruction 1
-                        (OpCode 0x00 (OpCodeMetaData "NOP" OpCode.OneByte (\cpuState -> Failed (Just cpuState) "not implemented yet")))
+                        opCode
                         []
                         |> Instruction.instructionToString
                         |> Expect.equal "00001:          -- NOP"
