@@ -5,7 +5,7 @@ import OpCode exposing (MachineState(..), OpCode, getOpCodeFromTable)
 
 
 oneStep : CpuState -> MachineState
-oneStep state =
+oneStep cpuState =
     let
         opcode =
             0
@@ -15,9 +15,9 @@ oneStep state =
             getOpCodeFromTable opcode
 
         machineStateDiff =
-            Maybe.map (evaluate state) opCodeFromTable
+            Maybe.withDefault (Failed (Just cpuState) "Error while getting OpCode") (Maybe.map (evaluate cpuState) opCodeFromTable)
     in
-    Maybe.withDefault (Invalid (Just state) "error while doing step") machineState
+    apply machineStateDiff cpuState
 
 
 evaluate : CpuState -> OpCode -> MachineStateDiff
@@ -63,19 +63,19 @@ applyEvent event cpuState =
         SetSP int -> cpuState
 
 
-        SetFlagZ flag ->
+        SetFlagZ flag -> cpuState
 
 
-        SetFlagS flag ->
+        SetFlagS flag -> cpuState
 
 
-        SetFlagP flag ->
+        SetFlagP flag -> cpuState
 
 
-        SetFlagCY flag ->
+        SetFlagCY flag -> cpuState
 
 
-        SetFlagAC flag ->
+        SetFlagAC flag -> cpuState
 
 
-        SetIntEnable flag ->
+        SetIntEnable flag -> cpuState
