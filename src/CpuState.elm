@@ -60,8 +60,9 @@ type MachineStateDiffEvent
     | SetFlag SetFlagEvent
     | SetIntEnable Flag
 
-type SetFlagEvent =
-    SetFlagZ Flag
+
+type SetFlagEvent
+    = SetFlagZ Flag
     | SetFlagS Flag
     | SetFlagP Flag
     | SetFlagCY Flag

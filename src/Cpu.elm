@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Array
-import CpuState exposing (Address, ConditionCodes, CpuState, Flag, MachineStateDiff(..), MachineStateDiffEvent(..), Register, SetFlagEvent(..))
+import CpuState exposing (Address, ConditionCodes, CpuState, Flag, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Register, SetFlagEvent(..))
 import OpCode exposing (MachineState(..), OpCode, getOpCodeFromTable)
 
 
@@ -25,72 +25,116 @@ evaluate : CpuState -> OpCode -> MachineStateDiff
 evaluate cpuState opCode =
     opCode.information.impl cpuState
 
+
 apply : MachineStateDiff -> CpuState -> MachineState
 apply machineStateDiff cpuState =
     case machineStateDiff of
-        Failed maybePreviousState errorMessage -> Invalid maybePreviousState errorMessage
-        Events machineStateDiffEvents -> Valid (List.foldl applyEvent cpuState machineStateDiffEvents)
+        Failed maybePreviousState errorMessage ->
+            Invalid maybePreviousState errorMessage
+
+        Events machineStateDiffEvents ->
+            Valid (List.foldl applyEvent cpuState machineStateDiffEvents)
+
 
 applyEvent : MachineStateDiffEvent -> CpuState -> CpuState
 applyEvent event cpuState =
     case event of
-        SetRegisterA register -> { cpuState | a = register }
+        SetRegisterA register ->
+            { cpuState | a = register }
 
+        SetRegisterB register ->
+            { cpuState | b = register }
 
-        SetRegisterB register -> { cpuState | b = register }
+        SetRegisterC register ->
+            { cpuState | c = register }
 
+        SetRegisterD register ->
+            { cpuState | d = register }
 
-        SetRegisterC register -> { cpuState | c = register }
+        SetRegisterE register ->
+            { cpuState | e = register }
 
+        SetRegisterH register ->
+            { cpuState | h = register }
 
-        SetRegisterD register -> { cpuState | d = register }
+        SetRegisterL register ->
+            { cpuState | l = register }
 
+        SetMemory address value ->
+            setMemory address value cpuState
 
-        SetRegisterE register -> { cpuState | e = register }
+        SetPC value ->
+            { cpuState | pc = value }
 
+        SetSP value ->
+            { cpuState | sp = value }
 
-        SetRegisterH register -> { cpuState | h = register }
+        SetFlag setFlagEvent ->
+            { cpuState | conditionCodes = setFlag setFlagEvent cpuState.conditionCodes }
 
-
-        SetRegisterL register -> { cpuState | l = register }
-
-
-        SetMemory address value -> setMemory address value cpuState
-
-
-        SetPC value -> { cpuState | pc = value }
-
-
-        SetSP value -> { cpuState | sp = value }
-
-
-        SetFlag setFlagEvent -> { cpuState | conditionCodes = setFlag setFlagEvent cpuState.conditionCodes }
-
-
-        SetIntEnable flag -> { cpuState | intEnable = flag }
+        SetIntEnable flag ->
+            { cpuState | intEnable = flag }
 
 
 setMemory : Address -> Int -> CpuState -> CpuState
 setMemory address value cpuState =
     let
-        updatedMemory = Array.set address value cpuState.memory
+        updatedMemory =
+            Array.set address value cpuState.memory
     in
-    { cpuState | memory = updatedMemory}
+    { cpuState | memory = updatedMemory }
 
 
 setFlag : SetFlagEvent -> ConditionCodes -> ConditionCodes
 setFlag event conditionCodes =
     case event of
-        SetFlagZ flag -> { conditionCodes | z = flag }
+        SetFlagZ flag ->
+            { conditionCodes | z = flag }
+
+        SetFlagS flag ->
+            { conditionCodes | s = flag }
+
+        SetFlagP flag ->
+            { conditionCodes | p = flag }
+
+        SetFlagCY flag ->
+            { conditionCodes | cy = flag }
+
+        SetFlagAC flag ->
+            { conditionCodes | ac = flag }
 
 
-        SetFlagS flag -> { conditionCodes | s = flag }
+init : () -> MachineState
+init _ =
+    let
+        memory =
+            initMemory
+
+        conditionCodes =
+            initConditionCodes
+    in
+    Valid
+        (CpuState
+            0
+            0
+            0
+            0
+            0
+            0
+            0
+            0
+            0
+            memory
+            conditionCodes
+            False
+        )
 
 
-        SetFlagP flag -> { conditionCodes | p = flag }
+initMemory : Memory
+initMemory =
+    Array.initialize 0xFFFF (always 0)
 
 
-        SetFlagCY flag -> { conditionCodes | cy = flag }
-
-
-        SetFlagAC flag -> { conditionCodes | ac = flag }
+initConditionCodes : ConditionCodes
+initConditionCodes =
+    ConditionCodes False False False False False
