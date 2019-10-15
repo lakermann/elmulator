@@ -1,4 +1,4 @@
-module Main exposing (..)
+module Cpu exposing (..)
 
 import Array
 import CpuState exposing (Address, ConditionCodes, CpuState, Flag, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Register, SetFlagEvent(..))
