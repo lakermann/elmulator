@@ -47,7 +47,7 @@ applyOpCodeToDisassemblyState : OpCode -> DisassemblyState -> DisassemblyState
 applyOpCodeToDisassemblyState opCode { currentPosition, remainingBytes, disassembledInstructions } =
     let
         length =
-            getOpCodeLength opCode.information.opCodeType
+            getOpCodeLength opCode
 
         newPosition =
             currentPosition + length
@@ -59,11 +59,6 @@ applyOpCodeToDisassemblyState opCode { currentPosition, remainingBytes, disassem
             List.take length remainingBytes
 
         currentInstruction =
-            createInstruction currentPosition opCode instructionBytes
+            Instruction currentPosition opCode instructionBytes
     in
     DisassemblyState newPosition newRemainingBytes (disassembledInstructions ++ [ currentInstruction ])
-
-
-createInstruction : Int -> OpCode -> List Int -> Instruction
-createInstruction address opCode payload =
-    Instruction address opCode payload

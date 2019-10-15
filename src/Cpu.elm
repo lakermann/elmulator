@@ -41,7 +41,7 @@ readMemoryProvider address offset memory =
       \_ -> case readValue of
         Just value -> value
 
-        Nothing -> 0
+        Nothing -> 0 -- TODO: What should we do here?
 
 apply : MachineStateDiff -> CpuState -> MachineState
 apply machineStateDiff cpuState =

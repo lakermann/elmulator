@@ -21,6 +21,6 @@ instructionToString instruction =
         address = String.padLeft 5 '0' (String.fromInt instruction.address)
         payloadHex = List.map (\x -> String.padLeft 2 '0' x) (List.map Hex.toString instruction.payload)
         payload = String.padLeft 8 ' ' (String.join " " payloadHex)
-        instructionName = instruction.opCode.information.name
+        instructionName = OpCode.getName instruction.opCode
     in
     address ++ ": " ++ payload ++ " -- " ++ instructionName
