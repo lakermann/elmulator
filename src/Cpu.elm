@@ -1,6 +1,7 @@
 module Main exposing (..)
 
-import CpuState exposing (CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), Register)
+import Array
+import CpuState exposing (Address, ConditionCodes, CpuState, Flag, MachineStateDiff(..), MachineStateDiffEvent(..), Register, SetFlagEvent(..))
 import OpCode exposing (MachineState(..), OpCode, getOpCodeFromTable)
 
 
@@ -33,49 +34,63 @@ apply machineStateDiff cpuState =
 applyEvent : MachineStateDiffEvent -> CpuState -> CpuState
 applyEvent event cpuState =
     case event of
-        SetRegisterA register -> cpuState
+        SetRegisterA register -> { cpuState | a = register }
 
 
-        SetRegisterB register -> cpuState
+        SetRegisterB register -> { cpuState | b = register }
 
 
-        SetRegisterC register -> cpuState
+        SetRegisterC register -> { cpuState | c = register }
 
 
-        SetRegisterD register -> cpuState
+        SetRegisterD register -> { cpuState | d = register }
 
 
-        SetRegisterE register -> cpuState
+        SetRegisterE register -> { cpuState | e = register }
 
 
-        SetRegisterH register -> cpuState
+        SetRegisterH register -> { cpuState | h = register }
 
 
-        SetRegisterL register -> cpuState
+        SetRegisterL register -> { cpuState | l = register }
 
 
-        SetMemory address int -> cpuState
+        SetMemory address value -> setMemory address value cpuState
 
 
-        SetPC int -> cpuState
+        SetPC value -> { cpuState | pc = value }
 
 
-        SetSP int -> cpuState
+        SetSP value -> { cpuState | sp = value }
 
 
-        SetFlagZ flag -> cpuState
+        SetFlag setFlagEvent -> { cpuState | conditionCodes = setFlag setFlagEvent cpuState.conditionCodes }
 
 
-        SetFlagS flag -> cpuState
+        SetIntEnable flag -> { cpuState | intEnable = flag }
 
 
-        SetFlagP flag -> cpuState
+setMemory : Address -> Int -> CpuState -> CpuState
+setMemory address value cpuState =
+    let
+        updatedMemory = Array.set address value cpuState.memory
+    in
+    { cpuState | memory = updatedMemory}
 
 
-        SetFlagCY flag -> cpuState
+setFlag : SetFlagEvent -> ConditionCodes -> ConditionCodes
+setFlag event conditionCodes =
+    case event of
+        SetFlagZ flag -> { conditionCodes | z = flag }
 
 
-        SetFlagAC flag -> cpuState
+        SetFlagS flag -> { conditionCodes | s = flag }
 
 
-        SetIntEnable flag -> cpuState
+        SetFlagP flag -> { conditionCodes | p = flag }
+
+
+        SetFlagCY flag -> { conditionCodes | cy = flag }
+
+
+        SetFlagAC flag -> { conditionCodes | ac = flag }

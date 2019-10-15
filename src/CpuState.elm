@@ -57,12 +57,20 @@ type MachineStateDiffEvent
     | SetMemory Address Int
     | SetPC Int
     | SetSP Int
-    | SetFlagZ Flag
+    --| SetFlagZ Flag
+    --| SetFlagS Flag
+    ---| SetFlagP Flag
+    --| SetFlagCY Flag
+    --| SetFlagAC Flag
+    | SetFlag SetFlagEvent
+    | SetIntEnable Flag
+
+type SetFlagEvent =
+    SetFlagZ Flag
     | SetFlagS Flag
     | SetFlagP Flag
     | SetFlagCY Flag
     | SetFlagAC Flag
-    | SetIntEnable Flag
 
 
 type MachineStateDiff
