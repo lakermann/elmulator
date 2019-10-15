@@ -107,8 +107,8 @@ disassemble data =
 cpustate : MachineState -> String
 cpustate state =
     case state of
-        Invalid maybe string ->
-            ""
+        Invalid _ string ->
+            string
 
         Valid cpuState ->
             String.join "\n"
