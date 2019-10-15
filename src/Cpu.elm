@@ -2,7 +2,7 @@ module Cpu exposing (..)
 
 import Array
 import MachineState exposing (Address, ConditionCodes, CpuState, Flag, MachineState(..), MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Register, SetFlagEvent(..))
-import OpCode exposing (OpCode)
+import OpCode exposing (OpCode, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 
 
@@ -24,8 +24,24 @@ oneStep cpuState =
 
 evaluate : CpuState -> OpCode -> MachineStateDiff
 evaluate cpuState opCode =
-    opCode.information.impl cpuState
+    let
+        address = cpuState.pc
+        memory = cpuState.memory
+        firstValueProvider = readMemoryProvider address 1 memory
+        secondValueProvider = readMemoryProvider address 2 memory
+        implementation = getImplementation opCode firstValueProvider secondValueProvider
+    in
+      implementation cpuState
 
+readMemoryProvider : Address -> Int -> Memory -> () -> Int
+readMemoryProvider address offset memory =
+    let
+      readValue = Array.get (address + offset) memory
+    in
+      \_ -> case readValue of
+        Just value -> value
+
+        Nothing -> 0
 
 apply : MachineStateDiff -> CpuState -> MachineState
 apply machineStateDiff cpuState =
