@@ -121,8 +121,8 @@ setFlag event conditionCodes =
             { conditionCodes | ac = flag }
 
 
-init : () -> MachineState
-init _ =
+init : MachineState
+init =
     let
         memory =
             initMemory
