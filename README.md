@@ -19,6 +19,14 @@
     }
     ```
 
+## Deployment
+
+1. Set the heroku app to the [static buildpack](https://github.com/heroku/heroku-buildpack-static):
+
+    ```bash
+    heroku buildpacks:set https://github.com/heroku/heroku-buildpack-static.git.
+    ```
+
 ## Documentation
 
 * [8080 By Opcode](./docu/opcodes.md)
