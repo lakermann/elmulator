@@ -7,14 +7,10 @@
     <script src="elmulator.js"></script>
 </head>
 <body>
-    <div style="background-color: blueviolet; text-align: center;">
-            <h1>Elmulator</h1>
-    </div>
     <div id="elm"></div>
     <script>
-    var app = Elm.Disassembler.init({
+    var app = Elm.Main.init({
       node: document.getElementById('elm')
     });
     </script>
 </body>
-</html>
