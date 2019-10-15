@@ -1,4 +1,4 @@
-module OpCode exposing (OpCode, getOpCodeFromTable, getOpCodeLength)
+module OpCode exposing (OpCode, OpCodeLength(..), OpCodeMetaData, getOpCodeFromTable, getOpCodeLength)
 
 import Dict exposing (Dict)
 
