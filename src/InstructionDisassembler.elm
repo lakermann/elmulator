@@ -1,7 +1,8 @@
 module InstructionDisassembler exposing (..)
 
 import Instruction exposing (Instruction)
-import OpCode exposing (OpCode, getOpCodeFromTable, getOpCodeLength)
+import OpCode exposing (OpCode, getOpCodeLength)
+import OpCodeTable exposing (getOpCodeFromTable)
 
 
 type alias DisassemblyState =

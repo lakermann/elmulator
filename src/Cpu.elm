@@ -1,8 +1,9 @@
 module Cpu exposing (..)
 
 import Array
-import CpuState exposing (Address, ConditionCodes, CpuState, Flag, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Register, SetFlagEvent(..))
-import OpCode exposing (MachineState(..), OpCode, getOpCodeFromTable)
+import MachineState exposing (Address, ConditionCodes, CpuState, Flag, MachineState(..), MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Register, SetFlagEvent(..))
+import OpCode exposing (OpCode)
+import OpCodeTable exposing (getOpCodeFromTable)
 
 
 oneStep : CpuState -> MachineState

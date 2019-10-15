@@ -1,6 +1,6 @@
 module InstructionTests exposing (..)
 
-import CpuState exposing (CpuState, MachineStateDiff(..))
+import MachineState exposing (CpuState, MachineStateDiff(..))
 import Expect
 import Instruction exposing (Instruction)
 import OpCode exposing (OpCode, OpCodeLength, OpCodeMetaData)

@@ -1,7 +1,10 @@
-module CpuState exposing (..)
+module MachineState exposing (..)
 
 import Array exposing (Array)
 
+type MachineState
+    = Valid CpuState
+    | Invalid (Maybe CpuState) String
 
 type alias CpuState =
     { a : Register

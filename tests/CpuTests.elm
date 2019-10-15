@@ -2,9 +2,8 @@ module CpuTests exposing (..)
 
 import Array
 import Cpu exposing (apply)
-import CpuState exposing (ConditionCodes, CpuState, MachineStateDiff, MachineStateDiff(..), MachineStateDiffEvent(..))
+import MachineState exposing (ConditionCodes, CpuState, MachineState(..), MachineStateDiff(..), MachineStateDiffEvent(..))
 import Expect
-import OpCode exposing (MachineState(..))
 import Test exposing (..)
 
 all : Test
