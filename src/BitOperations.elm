@@ -1,4 +1,4 @@
-module Helper exposing (..)
+module BitOperations exposing (..)
 
 import Bitwise
 

@@ -1,10 +1,7 @@
 module MachineInstructions exposing (..)
 
-import Array exposing (Array)
-import Bitwise
-import Helper exposing (combineBytes, getAddressLE)
+import BitOperations exposing (combineBytes, getAddressLE)
 import MachineState exposing (ConditionCodes, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..))
-import OpCode exposing (OpCode, getOpCodeLength)
 import Psw
 
 
@@ -84,7 +81,7 @@ inx_b cpuState =
 
 
 jmp : Int -> Int -> CpuState -> MachineStateDiff
-jmp firstArg secondArg cpuState =
+jmp firstArg secondArg _ =
     Events [ SetPC (getAddressLE firstArg secondArg) ]
 
 

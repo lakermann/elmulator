@@ -1,7 +1,7 @@
 module Psw exposing (..)
 
 import Bitwise
-import Helper exposing (boolToInt)
+import BitOperations exposing (boolToInt)
 import MachineState exposing (ConditionCodes)
 
 
