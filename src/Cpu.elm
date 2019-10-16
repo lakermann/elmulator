@@ -133,11 +133,11 @@ setFlag event conditionCodes =
             { conditionCodes | ac = flag }
 
 
-init : MachineState
-init =
+init : List ByteValue -> MachineState
+init rom =
     let
         memory =
-            initMemory
+            initMemory rom
 
         conditionCodes =
             initConditionCodes
@@ -159,9 +159,15 @@ init =
         )
 
 
-initMemory : Memory
-initMemory =
-    Array.initialize 0xFFFF (always 0)
+initMemory : List ByteValue -> Memory
+initMemory rom =
+    let
+        lengthRom = List.length rom
+        paddingAmount = 0xFFFF - lengthRom
+        padding = List.repeat paddingAmount 0
+        memory = List.concat [ rom, padding ]
+    in
+    Array.fromList memory
 
 
 initConditionCodes : ConditionCodes

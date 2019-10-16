@@ -45,7 +45,7 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model Nothing Cpu.init, Cmd.none )
+    ( Model Nothing (Invalid Nothing "No ROM loaded yet"), Cmd.none )
 
 
 
@@ -94,18 +94,14 @@ update msg model =
             init ()
 
 
--- TODO: Sloppily hacked together, needs improving...
 loadDataIntoMemory : Model -> Bytes -> Model
 loadDataIntoMemory model data =
     let
-        currentCpuState = model.currentCpuState
-        memoryWithFileLoaded = Array.fromList( decodeFile data) -- TODO: We need to fill values
+        decodedFile = decodeFile data
+        initialCpuState = Cpu.init decodedFile
     in
-        case currentCpuState of
-            Valid cpuState ->
-                    Model (Just data) (Valid { cpuState | memory = memoryWithFileLoaded })
+        Model (Just data) initialCpuState
 
-            Invalid _ _ -> Model Nothing currentCpuState
 
 
 -- VIEW
