@@ -11,7 +11,8 @@ import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
 import Hex
-import Html exposing (Html, h1, h3, pre, text)
+import Html exposing (Html, div, h1, h3, p, pre, text)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
@@ -94,18 +95,28 @@ update msg model =
             init ()
 
 
+
 -- TODO: Sloppily hacked together, needs improving...
+
+
 loadDataIntoMemory : Model -> Bytes -> Model
 loadDataIntoMemory model data =
     let
-        currentCpuState = model.currentCpuState
-        memoryWithFileLoaded = Array.fromList( decodeFile data) -- TODO: We need to fill values
-    in
-        case currentCpuState of
-            Valid cpuState ->
-                    Model (Just data) (Valid { cpuState | memory = memoryWithFileLoaded })
+        currentCpuState =
+            model.currentCpuState
 
-            Invalid _ _ -> Model Nothing currentCpuState
+        memoryWithFileLoaded =
+            Array.fromList (decodeFile data)
+
+        -- TODO: We need to fill values
+    in
+    case currentCpuState of
+        Valid cpuState ->
+            Model (Just data) (Valid { cpuState | memory = memoryWithFileLoaded })
+
+        Invalid _ _ ->
+            Model Nothing currentCpuState
+
 
 
 -- VIEW
@@ -149,10 +160,7 @@ view model =
         Nothing ->
             Grid.container []
                 [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
-                , Grid.row []
-                    [ Grid.col []
-                        [ h1 [] [ text "Elmulator" ] ]
-                    ]
+                , pageHeader
                 , Grid.row []
                     [ Grid.col []
                         [ Button.button
@@ -169,10 +177,7 @@ view model =
         Just content ->
             Grid.container []
                 [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
-                , Grid.row []
-                    [ Grid.col []
-                        [ h1 [] [ text "Elmulator" ] ]
-                    ]
+                , pageHeader
                 , Grid.row []
                     [ Grid.col []
                         [ Button.button
@@ -204,6 +209,13 @@ view model =
                         ]
                     ]
                 ]
+
+
+pageHeader : Html Msg
+pageHeader =
+    div []
+        [ h1 [] [ text "Elmulator ", p [ class "lead" ] [ text "A 8080 Emulator written in Elm" ] ]
+        ]
 
 
 
