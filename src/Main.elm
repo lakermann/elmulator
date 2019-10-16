@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Array
 import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
@@ -72,7 +73,7 @@ update msg model =
             )
 
         RomLoaded content ->
-            ( { model | data = Just content }
+            ( loadDataIntoMemory model content
             , Cmd.none
             )
 
@@ -83,7 +84,7 @@ update msg model =
                     , Cmd.none
                     )
 
-                Invalid maybe string ->
+                Invalid _ _ ->
                     ( model
                     , Cmd.none
                     )
@@ -91,6 +92,19 @@ update msg model =
         Reset ->
             init ()
 
+
+-- TODO: Sloppily hacked together, needs improving...
+loadDataIntoMemory : Model -> Bytes -> Model
+loadDataIntoMemory model data =
+    let
+        currentCpuState = model.currentCpuState
+        memoryWithFileLoaded = Array.fromList( decodeFile data) -- TODO: We need to fill values
+    in
+        case currentCpuState of
+            Valid cpuState ->
+                    Model (Just data) (Valid { cpuState | memory = memoryWithFileLoaded })
+
+            Invalid _ _ -> Model Nothing currentCpuState
 
 
 -- VIEW

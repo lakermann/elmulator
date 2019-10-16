@@ -1,28 +1,33 @@
 module OpCodeTable exposing (getOpCodeFromTable)
 
-import MachineState exposing (CpuState, MachineStateDiff(..))
 import Dict exposing (Dict)
-import OpCode exposing (OpCode, OpCodeSpec(..), OpCodeData)
+import MachineInstructions exposing (..)
+import MachineState exposing (CpuState, MachineStateDiff(..))
+import OpCode exposing (OpCode, OpCodeData, OpCodeSpec(..))
+
 
 unimplementedInstructionZero : CpuState -> MachineStateDiff
 unimplementedInstructionZero cpuState =
     Failed (Just cpuState) "not implemented yet, no args"
-    
+
+
 unimplementedInstructionOne : Int -> CpuState -> MachineStateDiff
 unimplementedInstructionOne firstArg cpuState =
-    Failed (Just cpuState) ("not implemented yet, first arg: " ++ (String.fromInt firstArg))
+    Failed (Just cpuState) ("not implemented yet, first arg: " ++ String.fromInt firstArg)
+
 
 unimplementedInstructionTwo : Int -> Int -> CpuState -> MachineStateDiff
 unimplementedInstructionTwo firstArg secondArg cpuState =
-    Failed (Just cpuState) ("not implemented yet, first arg: " ++ (String.fromInt firstArg) ++ ", second arg: " ++ (String.fromInt secondArg) )
+    Failed (Just cpuState) ("not implemented yet, first arg: " ++ String.fromInt firstArg ++ ", second arg: " ++ String.fromInt secondArg)
+
 
 opCodeTable : Dict Int OpCodeData
 opCodeTable =
     Dict.fromList
-        [ ( 0x00, OpCodeData "NOP" (OneByte unimplementedInstructionZero) )
-        , ( 0x01, OpCodeData "LXI B,D16" (ThreeBytes unimplementedInstructionTwo) )
-        , ( 0x02, OpCodeData "STAX B" (OneByte unimplementedInstructionZero) )
-        , ( 0x03, OpCodeData "INX B" (OneByte unimplementedInstructionZero) )
+        [ ( 0x00, OpCodeData "NOP" (OneByte MachineInstructions.nop) )
+        , ( 0x01, OpCodeData "LXI B,D16" (ThreeBytes MachineInstructions.lxi_b_d16) )
+        , ( 0x02, OpCodeData "STAX B" (OneByte MachineInstructions.stax_b) )
+        , ( 0x03, OpCodeData "INX B" (OneByte MachineInstructions.inx_b) )
         , ( 0x04, OpCodeData "INR B" (OneByte unimplementedInstructionZero) )
         , ( 0x05, OpCodeData "DCR B" (OneByte unimplementedInstructionZero) )
         , ( 0x06, OpCodeData "MVI B, D8" (TwoBytes unimplementedInstructionOne) )
@@ -214,7 +219,7 @@ opCodeTable =
         , ( 0xC0, OpCodeData "RNZ" (OneByte unimplementedInstructionZero) )
         , ( 0xC1, OpCodeData "POP B" (OneByte unimplementedInstructionZero) )
         , ( 0xC2, OpCodeData "JNZ adr" (ThreeBytes unimplementedInstructionTwo) )
-        , ( 0xC3, OpCodeData "JMP adr" (ThreeBytes unimplementedInstructionTwo) )
+        , ( 0xC3, OpCodeData "JMP adr" (ThreeBytes MachineInstructions.jmp) )
         , ( 0xC4, OpCodeData "CNZ adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xC5, OpCodeData "PUSH B" (OneByte unimplementedInstructionZero) )
         , ( 0xC6, OpCodeData "ADI D8" (TwoBytes unimplementedInstructionOne) )
@@ -264,7 +269,7 @@ opCodeTable =
         , ( 0xF2, OpCodeData "JP adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xF3, OpCodeData "DI" (OneByte unimplementedInstructionZero) )
         , ( 0xF4, OpCodeData "CP adr" (ThreeBytes unimplementedInstructionTwo) )
-        , ( 0xF5, OpCodeData "PUSH PSW" (OneByte unimplementedInstructionZero) )
+        , ( 0xF5, OpCodeData "PUSH PSW" (OneByte MachineInstructions.push_psw) )
         , ( 0xF6, OpCodeData "ORI D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0xF7, OpCodeData "RST 6" (OneByte unimplementedInstructionZero) )
         , ( 0xF8, OpCodeData "RM" (OneByte unimplementedInstructionZero) )

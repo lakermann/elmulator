@@ -10,9 +10,8 @@ oneStep : CpuState -> MachineState
 oneStep cpuState =
     let
         opcode =
-            0
+            getCurrentOpCode cpuState
 
-        -- memory
         opCodeFromTable =
             getOpCodeFromTable opcode
 
@@ -20,6 +19,19 @@ oneStep cpuState =
             Maybe.withDefault (Failed (Just cpuState) "Error while getting OpCode") (Maybe.map (evaluate cpuState) opCodeFromTable)
     in
     apply machineStateDiff cpuState
+
+getCurrentOpCode : CpuState -> Int
+getCurrentOpCode cpuState =
+    let
+        pc = cpuState.pc
+        maybeOpCode = Array.get pc cpuState.memory
+    in
+    case maybeOpCode of
+        Just opCode -> opCode
+
+
+        Nothing -> 0 -- TODO: We should probably return a Maybe here and deal with problems in oneStep above
+
 
 
 evaluate : CpuState -> OpCode -> MachineStateDiff
