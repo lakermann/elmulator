@@ -30,7 +30,7 @@ opCodeTable =
         , ( 0x03, OpCodeData "INX B" (OneByte MachineInstructions.inx_b) )
         , ( 0x04, OpCodeData "INR B" (OneByte unimplementedInstructionZero) )
         , ( 0x05, OpCodeData "DCR B" (OneByte unimplementedInstructionZero) )
-        , ( 0x06, OpCodeData "MVI B, D8" (TwoBytes unimplementedInstructionOne) )
+        , ( 0x06, OpCodeData "MVI B, D8" (TwoBytes MachineInstructions.mvi_b_d8) )
         , ( 0x07, OpCodeData "RLC" (OneByte unimplementedInstructionZero) )
         , --(0x08, OpCodeMetaInformation "-" 0),
           ( 0x09, OpCodeData "DAD B" (OneByte unimplementedInstructionZero) )
@@ -221,7 +221,7 @@ opCodeTable =
         , ( 0xC2, OpCodeData "JNZ adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xC3, OpCodeData "JMP adr" (ThreeBytes MachineInstructions.jmp) )
         , ( 0xC4, OpCodeData "CNZ adr" (ThreeBytes unimplementedInstructionTwo) )
-        , ( 0xC5, OpCodeData "PUSH B" (OneByte unimplementedInstructionZero) )
+        , ( 0xC5, OpCodeData "PUSH B" (OneByte MachineInstructions.push_b) )
         , ( 0xC6, OpCodeData "ADI D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0xC7, OpCodeData "RST 0" (OneByte unimplementedInstructionZero) )
         , ( 0xC8, OpCodeData "RZ" (OneByte unimplementedInstructionZero) )

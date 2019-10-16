@@ -77,12 +77,55 @@ inx_b cpuState =
 
 
 
+-- 0x06
+
+
+mvi_b_d8 : Int -> CpuState -> MachineStateDiff
+mvi_b_d8 firstArg cpuState =
+    let
+        newPc =
+            cpuState.pc + 2
+    in
+    Events
+        [ SetRegisterB firstArg
+        , SetPC newPc
+        ]
+
+
+
 -- 0xc3
 
 
 jmp : Int -> Int -> CpuState -> MachineStateDiff
 jmp firstArg secondArg _ =
     Events [ SetPC (getAddressLE firstArg secondArg) ]
+
+
+
+-- 0xc5
+
+
+push_b : CpuState -> MachineStateDiff
+push_b cpuState =
+    let
+        newPc =
+            cpuState.pc + 1
+
+        addressForB =
+            cpuState.sp - 1
+
+        addressForC =
+            cpuState.sp - 2
+
+        newSP =
+            cpuState.sp - 2
+    in
+    Events
+        [ SetMemory addressForB cpuState.b
+        , SetMemory addressForC cpuState.c
+        , SetSP newSP
+        , SetPC newPc
+        ]
 
 
 
