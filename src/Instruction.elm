@@ -1,13 +1,14 @@
 module Instruction exposing (DisassembledProgram, Instruction, instructionToString)
 
 import Hex as Hex
+import MachineState exposing (AddressValue, ByteValue)
 import OpCode exposing (OpCode)
 
 
 type alias Instruction =
-    { address : Int
+    { address : AddressValue
     , opCode : OpCode
-    , payload : List Int
+    , payload : List ByteValue
     }
 
 

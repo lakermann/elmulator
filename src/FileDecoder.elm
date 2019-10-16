@@ -2,9 +2,10 @@ module FileDecoder exposing (decodeFile)
 
 import Bytes exposing (Bytes)
 import Bytes.Decode as Decode
+import MachineState exposing (ByteValue)
 
 
-decodeFile : Bytes -> List Int
+decodeFile : Bytes -> List ByteValue
 decodeFile rawData =
     let
         listDecoder =

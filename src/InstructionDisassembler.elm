@@ -1,18 +1,19 @@
 module InstructionDisassembler exposing (..)
 
 import Instruction exposing (Instruction)
+import MachineState exposing (ByteValue)
 import OpCode exposing (OpCode, getOpCodeLength)
 import OpCodeTable exposing (getOpCodeFromTable)
 
 
 type alias DisassemblyState =
     { currentPosition : Int
-    , remainingBytes : List Int
+    , remainingBytes : List ByteValue
     , disassembledInstructions : List Instruction
     }
 
 
-disassembleToInstructions : List Int -> List Instruction
+disassembleToInstructions : List ByteValue -> List Instruction
 disassembleToInstructions byteCodes =
     (disassembleToInstructionsRec (DisassemblyState 0 byteCodes [])).disassembledInstructions
 

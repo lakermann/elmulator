@@ -2,7 +2,7 @@ module OpCodeTable exposing (getOpCodeFromTable)
 
 import Dict exposing (Dict)
 import MachineInstructions exposing (..)
-import MachineState exposing (CpuState, MachineStateDiff(..))
+import MachineState exposing (ByteValue, CpuState, MachineStateDiff(..))
 import OpCode exposing (OpCode, OpCodeData, OpCodeSpec(..))
 
 
@@ -11,12 +11,12 @@ unimplementedInstructionZero cpuState =
     Failed (Just cpuState) "not implemented yet, no args"
 
 
-unimplementedInstructionOne : Int -> CpuState -> MachineStateDiff
+unimplementedInstructionOne : ByteValue -> CpuState -> MachineStateDiff
 unimplementedInstructionOne firstArg cpuState =
     Failed (Just cpuState) ("not implemented yet, first arg: " ++ String.fromInt firstArg)
 
 
-unimplementedInstructionTwo : Int -> Int -> CpuState -> MachineStateDiff
+unimplementedInstructionTwo : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
 unimplementedInstructionTwo firstArg secondArg cpuState =
     Failed (Just cpuState) ("not implemented yet, first arg: " ++ String.fromInt firstArg ++ ", second arg: " ++ String.fromInt secondArg)
 
@@ -283,7 +283,7 @@ opCodeTable =
         ]
 
 
-getOpCodeFromTable : Int -> Maybe OpCode
+getOpCodeFromTable : ByteValue -> Maybe OpCode
 getOpCodeFromTable opCodeByte =
     Dict.get opCodeByte opCodeTable
         |> Maybe.map (\metaInfo -> OpCode opCodeByte metaInfo)

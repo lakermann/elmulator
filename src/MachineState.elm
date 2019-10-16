@@ -2,36 +2,39 @@ module MachineState exposing (..)
 
 import Array exposing (Array)
 
+-- 8 bit
+type alias ByteValue
+    = Int
+
+type alias RegisterValue =
+    ByteValue
+
+-- 16 bit
+type alias AddressValue =
+    Int
+
 type MachineState
     = Valid CpuState
     | Invalid (Maybe CpuState) String
 
 type alias CpuState =
-    { a : Register
-    , b : Register
-    , c : Register
-    , d : Register
-    , e : Register
-    , h : Register
-    , l : Register
-    , sp : Address
-    , pc : Address
+    { a : RegisterValue
+    , b : RegisterValue
+    , c : RegisterValue
+    , d : RegisterValue
+    , e : RegisterValue
+    , h : RegisterValue
+    , l : RegisterValue
+    , sp : AddressValue
+    , pc : AddressValue
     , memory : Memory
     , conditionCodes : ConditionCodes
     , intEnable : Flag
     }
 
 
-type alias Register =
-    Int
-
-
-type alias Address =
-    Int
-
-
 type alias Memory =
-    Array Int
+    Array ByteValue
 
 
 type alias ConditionCodes =
@@ -50,16 +53,16 @@ type alias Flag =
 
 
 type MachineStateDiffEvent
-    = SetRegisterA Register
-    | SetRegisterB Register
-    | SetRegisterC Register
-    | SetRegisterD Register
-    | SetRegisterE Register
-    | SetRegisterH Register
-    | SetRegisterL Register
-    | SetMemory Address Int
-    | SetPC Int
-    | SetSP Int
+    = SetRegisterA RegisterValue
+    | SetRegisterB RegisterValue
+    | SetRegisterC RegisterValue
+    | SetRegisterD RegisterValue
+    | SetRegisterE RegisterValue
+    | SetRegisterH RegisterValue
+    | SetRegisterL RegisterValue
+    | SetMemory AddressValue ByteValue
+    | SetPC AddressValue
+    | SetSP AddressValue
     | SetFlag SetFlagEvent
     | SetIntEnable Flag
 

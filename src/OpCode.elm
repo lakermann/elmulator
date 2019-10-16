@@ -1,10 +1,10 @@
 module OpCode exposing (OpCode, OpCodeSpec(..), OpCodeData, ImplOneByte, getOpCodeLength, getImplementation, getName)
 
-import MachineState exposing (Address, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory)
+import MachineState exposing (AddressValue, ByteValue, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory)
 
 type alias ImplOneByte = CpuState -> MachineStateDiff
-type alias ImplTwoBytes = Int -> (CpuState -> MachineStateDiff)
-type alias ImplThreeBytes = Int -> Int -> (CpuState -> MachineStateDiff)
+type alias ImplTwoBytes = ByteValue -> (CpuState -> MachineStateDiff)
+type alias ImplThreeBytes = ByteValue -> ByteValue -> (CpuState -> MachineStateDiff)
 
 type OpCodeSpec
     = OneByte ImplOneByte
@@ -19,7 +19,7 @@ type alias OpCodeData =
 
 
 type alias OpCode =
-    { hexCode : Int
+    { hexCode : ByteValue
     , data : OpCodeData
     }
 
@@ -38,7 +38,7 @@ getOpCodeLength opCode =
         ThreeBytes _ ->
             3
 
-getImplementation: OpCode -> (() -> Int) -> (() -> Int) -> (CpuState -> MachineStateDiff)
+getImplementation: OpCode -> (() -> ByteValue) -> (() -> ByteValue) -> (CpuState -> MachineStateDiff)
 getImplementation opCode firstValueProvider secondValueProvider =
     let
         opCodeSpec = getSpec opCode

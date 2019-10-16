@@ -1,7 +1,7 @@
 module MachineInstructions exposing (..)
 
 import BitOperations exposing (combineBytes, getAddressLE)
-import MachineState exposing (ConditionCodes, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..))
+import MachineState exposing (ByteValue, ConditionCodes, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..))
 import Psw
 
 
@@ -22,7 +22,7 @@ nop cpuState =
 -- 0x01
 
 
-lxi_b_d16 : Int -> Int -> CpuState -> MachineStateDiff
+lxi_b_d16 : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
 lxi_b_d16 firstArg secondArg cpuState =
     let
         newPc =
@@ -80,7 +80,7 @@ inx_b cpuState =
 -- 0x06
 
 
-mvi_b_d8 : Int -> CpuState -> MachineStateDiff
+mvi_b_d8 : ByteValue -> CpuState -> MachineStateDiff
 mvi_b_d8 firstArg cpuState =
     let
         newPc =
@@ -96,7 +96,7 @@ mvi_b_d8 firstArg cpuState =
 -- 0xc3
 
 
-jmp : Int -> Int -> CpuState -> MachineStateDiff
+jmp : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
 jmp firstArg secondArg _ =
     Events [ SetPC (getAddressLE firstArg secondArg) ]
 

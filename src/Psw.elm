@@ -1,36 +1,36 @@
 module Psw exposing (..)
 
 import Bitwise
-import BitOperations exposing (boolToInt)
-import MachineState exposing (ConditionCodes)
+import BitOperations exposing (flagToByte)
+import MachineState exposing (ByteValue, ConditionCodes)
 
 
-createPSW : ConditionCodes -> Int
+createPSW : ConditionCodes -> ByteValue
 createPSW conditionCodes =
     let
         seven =
-            Bitwise.shiftLeftBy 7 (boolToInt conditionCodes.s)
+            Bitwise.shiftLeftBy 7 (flagToByte conditionCodes.s)
 
         six =
-            Bitwise.shiftLeftBy 6 (boolToInt conditionCodes.z)
+            Bitwise.shiftLeftBy 6 (flagToByte conditionCodes.z)
 
         five =
             0
 
         four =
-            Bitwise.shiftLeftBy 4 (boolToInt conditionCodes.ac)
+            Bitwise.shiftLeftBy 4 (flagToByte conditionCodes.ac)
 
         three =
             0
 
         two =
-            Bitwise.shiftLeftBy 2 (boolToInt conditionCodes.p)
+            Bitwise.shiftLeftBy 2 (flagToByte conditionCodes.p)
 
         one =
             Bitwise.shiftLeftBy 1 1
 
         zero =
-            boolToInt conditionCodes.cy
+            flagToByte conditionCodes.cy
     in
     List.foldl
         Bitwise.or

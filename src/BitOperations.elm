@@ -1,10 +1,11 @@
 module BitOperations exposing (..)
 
 import Bitwise
+import MachineState exposing (AddressValue, ByteValue, Flag)
 
 
-boolToInt : Bool -> Int
-boolToInt bool =
+flagToByte : Flag -> ByteValue
+flagToByte bool =
     case bool of
         True ->
             1
@@ -13,12 +14,12 @@ boolToInt bool =
             0
 
 
-getAddressLE : Int -> Int -> Int
+getAddressLE : ByteValue -> ByteValue -> AddressValue
 getAddressLE low high =
     combineBytes high low
 
 
-combineBytes : Int -> Int -> Int
+combineBytes : ByteValue -> ByteValue -> AddressValue
 combineBytes high low =
     Bitwise.shiftLeftBy 8 high
         + low

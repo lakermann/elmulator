@@ -1,7 +1,7 @@
 module Cpu exposing (..)
 
 import Array
-import MachineState exposing (Address, ConditionCodes, CpuState, Flag, MachineState(..), MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Register, SetFlagEvent(..))
+import MachineState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, Flag, MachineState(..), MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetFlagEvent(..))
 import OpCode exposing (OpCode, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 
@@ -20,7 +20,7 @@ oneStep cpuState =
     in
     apply machineStateDiff cpuState
 
-getCurrentOpCode : CpuState -> Int
+getCurrentOpCode : CpuState -> ByteValue
 getCurrentOpCode cpuState =
     let
         pc = cpuState.pc
@@ -45,7 +45,7 @@ evaluate cpuState opCode =
     in
       implementation cpuState
 
-readMemoryProvider : Address -> Int -> Memory -> () -> Int
+readMemoryProvider : AddressValue -> Int -> Memory -> () -> ByteValue
 readMemoryProvider address offset memory =
     let
       readValue = Array.get (address + offset) memory
@@ -105,7 +105,7 @@ applyEvent event cpuState =
             { cpuState | intEnable = flag }
 
 
-setMemory : Address -> Int -> CpuState -> CpuState
+setMemory : AddressValue -> ByteValue -> CpuState -> CpuState
 setMemory address value cpuState =
     let
         updatedMemory =
