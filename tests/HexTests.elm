@@ -89,5 +89,19 @@ all =
                     15
                         |> Hex.toString
                         |> Expect.equal "f"
+            , test "for 255" <|
+                \() ->
+                    255
+                        |> Hex.toString
+                        |> Expect.equal "ff"
+            ]
+            , describe "toPaddedString"
+            [ test "for 254" <|
+                \() ->
+                    254
+                    |> (Hex.toPaddedString 5)
+                    |> Expect.equal "0x000fe"
+
+
             ]
         ]

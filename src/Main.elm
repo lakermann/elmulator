@@ -131,15 +131,15 @@ cpustate state =
 
         Valid cpuState ->
             String.join "\n"
-                [ "a:  0x" ++ Hex.toString cpuState.a
-                , "b:  0x" ++ Hex.toString cpuState.b
-                , "d:  0x" ++ Hex.toString cpuState.c
-                , "d:  0x" ++ Hex.toString cpuState.d
-                , "e:  0x" ++ Hex.toString cpuState.e
-                , "h:  0x" ++ Hex.toString cpuState.h
-                , "l:  0x" ++ Hex.toString cpuState.l
-                , "sp: 0x" ++ Hex.toString cpuState.sp
-                , "pc: 0x" ++ Hex.toString cpuState.pc
+                [ "a:  " ++ Hex.pad2 cpuState.a
+                , "b:  " ++ Hex.pad2 cpuState.b
+                , "d:  " ++ Hex.pad2 cpuState.c
+                , "d:  " ++ Hex.pad2 cpuState.d
+                , "e:  " ++ Hex.pad2 cpuState.e
+                , "h:  " ++ Hex.pad2 cpuState.h
+                , "l:  " ++ Hex.pad2 cpuState.l
+                , "sp: " ++ Hex.pad4 cpuState.sp
+                , "pc: " ++ Hex.pad4 cpuState.pc
                 ]
 
 
