@@ -1,9 +1,15 @@
-module Hex exposing (pad2,pad4,toPaddedString,toString)
+module Hex exposing (padX2, padX4, pad2,pad4,toPaddedString,toString)
+
+padX2 = \x -> prefixX (pad2 x)
+padX4 = \x -> prefixX (pad4 x)
 
 pad2 = toPaddedString 2
 pad4 = toPaddedString 4
 
-{-| Adds 0x prefix and pads to given lenght
+prefixX : String -> String
+prefixX string = "0x" ++ string
+
+{-| Adds pads to given length
 -}
 
 
@@ -11,10 +17,8 @@ toPaddedString : Int -> Int -> String
 toPaddedString padding num =
     let
         hexString = toString num
-        paddedString = String.padLeft padding '0' hexString
     in
-        "0x" ++ paddedString
-
+        String.padLeft padding '0' hexString
 
 
 {-| Convert a decimal integer to a hexdecimal string such as `"abc94f"`.

@@ -100,7 +100,7 @@ all =
                 \() ->
                     254
                     |> (Hex.toPaddedString 5)
-                    |> Expect.equal "0x000fe"
+                    |> Expect.equal "000fe"
 
 
             ]

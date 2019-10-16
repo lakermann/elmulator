@@ -14,14 +14,28 @@ all =
             [ test "for NOP" <|
                 \() ->
                     let
-                      opCodeSpec = OpCode.OneByte (\cpuState -> Failed (Just cpuState) "not implemented yet")
-                      opCodeMetadata = OpCodeData "NOP" opCodeSpec
-                      opCode = OpCode 0x00 opCodeMetadata
+                      dummyImpl = (\cpuState -> Failed (Just cpuState) "not implemented yet")
+                      opCodeSpec = OpCode.OneByte dummyImpl
+                      opCodeData = OpCodeData "NOP" opCodeSpec
+                      opCode = OpCode 0x00 opCodeData
                     in
                     Instruction 1
                         opCode
-                        []
+                        [ 0x00 ]
                         |> Instruction.instructionToString
-                        |> Expect.equal "0x0001:                -- NOP"
+                        |> Expect.equal "0x0001:       00 -- NOP"
+            , test "for JMP" <|
+                \() ->
+                    let
+                        dummyImpl = (\_ -> \_ -> \cpuState -> Failed (Just cpuState) "not implemented yet")
+                        opCodeSpec = OpCode.ThreeBytes dummyImpl
+                        opCodeData = OpCodeData "JMP" opCodeSpec
+                        opCode = OpCode 0xc3 opCodeData
+                    in
+                    Instruction 0xa1b2
+                        opCode
+                        [ 0xc3, 0xc4, 0x18 ]
+                        |> Instruction.instructionToString
+                        |> Expect.equal "0xa1b2: c3 c4 18 -- JMP"
             ]
         ]
