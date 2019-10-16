@@ -22,6 +22,6 @@ all =
                         opCode
                         []
                         |> Instruction.instructionToString
-                        |> Expect.equal "00001:          -- NOP"
+                        |> Expect.equal "0x0001:                -- NOP"
             ]
         ]

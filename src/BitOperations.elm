@@ -20,5 +20,5 @@ getAddressLE low high =
 
 combineBytes : Int -> Int -> Int
 combineBytes high low =
-    Bitwise.shiftLeftBy high 8
+    Bitwise.shiftLeftBy 8 high
         + low

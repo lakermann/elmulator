@@ -10,6 +10,7 @@ import Cpu exposing (oneStep)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
+import Hex
 import Html exposing (Html, h1, h3, pre, text)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
@@ -130,15 +131,15 @@ cpustate state =
 
         Valid cpuState ->
             String.join "\n"
-                [ "a: " ++ String.fromInt cpuState.a
-                , "b: " ++ String.fromInt cpuState.b
-                , "d: " ++ String.fromInt cpuState.c
-                , "d: " ++ String.fromInt cpuState.d
-                , "e: " ++ String.fromInt cpuState.e
-                , "h: " ++ String.fromInt cpuState.h
-                , "l: " ++ String.fromInt cpuState.l
-                , "sp:" ++ String.fromInt cpuState.sp
-                , "pc:" ++ String.fromInt cpuState.pc
+                [ "a:  " ++ Hex.pad2 cpuState.a
+                , "b:  " ++ Hex.pad2 cpuState.b
+                , "d:  " ++ Hex.pad2 cpuState.c
+                , "d:  " ++ Hex.pad2 cpuState.d
+                , "e:  " ++ Hex.pad2 cpuState.e
+                , "h:  " ++ Hex.pad2 cpuState.h
+                , "l:  " ++ Hex.pad2 cpuState.l
+                , "sp: " ++ Hex.pad4 cpuState.sp
+                , "pc: " ++ Hex.pad4 cpuState.pc
                 ]
 
 
