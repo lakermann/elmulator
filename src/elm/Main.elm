@@ -167,26 +167,20 @@ view model =
             Grid.container []
                 [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
                 , pageHeader
-                , Grid.row []
-                    [ Grid.col []
-                        [ Button.button
-                            [ Button.outlineDanger
-                            , Button.attrs
-                                [ onClick Reset
-                                ]
-                            ]
-                            [ text "Reset" ]
-                        ]
-                    , Grid.col []
-                        [ Button.button
-                            [ Button.outlinePrimary
-                            , Button.attrs
-                                [ onClick (NextStepRequested model.currentCpuState)
-                                ]
-                            ]
-                            [ text "Next Step" ]
+                , Button.button
+                    [ Button.outlineDanger
+                    , Button.attrs
+                        [ onClick Reset
                         ]
                     ]
+                    [ text "Reset" ]
+                , Button.button
+                    [ Button.outlinePrimary
+                    , Button.attrs
+                        [ onClick (NextStepRequested model.currentCpuState)
+                        ]
+                    ]
+                    [ text "Next Step" ]
                 , Grid.row []
                     [ Grid.col []
                         [ h3 [] [ text "Screen" ]
