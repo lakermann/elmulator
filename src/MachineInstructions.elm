@@ -1,9 +1,57 @@
 module MachineInstructions exposing (..)
 
 import BitOperations exposing (combineBytes, getAddressLE)
+import Bitwise
 import ConditionCodesFlags
-import MachineState exposing (ByteValue, ConditionCodes, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), SetFlagEvent(..))
+import MachineState exposing (ByteValue, ConditionCodes, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), RegisterValue, SetFlagEvent(..))
 import Psw
+
+
+
+-- general
+
+
+dcr_ : (RegisterValue -> MachineStateDiffEvent) -> RegisterValue -> CpuState -> MachineStateDiff
+dcr_ diffEvent registerValue cpuState =
+    let
+        newPc =
+            cpuState.pc + 1
+
+        newRegisterValue =
+            registerValue - 1
+    in
+    Events
+        [ diffEvent newRegisterValue
+        , SetFlag (SetFlagZ (ConditionCodesFlags.zFlag newRegisterValue))
+        , SetFlag (SetFlagS (ConditionCodesFlags.sFlag newRegisterValue))
+        , SetFlag (SetFlagP (ConditionCodesFlags.pFlag newRegisterValue))
+        , SetPC newPc
+        ]
+
+
+mvi_d8_ : MachineStateDiffEvent -> CpuState -> MachineStateDiff
+mvi_d8_ diffEvent cpuState =
+    let
+        newPc =
+            cpuState.pc + 2
+    in
+    Events
+        [ diffEvent
+        , SetPC newPc
+        ]
+
+
+lxi_d16_ : MachineStateDiffEvent -> MachineStateDiffEvent -> CpuState -> MachineStateDiff
+lxi_d16_ firstDiffEvent secondDiffEvent cpuState =
+    let
+        newPc =
+            cpuState.pc + 3
+    in
+    Events
+        [ firstDiffEvent
+        , secondDiffEvent
+        , SetPC newPc
+        ]
 
 
 
@@ -25,15 +73,7 @@ nop cpuState =
 
 lxi_b_d16 : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
 lxi_b_d16 firstArg secondArg cpuState =
-    let
-        newPc =
-            cpuState.pc + 3
-    in
-    Events
-        [ SetRegisterB secondArg
-        , SetRegisterC firstArg
-        , SetPC newPc
-        ]
+    lxi_d16_ (SetRegisterB secondArg) (SetRegisterC firstArg) cpuState
 
 
 
@@ -79,25 +119,11 @@ inx_b cpuState =
 
 
 -- 0x05
---0x05	DCR B	1	Z, S, P, AC	B <- B-1
 
 
 dcr_b : CpuState -> MachineStateDiff
 dcr_b cpuState =
-    let
-        newPc =
-            cpuState.pc + 1
-
-        newB =
-            cpuState.b - 1
-    in
-    Events
-        [ SetRegisterB newB
-        , SetFlag (SetFlagZ (ConditionCodesFlags.zFlag newB))
-        , SetFlag (SetFlagS (ConditionCodesFlags.sFlag newB))
-        , SetFlag (SetFlagP (ConditionCodesFlags.pFlag newB))
-        , SetPC newPc
-        ]
+    dcr_ (\value -> SetRegisterB value) cpuState.b cpuState
 
 
 
@@ -106,14 +132,91 @@ dcr_b cpuState =
 
 mvi_b_d8 : ByteValue -> CpuState -> MachineStateDiff
 mvi_b_d8 firstArg cpuState =
+    mvi_d8_ (SetRegisterB firstArg) cpuState
+
+
+
+-- 0x09
+
+
+dad_b : CpuState -> MachineStateDiff
+dad_b cpuState =
     let
         newPc =
-            cpuState.pc + 2
+            cpuState.pc + 1
+
+        hl =
+            Bitwise.or (Bitwise.shiftLeftBy 8 cpuState.h) cpuState.l
+
+        bc =
+            Bitwise.or (Bitwise.shiftLeftBy 8 cpuState.b) cpuState.c
+    in
+    let
+        newH =
+            Bitwise.shiftRightBy 8 (Bitwise.and (hl + bc) 0xFF00)
+
+        newL =
+            Bitwise.and (hl + bc) 0xFF
+
+        newCY =
+            Bitwise.and (hl + bc) 0xFFFF0000 > 0
     in
     Events
-        [ SetRegisterB firstArg
+        [ SetRegisterH newH
+        , SetRegisterL newL
+        , SetFlag (SetFlagZ newCY)
         , SetPC newPc
         ]
+
+
+
+-- 0x0d
+
+
+dcr_c : CpuState -> MachineStateDiff
+dcr_c cpuState =
+    dcr_ (\value -> SetRegisterC value) cpuState.c cpuState
+
+
+
+-- 0x0e
+
+
+mvi_c_d8 : ByteValue -> CpuState -> MachineStateDiff
+mvi_c_d8 firstArg cpuState =
+    mvi_d8_ (SetRegisterC firstArg) cpuState
+
+
+
+--0x0f
+
+
+rrc : CpuState -> MachineStateDiff
+rrc cpuState =
+    let
+        newPc =
+            cpuState.pc + 1
+
+        newA =
+            Bitwise.or (Bitwise.shiftLeftBy 7 (Bitwise.and cpuState.a 1)) (Bitwise.shiftRightBy 1 cpuState.a)
+
+        newCY =
+            1 == Bitwise.and cpuState.a 1
+    in
+    Events
+        [ SetRegisterA newA
+        , SetFlag (SetFlagCY newCY)
+        , SetPC newPc
+        ]
+
+
+
+-- 0x11
+
+
+lxi_d_d16 : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
+lxi_d_d16 firstArg secondArg cpuState =
+    lxi_d16_ (SetRegisterD secondArg) (SetRegisterE firstArg) cpuState
 
 
 
