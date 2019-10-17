@@ -1,12 +1,12 @@
 module Cpu exposing (..)
 
 import Array
-import MachineState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, Flag, MachineState(..), MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetFlagEvent(..))
+import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..))
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 
 
-oneStep : CpuState -> MachineState
+oneStep : MachineState -> EmulatorState
 oneStep cpuState =
     let
         opcode =
@@ -20,54 +20,83 @@ oneStep cpuState =
     in
     apply machineStateDiff cpuState
 
-getCurrentOpCode : CpuState -> ByteValue
-getCurrentOpCode cpuState =
+
+getCurrentOpCode : MachineState -> ByteValue
+getCurrentOpCode machineState =
     let
-        pc = cpuState.pc
-        maybeOpCode = Array.get pc cpuState.memory
+        pc =
+            machineState.cpuState.pc
+
+        maybeOpCode =
+            Array.get pc machineState.memory
     in
     case maybeOpCode of
-        Just opCode -> opCode
+        Just opCode ->
+            opCode
+
+        Nothing ->
+            0
 
 
-        Nothing -> 0 -- TODO: We should probably return a Maybe here and deal with problems in oneStep above
+
+-- TODO: We should probably return a Maybe here and deal with problems in oneStep above
 
 
-
-evaluate : CpuState -> OpCode -> MachineStateDiff
-evaluate cpuState opCode =
+evaluate : MachineState -> OpCode -> MachineStateDiff
+evaluate machineState opCode =
     let
-        address = cpuState.pc
-        memory = cpuState.memory
-        firstValueProvider = readMemoryProvider address 1 memory
-        secondValueProvider = readMemoryProvider address 2 memory
-        implementation = getImplementation opCode firstValueProvider secondValueProvider
-        cycles = getCycles opCode
+        address =
+            machineState.cpuState.pc
+
+        memory =
+            machineState.memory
+
+        firstValueProvider =
+            readMemoryProvider address 1 memory
+
+        secondValueProvider =
+            readMemoryProvider address 2 memory
+
+        implementation =
+            getImplementation opCode firstValueProvider secondValueProvider
+
+        cycles =
+            getCycles opCode
     in
-      implementation cpuState
-      |> addCycles cycles
+    implementation machineState
+        |> addCycles cycles
+
 
 readMemoryProvider : AddressValue -> Int -> Memory -> () -> ByteValue
 readMemoryProvider address offset memory =
     let
-      readValue = Array.get (address + offset) memory
+        readValue =
+            Array.get (address + offset) memory
     in
-      \_ -> case readValue of
-        Just value -> value
+    \_ ->
+        case readValue of
+            Just value ->
+                value
 
-        Nothing -> 0 -- TODO: What should we do here?
+            Nothing ->
+                0
+
+
+
+-- TODO: What should we do here?
 
 
 addCycles : Int -> MachineStateDiff -> MachineStateDiff
 addCycles cycles machineStateDiff =
     case machineStateDiff of
-        Failed _ _ -> machineStateDiff
+        Failed _ _ ->
+            machineStateDiff
+
+        Events list ->
+            Events (list ++ [ SetCpu (AddCycles cycles) ])
 
 
-        Events list -> Events (list ++ [ AddCycles cycles] )
-
-
-apply : MachineStateDiff -> CpuState -> MachineState
+apply : MachineStateDiff -> MachineState -> EmulatorState
 apply machineStateDiff cpuState =
     case machineStateDiff of
         Failed maybePreviousState errorMessage ->
@@ -77,8 +106,31 @@ apply machineStateDiff cpuState =
             Valid (List.foldl applyEvent cpuState machineStateDiffEvents)
 
 
-applyEvent : MachineStateDiffEvent -> CpuState -> CpuState
-applyEvent event cpuState =
+applyEvent : MachineStateDiffEvent -> MachineState -> MachineState
+applyEvent event machineState =
+    case event of
+        SetMemory address value ->
+            setMemory address value machineState
+
+        SetCpu setCpuStateEvent ->
+            let
+                newCpuState =
+                    setCpuState setCpuStateEvent machineState.cpuState
+            in
+            { machineState | cpuState = newCpuState }
+
+
+setMemory : AddressValue -> ByteValue -> MachineState -> MachineState
+setMemory address value cpuState =
+    let
+        updatedMemory =
+            Array.set address value cpuState.memory
+    in
+    { cpuState | memory = updatedMemory }
+
+
+setCpuState : SetCpuStateEvent -> CpuState -> CpuState
+setCpuState event cpuState =
     case event of
         SetRegisterA register ->
             { cpuState | a = register }
@@ -101,9 +153,6 @@ applyEvent event cpuState =
         SetRegisterL register ->
             { cpuState | l = register }
 
-        SetMemory address value ->
-            setMemory address value cpuState
-
         SetPC value ->
             { cpuState | pc = value }
 
@@ -118,16 +167,6 @@ applyEvent event cpuState =
 
         AddCycles cycles ->
             { cpuState | cycleCount = cpuState.cycleCount + cycles }
-
-
-
-setMemory : AddressValue -> ByteValue -> CpuState -> CpuState
-setMemory address value cpuState =
-    let
-        updatedMemory =
-            Array.set address value cpuState.memory
-    in
-    { cpuState | memory = updatedMemory }
 
 
 setFlag : SetFlagEvent -> ConditionCodes -> ConditionCodes
@@ -149,7 +188,7 @@ setFlag event conditionCodes =
             { conditionCodes | ac = flag }
 
 
-init : List ByteValue -> MachineState
+init : List ByteValue -> EmulatorState
 init rom =
     let
         memory =
@@ -159,30 +198,50 @@ init rom =
             initConditionCodes
     in
     Valid
-        (CpuState
-            0x00 -- A
-            0x00 -- B
-            0x00 -- C
-            0x00 -- D
-            0x00 -- E
-            0x00 -- H
-            0x00 -- L
-            0xf000 -- SP
-            0x0000 -- PC
+        (MachineState
+            (CpuState
+                0x00
+                -- A
+                0x00
+                -- B
+                0x00
+                -- C
+                0x00
+                -- D
+                0x00
+                -- E
+                0x00
+                -- H
+                0x00
+                -- L
+                0xF000
+                -- SP
+                0x00
+                -- PC
+                conditionCodes
+                False
+                -- intEnable
+                0
+             -- cycleCount
+            )
             memory
-            conditionCodes
-            False -- intEnable
-            0 -- cycleCount
         )
 
 
 initMemory : List ByteValue -> Memory
 initMemory rom =
     let
-        lengthRom = List.length rom
-        paddingAmount = 0xFFFF - lengthRom
-        padding = List.repeat paddingAmount 0
-        memory = List.concat [ rom, padding ]
+        lengthRom =
+            List.length rom
+
+        paddingAmount =
+            0xFFFF - lengthRom
+
+        padding =
+            List.repeat paddingAmount 0
+
+        memory =
+            List.concat [ rom, padding ]
     in
     Array.fromList memory
 

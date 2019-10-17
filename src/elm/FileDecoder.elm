@@ -2,7 +2,7 @@ module FileDecoder exposing (decodeFile)
 
 import Bytes exposing (Bytes)
 import Bytes.Decode as Decode
-import MachineState exposing (ByteValue)
+import EmulatorState exposing (ByteValue)
 
 
 decodeFile : Bytes -> List ByteValue

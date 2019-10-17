@@ -2,7 +2,7 @@ module CpuTests exposing (..)
 
 import Array
 import Cpu exposing (apply)
-import MachineState exposing (ConditionCodes, CpuState, MachineState(..), MachineStateDiff(..), MachineStateDiffEvent(..))
+import EmulatorState exposing (ConditionCodes, CpuState, EmulatorState(..), MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), SetCpuStateEvent(..))
 import Expect
 import Test exposing (..)
 
@@ -13,38 +13,39 @@ all =
       [ test "applies diff events from left to right" <|
         \() ->
             let
-              machineStateDiff =  Events [ SetRegisterB 11, SetRegisterB 22 ]
-              initialCpuState = allZeroCpuState
-              updatedCpuState = apply machineStateDiff initialCpuState
-              valueOfRegisterB = getValueOfRegisterB updatedCpuState
+              machineStateDiff =  Events [ SetCpu (SetRegisterB 11), SetCpu (SetRegisterB 22) ]
+              initialMachineState = allZeroMachineState
+              updatedMachineState = apply machineStateDiff initialMachineState
+              valueOfRegisterB = getValueOfRegisterB updatedMachineState
             in
               Expect.equal (Just 22) valueOfRegisterB
         , test "applies PC update correctly" <|
         \() ->
             let
-                machineStateDiff = Events [ SetPC 99 ]
-                initialCpuState = allZeroCpuState
-                updatedCpuState = apply machineStateDiff initialCpuState
-                valueOfPC = getValueOfPC updatedCpuState
+                machineStateDiff = Events [ SetCpu (SetPC 99) ]
+                initialMachineState = allZeroMachineState
+                updatedMachineState = apply machineStateDiff initialMachineState
+                valueOfPC = getValueOfPC updatedMachineState
             in
               Expect.equal (Just 99) valueOfPC
       ]
     ]
 
-allZeroCpuState = CpuState 0 0 0 0 0 0 0 0 0 Array.empty (ConditionCodes False False False False False) False 0
+allZeroMachineState = MachineState allZeroCpuState Array.empty
+allZeroCpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False False False) False 0
 
-getValueOfRegisterB : MachineState -> Maybe Int
-getValueOfRegisterB machineState =
-    case machineState of
-        Valid cpuState -> Just (cpuState.b)
+getValueOfRegisterB : EmulatorState -> Maybe Int
+getValueOfRegisterB emulatorState =
+    case emulatorState of
+        Valid machineState -> Just (machineState.cpuState.b)
 
 
         Invalid _ _ -> Nothing
 
-getValueOfPC : MachineState -> Maybe Int
-getValueOfPC machineState =
-    case machineState of
-        Valid cpuState -> Just (cpuState.pc)
+getValueOfPC : EmulatorState -> Maybe Int
+getValueOfPC emulatorState =
+    case emulatorState of
+        Valid machineState -> Just (machineState.cpuState.pc)
 
 
         Invalid _ _ -> Nothing

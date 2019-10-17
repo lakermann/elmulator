@@ -1,10 +1,19 @@
-module OpCode exposing (OpCode, OpCodeSpec(..), OpCodeData, ImplOneByte, getOpCodeLength, getImplementation, getName, getCycles)
+module OpCode exposing (ImplOneByte, OpCode, OpCodeData, OpCodeSpec(..), getCycles, getImplementation, getName, getOpCodeLength)
 
-import MachineState exposing (AddressValue, ByteValue, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory)
+import EmulatorState exposing (AddressValue, ByteValue, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory)
 
-type alias ImplOneByte = CpuState -> MachineStateDiff
-type alias ImplTwoBytes = ByteValue -> (CpuState -> MachineStateDiff)
-type alias ImplThreeBytes = ByteValue -> ByteValue -> (CpuState -> MachineStateDiff)
+
+type alias ImplOneByte =
+    MachineState -> MachineStateDiff
+
+
+type alias ImplTwoBytes =
+    ByteValue -> (MachineState -> MachineStateDiff)
+
+
+type alias ImplThreeBytes =
+    ByteValue -> ByteValue -> (MachineState -> MachineStateDiff)
+
 
 type OpCodeSpec
     = OneByte ImplOneByte
@@ -24,10 +33,12 @@ type alias OpCode =
     , data : OpCodeData
     }
 
+
 getOpCodeLength : OpCode -> Int
 getOpCodeLength opCode =
     let
-        opCodeSpec = getSpec opCode
+        opCodeSpec =
+            getSpec opCode
     in
     case opCodeSpec of
         OneByte _ ->
@@ -39,10 +50,12 @@ getOpCodeLength opCode =
         ThreeBytes _ ->
             3
 
-getImplementation: OpCode -> (() -> ByteValue) -> (() -> ByteValue) -> (CpuState -> MachineStateDiff)
+
+getImplementation : OpCode -> (() -> ByteValue) -> (() -> ByteValue) -> (MachineState -> MachineStateDiff)
 getImplementation opCode firstValueProvider secondValueProvider =
     let
-        opCodeSpec = getSpec opCode
+        opCodeSpec =
+            getSpec opCode
     in
     case opCodeSpec of
         OneByte implOneByte ->
@@ -50,22 +63,32 @@ getImplementation opCode firstValueProvider secondValueProvider =
 
         TwoBytes implTwoBytes ->
             let
-                firstArg = firstValueProvider ()
+                firstArg =
+                    firstValueProvider ()
             in
             implTwoBytes firstArg
 
         ThreeBytes implThreeBytes ->
             let
-                firstArg = firstValueProvider ()
-                secondArg = secondValueProvider ()
+                firstArg =
+                    firstValueProvider ()
+
+                secondArg =
+                    secondValueProvider ()
             in
             implThreeBytes firstArg secondArg
 
-getSpec: OpCode -> OpCodeSpec
-getSpec opCode = opCode.data.opCodeSpec
 
-getName: OpCode -> String
-getName opCode = opCode.data.name
+getSpec : OpCode -> OpCodeSpec
+getSpec opCode =
+    opCode.data.opCodeSpec
 
-getCycles: OpCode -> Int
-getCycles opCode = opCode.data.cycles
+
+getName : OpCode -> String
+getName opCode =
+    opCode.data.name
+
+
+getCycles : OpCode -> Int
+getCycles opCode =
+    opCode.data.cycles

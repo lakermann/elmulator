@@ -3,34 +3,186 @@ module MachineInstructions exposing (..)
 import BitOperations exposing (combineBytes, getAddressLE)
 import Bitwise
 import ConditionCodesFlags
-import MachineState exposing (ByteValue, ConditionCodes, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), RegisterValue, SetFlagEvent(..))
+import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..))
 import Memory
 import Psw
+
+
+
+-- event creation
+
+
+setMemory : AddressValue -> ByteValue -> MachineStateDiffEvent
+setMemory address value =
+    SetMemory address value
+
+
+setRegisterA : RegisterValue -> MachineStateDiffEvent
+setRegisterA newValue =
+    SetCpu (SetRegisterA newValue)
+
+
+setRegisterB : RegisterValue -> MachineStateDiffEvent
+setRegisterB newValue =
+    SetCpu (SetRegisterB newValue)
+
+
+setRegisterC : RegisterValue -> MachineStateDiffEvent
+setRegisterC newValue =
+    SetCpu (SetRegisterC newValue)
+
+
+setRegisterD : RegisterValue -> MachineStateDiffEvent
+setRegisterD newValue =
+    SetCpu (SetRegisterD newValue)
+
+
+setRegisterE : RegisterValue -> MachineStateDiffEvent
+setRegisterE newValue =
+    SetCpu (SetRegisterE newValue)
+
+
+setRegisterH : RegisterValue -> MachineStateDiffEvent
+setRegisterH newValue =
+    SetCpu (SetRegisterH newValue)
+
+
+setRegisterL : RegisterValue -> MachineStateDiffEvent
+setRegisterL newValue =
+    SetCpu (SetRegisterL newValue)
+
+
+setPC : AddressValue -> MachineStateDiffEvent
+setPC newValue =
+    SetCpu (SetPC newValue)
+
+
+setSP : AddressValue -> MachineStateDiffEvent
+setSP newValue =
+    SetCpu (SetSP newValue)
+
+
+setIntEnable : Flag -> MachineStateDiffEvent
+setIntEnable newValue =
+    SetCpu (SetIntEnable newValue)
+
+
+setFlagCY : Flag -> MachineStateDiffEvent
+setFlagCY newValue =
+    SetCpu (SetFlag (SetFlagCY newValue))
+
+
+setFlagAC : Flag -> MachineStateDiffEvent
+setFlagAC newValue =
+    SetCpu (SetFlag (SetFlagAC newValue))
+
+
+setFlagZ : Flag -> MachineStateDiffEvent
+setFlagZ newValue =
+    SetCpu (SetFlag (SetFlagZ newValue))
+
+
+setFlagS : Flag -> MachineStateDiffEvent
+setFlagS newValue =
+    SetCpu (SetFlag (SetFlagS newValue))
+
+
+setFlagP : Flag -> MachineStateDiffEvent
+setFlagP newValue =
+    SetCpu (SetFlag (SetFlagP newValue))
+
+
+
+-- access
+
+
+getMemory : MachineState -> Memory
+getMemory machineState =
+    machineState.memory
+
+
+getA : MachineState -> ByteValue
+getA machineState =
+    machineState.cpuState.a
+
+
+getB : MachineState -> ByteValue
+getB machineState =
+    machineState.cpuState.b
+
+
+getC : MachineState -> ByteValue
+getC machineState =
+    machineState.cpuState.c
+
+
+getD : MachineState -> ByteValue
+getD machineState =
+    machineState.cpuState.d
+
+
+getE : MachineState -> ByteValue
+getE machineState =
+    machineState.cpuState.e
+
+
+getH : MachineState -> ByteValue
+getH machineState =
+    machineState.cpuState.h
+
+
+getL : MachineState -> ByteValue
+getL machineState =
+    machineState.cpuState.l
+
+
+getPC : MachineState -> AddressValue
+getPC machineState =
+    machineState.cpuState.pc
+
+
+getSP : MachineState -> AddressValue
+getSP machineState =
+    machineState.cpuState.sp
+
+
+getConditionCodes : MachineState -> ConditionCodes
+getConditionCodes machineState =
+    machineState.cpuState.conditionCodes
+
+
+getFlagZ : MachineState -> Flag
+getFlagZ machineState =
+    let
+        conditionCodes =
+            getConditionCodes machineState
+    in
+    conditionCodes.z
 
 
 
 -- general
 
 
-logic_flags_a : CpuState -> List MachineStateDiffEvent
-logic_flags_a cpuState =
+logic_flags_a : MachineState -> List MachineStateDiffEvent
+logic_flags_a machineState =
     let
         regA =
-            cpuState.a
+            getA machineState
     in
-    [ SetFlag (SetFlagCY False)
-    , SetFlag (SetFlagAC False)
-    , SetFlag (SetFlagZ (regA == 0))
-    , SetFlag (SetFlagS (0x80 == Bitwise.and regA 0x80))
-    , SetFlag (SetFlagP (ConditionCodesFlags.pFlag regA))
+    [ setFlagCY False
+    , setFlagAC False
+    , setFlagZ (regA == 0)
+    , setFlagS (0x80 == Bitwise.and regA 0x80)
+    , setFlagP (ConditionCodesFlags.pFlag regA)
     ]
 
 
-dcr_ : (RegisterValue -> MachineStateDiffEvent) -> RegisterValue -> CpuState -> MachineStateDiff
-dcr_ diffEvent registerValue cpuState =
+dcr_ : (RegisterValue -> MachineStateDiffEvent) -> RegisterValue -> MachineState -> MachineStateDiff
+dcr_ diffEvent registerValue machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
 
         newRegisterValue =
             registerValue - 1
@@ -38,52 +190,52 @@ dcr_ diffEvent registerValue cpuState =
     if newRegisterValue < 0 then
         Events
             [ diffEvent (256 - abs newRegisterValue)
-            , SetFlag (SetFlagZ (ConditionCodesFlags.zFlag newRegisterValue))
-            , SetFlag (SetFlagS (ConditionCodesFlags.sFlag newRegisterValue))
-            , SetFlag (SetFlagP (ConditionCodesFlags.pFlag newRegisterValue))
-            , SetPC newPc
+            , setFlagZ (ConditionCodesFlags.zFlag newRegisterValue)
+            , setFlagS (ConditionCodesFlags.sFlag newRegisterValue)
+            , setFlagP (ConditionCodesFlags.pFlag newRegisterValue)
+            , setPC newPc
             ]
 
     else
         Events
             [ diffEvent newRegisterValue
-            , SetFlag (SetFlagZ (ConditionCodesFlags.zFlag newRegisterValue))
-            , SetFlag (SetFlagS (ConditionCodesFlags.sFlag newRegisterValue))
-            , SetFlag (SetFlagP (ConditionCodesFlags.pFlag newRegisterValue))
-            , SetPC newPc
+            , setFlagZ (ConditionCodesFlags.zFlag newRegisterValue)
+            , setFlagS (ConditionCodesFlags.sFlag newRegisterValue)
+            , setFlagP (ConditionCodesFlags.pFlag newRegisterValue)
+            , setPC newPc
             ]
 
 
-mvi_d8_ : MachineStateDiffEvent -> CpuState -> MachineStateDiff
-mvi_d8_ diffEvent cpuState =
+mvi_d8_ : MachineStateDiffEvent -> MachineState -> MachineStateDiff
+mvi_d8_ diffEvent machineState =
     let
         newPc =
-            cpuState.pc + 2
+            getPC machineState + 2
     in
     Events
         [ diffEvent
-        , SetPC newPc
+        , setPC newPc
         ]
 
 
-lxi_d16_ : MachineStateDiffEvent -> MachineStateDiffEvent -> CpuState -> MachineStateDiff
-lxi_d16_ firstDiffEvent secondDiffEvent cpuState =
+lxi_d16_ : MachineStateDiffEvent -> MachineStateDiffEvent -> MachineState -> MachineStateDiff
+lxi_d16_ firstDiffEvent secondDiffEvent machineState =
     let
         newPc =
-            cpuState.pc + 3
+            getPC machineState + 3
     in
     Events
         [ firstDiffEvent
         , secondDiffEvent
-        , SetPC newPc
+        , setPC newPc
         ]
 
 
-inx_ : ByteValue -> (ByteValue -> MachineStateDiffEvent) -> ByteValue -> (ByteValue -> MachineStateDiffEvent) -> CpuState -> MachineStateDiff
-inx_ firstArg firstDiffEvent secondArg secondDiffEvent cpuState =
+inx_ : ByteValue -> (ByteValue -> MachineStateDiffEvent) -> ByteValue -> (ByteValue -> MachineStateDiffEvent) -> MachineState -> MachineStateDiff
+inx_ firstArg firstDiffEvent secondArg secondDiffEvent machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
 
         newSecond =
             secondArg + 1
@@ -92,24 +244,24 @@ inx_ firstArg firstDiffEvent secondArg secondDiffEvent cpuState =
         Events
             [ firstDiffEvent (firstArg + 1)
             , secondDiffEvent newSecond
-            , SetPC newPc
+            , setPC newPc
             ]
 
     else
         Events
             [ firstDiffEvent newSecond
-            , SetPC newPc
+            , setPC newPc
             ]
 
 
-dad_ : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-dad_ firstRegister secondRegister cpuState =
+dad_ : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+dad_ firstRegister secondRegister machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
 
         hl =
-            Bitwise.or (Bitwise.shiftLeftBy 8 cpuState.h) cpuState.l
+            Bitwise.or (Bitwise.shiftLeftBy 8 (getH machineState)) (getL machineState)
 
         combinedRegister =
             Bitwise.or (Bitwise.shiftLeftBy 8 firstRegister) secondRegister
@@ -125,81 +277,81 @@ dad_ firstRegister secondRegister cpuState =
             Bitwise.and (hl + combinedRegister) 0xFFFF0000 > 0
     in
     Events
-        [ SetRegisterH newH
-        , SetRegisterL newL
-        , SetFlag (SetFlagZ newCY)
-        , SetPC newPc
+        [ setRegisterH newH
+        , setRegisterL newL
+        , setFlagZ newCY
+        , setPC newPc
         ]
 
 
-mov_m_ : (ByteValue -> MachineStateDiffEvent) -> CpuState -> MachineStateDiff
-mov_m_ diffEvent cpuState =
+mov_m_ : (ByteValue -> MachineStateDiffEvent) -> MachineState -> MachineStateDiff
+mov_m_ diffEvent machineState =
     let
         memoryAddress =
-            getAddressLE cpuState.l cpuState.h
+            getAddressLE (getL machineState) (getH machineState)
 
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
     in
     Events
-        [ diffEvent (Memory.readMemory memoryAddress cpuState.memory)
-        , SetPC newPc
+        [ diffEvent (Memory.readMemory memoryAddress (getMemory machineState))
+        , setPC newPc
         ]
 
 
-mov_register_ : ByteValue -> CpuState -> MachineStateDiff
-mov_register_ firstArg cpuState =
+mov_register_ : ByteValue -> MachineState -> MachineStateDiff
+mov_register_ firstArg machineState =
     let
         memoryAddress =
-            getAddressLE cpuState.l cpuState.h
+            getAddressLE (getL machineState) (getH machineState)
 
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
     in
     Events
-        [ SetMemory memoryAddress firstArg
-        , SetPC newPc
+        [ setMemory memoryAddress firstArg
+        , setPC newPc
         ]
 
 
-pop_ : (ByteValue -> MachineStateDiffEvent) -> (ByteValue -> MachineStateDiffEvent) -> CpuState -> MachineStateDiff
-pop_ firstDiffEvent secondDiffEvent cpuState =
+pop_ : (ByteValue -> MachineStateDiffEvent) -> (ByteValue -> MachineStateDiffEvent) -> MachineState -> MachineStateDiff
+pop_ firstDiffEvent secondDiffEvent machineState =
     let
         newSp =
-            cpuState.sp + 2
+            getSP machineState + 2
 
         addressForTwo =
-            cpuState.sp
+            getSP machineState
 
         addressForOne =
-            cpuState.sp + 1
+            getSP machineState + 1
 
         memory =
-            cpuState.memory
+            getMemory machineState
     in
     Events
         [ secondDiffEvent (Memory.readMemory addressForOne memory)
         , firstDiffEvent (Memory.readMemory addressForTwo memory)
-        , SetSP newSp
+        , setSP newSp
         ]
 
 
-push_ : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-push_ firstArg secondArg cpuState =
+push_ : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+push_ firstArg secondArg machineState =
     let
         addressForOne =
-            cpuState.sp - 1
+            getSP machineState - 1
 
         addressForTwo =
-            cpuState.sp - 2
+            getSP machineState - 2
 
         newSp =
-            cpuState.sp - 2
+            getSP machineState - 2
     in
     Events
-        [ SetMemory addressForOne firstArg
-        , SetMemory addressForTwo secondArg
-        , SetSP newSp
+        [ setMemory addressForOne firstArg
+        , setMemory addressForTwo secondArg
+        , setSP newSp
         ]
 
 
@@ -207,40 +359,40 @@ push_ firstArg secondArg cpuState =
 -- 0x00
 
 
-nop : CpuState -> MachineStateDiff
-nop cpuState =
+nop : MachineState -> MachineStateDiff
+nop machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
     in
-    Events [ SetPC newPc ]
+    Events [ setPC newPc ]
 
 
 
 -- 0x01
 
 
-lxi_b_d16 : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-lxi_b_d16 firstArg secondArg cpuState =
-    lxi_d16_ (SetRegisterB secondArg) (SetRegisterC firstArg) cpuState
+lxi_b_d16 : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+lxi_b_d16 firstArg secondArg machineState =
+    lxi_d16_ (setRegisterB secondArg) (setRegisterC firstArg) machineState
 
 
 
 -- 0x02
 
 
-stax_b : CpuState -> MachineStateDiff
-stax_b cpuState =
+stax_b : MachineState -> MachineStateDiff
+stax_b machineState =
     let
         address =
-            combineBytes cpuState.b cpuState.c
+            combineBytes (getA machineState) (getC machineState)
 
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
     in
     Events
-        [ SetMemory address cpuState.a
-        , SetPC newPc
+        [ setMemory address (getA machineState)
+        , setPC newPc
         ]
 
 
@@ -248,76 +400,76 @@ stax_b cpuState =
 -- 0x03
 
 
-inx_b : CpuState -> MachineStateDiff
-inx_b cpuState =
-    inx_ cpuState.b (\data -> SetRegisterB data) cpuState.c (\data -> SetRegisterC data) cpuState
+inx_b : MachineState -> MachineStateDiff
+inx_b machineState =
+    inx_ (getB machineState) (\data -> setRegisterB data) (getC machineState) (\data -> setRegisterC data) machineState
 
 
 
 -- 0x05
 
 
-dcr_b : CpuState -> MachineStateDiff
-dcr_b cpuState =
-    dcr_ (\value -> SetRegisterB value) cpuState.b cpuState
+dcr_b : MachineState -> MachineStateDiff
+dcr_b machineState =
+    dcr_ (\value -> setRegisterB value) (getB machineState) machineState
 
 
 
 -- 0x06
 
 
-mvi_b_d8 : ByteValue -> CpuState -> MachineStateDiff
-mvi_b_d8 firstArg cpuState =
-    mvi_d8_ (SetRegisterB firstArg) cpuState
+mvi_b_d8 : ByteValue -> MachineState -> MachineStateDiff
+mvi_b_d8 firstArg machineState =
+    mvi_d8_ (setRegisterB firstArg) machineState
 
 
 
 -- 0x09
 
 
-dad_b : CpuState -> MachineStateDiff
-dad_b cpuState =
-    dad_ cpuState.b cpuState.c cpuState
+dad_b : MachineState -> MachineStateDiff
+dad_b machineState =
+    dad_ (getB machineState) (getC machineState) machineState
 
 
 
 -- 0x0d
 
 
-dcr_c : CpuState -> MachineStateDiff
-dcr_c cpuState =
-    dcr_ (\value -> SetRegisterC value) cpuState.c cpuState
+dcr_c : MachineState -> MachineStateDiff
+dcr_c machineState =
+    dcr_ (\value -> setRegisterC value) (getC machineState) machineState
 
 
 
 -- 0x0e
 
 
-mvi_c_d8 : ByteValue -> CpuState -> MachineStateDiff
-mvi_c_d8 firstArg cpuState =
-    mvi_d8_ (SetRegisterC firstArg) cpuState
+mvi_c_d8 : ByteValue -> MachineState -> MachineStateDiff
+mvi_c_d8 firstArg machineState =
+    mvi_d8_ (setRegisterC firstArg) machineState
 
 
 
 --0x0f
 
 
-rrc : CpuState -> MachineStateDiff
-rrc cpuState =
+rrc : MachineState -> MachineStateDiff
+rrc machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
 
         newA =
-            Bitwise.or (Bitwise.shiftLeftBy 7 (Bitwise.and cpuState.a 1)) (Bitwise.shiftRightBy 1 cpuState.a)
+            Bitwise.or (Bitwise.shiftLeftBy 7 (Bitwise.and (getA machineState) 1)) (Bitwise.shiftRightBy 1 (getA machineState))
 
         newCY =
-            1 == Bitwise.and cpuState.a 1
+            1 == Bitwise.and (getA machineState) 1
     in
     Events
-        [ SetRegisterA newA
-        , SetFlag (SetFlagCY newCY)
-        , SetPC newPc
+        [ setRegisterA newA
+        , setFlagCY newCY
+        , setPC newPc
         ]
 
 
@@ -325,45 +477,45 @@ rrc cpuState =
 -- 0x11
 
 
-lxi_d_d16 : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-lxi_d_d16 firstArg secondArg cpuState =
-    lxi_d16_ (SetRegisterD secondArg) (SetRegisterE firstArg) cpuState
+lxi_d_d16 : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+lxi_d_d16 firstArg secondArg machineState =
+    lxi_d16_ (setRegisterD secondArg) (setRegisterE firstArg) machineState
 
 
 
 -- 0x13
 
 
-inx_d : CpuState -> MachineStateDiff
-inx_d cpuState =
-    inx_ cpuState.d (\data -> SetRegisterD data) cpuState.e (\data -> SetRegisterE data) cpuState
+inx_d : MachineState -> MachineStateDiff
+inx_d machineState =
+    inx_ (getD machineState) (\data -> setRegisterD data) (getE machineState) (\data -> setRegisterE data) machineState
 
 
 
 -- 0x19
 
 
-dad_d : CpuState -> MachineStateDiff
-dad_d cpuState =
-    dad_ cpuState.d cpuState.e cpuState
+dad_d : MachineState -> MachineStateDiff
+dad_d machineState =
+    dad_ (getD machineState) (getE machineState) machineState
 
 
 
 -- 0x1a
 
 
-ldax_d : CpuState -> MachineStateDiff
-ldax_d cpuState =
+ldax_d : MachineState -> MachineStateDiff
+ldax_d machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
 
         memoryAddress =
-            Bitwise.or (Bitwise.shiftLeftBy 8 cpuState.d) cpuState.e
+            Bitwise.or (Bitwise.shiftLeftBy 8 (getD machineState)) (getE machineState)
     in
     Events
-        [ SetRegisterA (Memory.readMemory memoryAddress cpuState.memory)
-        , SetPC newPc
+        [ setRegisterA (Memory.readMemory memoryAddress (getMemory machineState))
+        , setPC newPc
         ]
 
 
@@ -371,54 +523,54 @@ ldax_d cpuState =
 -- 0x21
 
 
-lxi_h_d16 : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-lxi_h_d16 firstArg secondArg cpuState =
-    lxi_d16_ (SetRegisterH secondArg) (SetRegisterL firstArg) cpuState
+lxi_h_d16 : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+lxi_h_d16 firstArg secondArg machineState =
+    lxi_d16_ (setRegisterH secondArg) (setRegisterL firstArg) machineState
 
 
 
 -- 0x23
 
 
-inx_h : CpuState -> MachineStateDiff
-inx_h cpuState =
-    inx_ cpuState.h (\data -> SetRegisterH data) cpuState.l (\data -> SetRegisterL data) cpuState
+inx_h : MachineState -> MachineStateDiff
+inx_h machineState =
+    inx_ (getH machineState) (\data -> setRegisterH data) (getL machineState) (\data -> setRegisterL data) machineState
 
 
 
 -- 0x26
 
 
-mvi_h_d8 : ByteValue -> CpuState -> MachineStateDiff
-mvi_h_d8 firstArg cpuState =
-    mvi_d8_ (SetRegisterH firstArg) cpuState
+mvi_h_d8 : ByteValue -> MachineState -> MachineStateDiff
+mvi_h_d8 firstArg machineState =
+    mvi_d8_ (setRegisterH firstArg) machineState
 
 
 
 -- 0x29
 
 
-dad_h : CpuState -> MachineStateDiff
-dad_h cpuState =
-    dad_ cpuState.h cpuState.l cpuState
+dad_h : MachineState -> MachineStateDiff
+dad_h machineState =
+    dad_ (getH machineState) (getL machineState) machineState
 
 
 
 -- 0x31
 
 
-lxi_sp_d16 : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-lxi_sp_d16 firstArg secondArg cpuState =
+lxi_sp_d16 : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+lxi_sp_d16 firstArg secondArg machineState =
     let
         newPc =
-            cpuState.pc + 3
+            getPC machineState + 3
 
         newSp =
             getAddressLE firstArg secondArg
     in
     Events
-        [ SetSP newSp
-        , SetPC newPc
+        [ setSP newSp
+        , setPC newPc
         ]
 
 
@@ -426,18 +578,18 @@ lxi_sp_d16 firstArg secondArg cpuState =
 -- 0x32
 
 
-sta : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-sta firstArg secondArg cpuState =
+sta : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+sta firstArg secondArg machineState =
     let
         address =
             getAddressLE firstArg secondArg
 
         newPc =
-            cpuState.pc + 3
+            getPC machineState + 3
     in
     Events
-        [ SetMemory address cpuState.a
-        , SetPC newPc
+        [ setMemory address (getA machineState)
+        , setPC newPc
         ]
 
 
@@ -445,31 +597,31 @@ sta firstArg secondArg cpuState =
 -- 0x36
 
 
-mvi_m_d8 : ByteValue -> CpuState -> MachineStateDiff
-mvi_m_d8 firstArg cpuState =
+mvi_m_d8 : ByteValue -> MachineState -> MachineStateDiff
+mvi_m_d8 firstArg machineState =
     let
         address =
-            getAddressLE cpuState.l cpuState.h
+            getAddressLE (getL machineState) (getH machineState)
     in
-    mvi_d8_ (SetMemory address firstArg) cpuState
+    mvi_d8_ (SetMemory address firstArg) machineState
 
 
 
 -- 0x3a
 
 
-lda : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-lda firstArg secondArg cpuState =
+lda : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+lda firstArg secondArg machineState =
     let
         newPc =
-            cpuState.pc + 3
+            getPC machineState + 3
 
         memoryAddress =
             getAddressLE firstArg secondArg
     in
     Events
-        [ SetRegisterA (Memory.readMemory memoryAddress cpuState.memory)
-        , SetPC newPc
+        [ setRegisterA (Memory.readMemory memoryAddress (getMemory machineState))
+        , setPC newPc
         ]
 
 
@@ -477,70 +629,72 @@ lda firstArg secondArg cpuState =
 -- 0x3e
 
 
-mvi_a_d8 : ByteValue -> CpuState -> MachineStateDiff
-mvi_a_d8 firstArg cpuState =
-    mvi_d8_ (SetRegisterA firstArg) cpuState
+mvi_a_d8 : ByteValue -> MachineState -> MachineStateDiff
+mvi_a_d8 firstArg machineState =
+    mvi_d8_ (setRegisterA firstArg) machineState
 
 
 
 -- 0x56
 
 
-mov_d_m : CpuState -> MachineStateDiff
-mov_d_m cpuState =
-    mov_m_ (\data -> SetRegisterD data) cpuState
+mov_d_m : MachineState -> MachineStateDiff
+mov_d_m machineState =
+    mov_m_ (\data -> setRegisterD data) machineState
 
 
 
 -- 0x5e
 
 
-mov_e_m : CpuState -> MachineStateDiff
-mov_e_m cpuState =
-    mov_m_ (\data -> SetRegisterE data) cpuState
+mov_e_m : MachineState -> MachineStateDiff
+mov_e_m machineState =
+    mov_m_ (\data -> setRegisterE data) machineState
 
 
 
 -- 0x66
 
 
-mov_h_m : CpuState -> MachineStateDiff
-mov_h_m cpuState =
-    mov_m_ (\data -> SetRegisterH data) cpuState
+mov_h_m : MachineState -> MachineStateDiff
+mov_h_m machineState =
+    mov_m_ (\data -> setRegisterH data) machineState
 
 
 
 --0x77
 
 
-mov_m_a : CpuState -> MachineStateDiff
-mov_m_a cpuState =
-    mov_register_ cpuState.a cpuState
+mov_m_a : MachineState -> MachineStateDiff
+mov_m_a machineState =
+    mov_register_ (getA machineState) machineState
 
 
 
 -- 0x7e
 
 
-mov_a_m : CpuState -> MachineStateDiff
-mov_a_m cpuState =
-    mov_m_ (\data -> SetRegisterA data) cpuState
+mov_a_m : MachineState -> MachineStateDiff
+mov_a_m machineState =
+    mov_m_ (\data -> setRegisterA data) machineState
 
 
 
 -- 0xa7
 
 
-ana_a : CpuState -> MachineStateDiff
-ana_a cpuState =
+ana_a : MachineState -> MachineStateDiff
+ana_a machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
     in
     Events
         (List.concat
-            [ [ SetRegisterA (Bitwise.and cpuState.a cpuState.a), SetPC newPc ]
-            , logic_flags_a cpuState
+            [ [ setRegisterA (Bitwise.and (getA machineState) (getA machineState))
+              , setPC newPc
+              ]
+            , logic_flags_a machineState
             ]
         )
 
@@ -549,16 +703,18 @@ ana_a cpuState =
 --0xaf
 
 
-xra_a : CpuState -> MachineStateDiff
-xra_a cpuState =
+xra_a : MachineState -> MachineStateDiff
+xra_a machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
     in
     Events
         (List.concat
-            [ [ SetRegisterA (Bitwise.xor cpuState.a cpuState.a), SetPC newPc ]
-            , logic_flags_a cpuState
+            [ [ setRegisterA (Bitwise.xor (getA machineState) (getA machineState))
+              , setPC newPc
+              ]
+            , logic_flags_a machineState
             ]
         )
 
@@ -567,62 +723,62 @@ xra_a cpuState =
 -- 0xc1
 
 
-pop_b : CpuState -> MachineStateDiff
-pop_b cpuState =
-    pop_ (\data -> SetRegisterB data) (\data -> SetRegisterC data) cpuState
+pop_b : MachineState -> MachineStateDiff
+pop_b machineState =
+    pop_ (\data -> setRegisterB data) (\data -> setRegisterC data) machineState
 
 
 
 -- 0xc2
 
 
-jnz : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-jnz firstArg secondArg cpuState =
-    if False == cpuState.conditionCodes.z then
-        Events [ SetPC (getAddressLE firstArg secondArg) ]
+jnz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+jnz firstArg secondArg machineState =
+    if False == getFlagZ machineState then
+        Events [ setPC (getAddressLE firstArg secondArg) ]
 
     else
-        Events [ SetPC (cpuState.pc + 3) ]
+        Events [ setPC (getPC machineState + 3) ]
 
 
 
 -- 0xc3
 
 
-jmp : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
+jmp : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jmp firstArg secondArg _ =
-    Events [ SetPC (getAddressLE firstArg secondArg) ]
+    Events [ setPC (getAddressLE firstArg secondArg) ]
 
 
 
 -- 0xc5
 
 
-push_b : CpuState -> MachineStateDiff
-push_b cpuState =
-    push_ cpuState.b cpuState.c cpuState
+push_b : MachineState -> MachineStateDiff
+push_b machineState =
+    push_ (getB machineState) (getC machineState) machineState
 
 
 
 -- 0xc6
 
 
-adi_d8 : ByteValue -> CpuState -> MachineStateDiff
-adi_d8 firstArg cpuState =
+adi_d8 : ByteValue -> MachineState -> MachineStateDiff
+adi_d8 firstArg machineState =
     let
         x =
-            cpuState.a + firstArg
+            getA machineState + firstArg
 
         newPc =
-            cpuState.pc + 2
+            getPC machineState + 2
     in
     Events
-        [ SetRegisterA x
-        , SetFlag (SetFlagZ (0 == Bitwise.and x 0xFF))
-        , SetFlag (SetFlagS (0x80 == Bitwise.and x 0x80))
-        , SetFlag (SetFlagP (ConditionCodesFlags.pFlag (Bitwise.and x 0xFF)))
-        , SetFlag (SetFlagCY (ConditionCodesFlags.cyFlagAdd x))
-        , SetPC newPc
+        [ setRegisterA x
+        , setFlagZ (0 == Bitwise.and x 0xFF)
+        , setFlagS (0x80 == Bitwise.and x 0x80)
+        , setFlagP (ConditionCodesFlags.pFlag (Bitwise.and x 0xFF))
+        , setFlagCY (ConditionCodesFlags.cyFlagAdd x)
+        , setPC newPc
         ]
 
 
@@ -630,21 +786,21 @@ adi_d8 firstArg cpuState =
 -- 0xc9
 
 
-ret : CpuState -> MachineStateDiff
-ret cpuState =
+ret : MachineState -> MachineStateDiff
+ret machineState =
     let
         newSp =
-            cpuState.sp + 2
+            getSP machineState + 2
 
         memSpLow =
-            Memory.readMemory cpuState.sp cpuState.memory
+            Memory.readMemory (getSP machineState) (getMemory machineState)
 
         memSpHigh =
-            Bitwise.shiftLeftBy 8 (Memory.readMemory (cpuState.sp + 1) cpuState.memory)
+            Bitwise.shiftLeftBy 8 (Memory.readMemory (getSP machineState + 1) (getMemory machineState))
     in
     Events
-        [ SetSP newSp
-        , SetPC (Bitwise.or memSpLow memSpHigh)
+        [ setSP newSp
+        , setPC (Bitwise.or memSpLow memSpHigh)
         ]
 
 
@@ -652,29 +808,29 @@ ret cpuState =
 -- 0xcd
 
 
-call : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
-call firstArg secondArg cpuState =
+call : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+call firstArg secondArg machineState =
     let
         newPc =
             getAddressLE firstArg secondArg
 
         newSp =
-            cpuState.sp - 2
+            getSP machineState - 2
 
         memoryOne =
-            cpuState.sp - 1
+            getSP machineState - 1
 
         memoryTwo =
-            cpuState.sp - 2
+            getSP machineState - 2
 
         data =
-            cpuState.pc + 2
+            getPC machineState + 2
     in
     Events
-        [ SetMemory memoryOne (Bitwise.and (Bitwise.shiftRightBy 8 data) 0xFF)
-        , SetMemory memoryTwo (Bitwise.and data 0xFF)
-        , SetSP newSp
-        , SetPC newPc
+        [ setMemory memoryOne (Bitwise.and (Bitwise.shiftRightBy 8 data) 0xFF)
+        , setMemory memoryTwo (Bitwise.and data 0xFF)
+        , setSP newSp
+        , setPC newPc
         ]
 
 
@@ -682,55 +838,55 @@ call firstArg secondArg cpuState =
 -- 0xd1
 
 
-pop_d : CpuState -> MachineStateDiff
-pop_d cpuState =
-    pop_ (\data -> SetRegisterD data) (\data -> SetRegisterE data) cpuState
+pop_d : MachineState -> MachineStateDiff
+pop_d machineState =
+    pop_ (\data -> setRegisterD data) (\data -> setRegisterE data) machineState
 
 
 
 -- 0xd5
 
 
-push_d : CpuState -> MachineStateDiff
-push_d cpuState =
-    push_ cpuState.d cpuState.e cpuState
+push_d : MachineState -> MachineStateDiff
+push_d machineState =
+    push_ (getD machineState) (getE machineState) machineState
 
 
 
 -- 0xe1
 
 
-pop_h : CpuState -> MachineStateDiff
-pop_h cpuState =
-    pop_ (\data -> SetRegisterH data) (\data -> SetRegisterL data) cpuState
+pop_h : MachineState -> MachineStateDiff
+pop_h machineState =
+    pop_ (\data -> setRegisterH data) (\data -> setRegisterL data) machineState
 
 
 
 -- 0xe5
 
 
-push_h : CpuState -> MachineStateDiff
-push_h cpuState =
-    push_ cpuState.h cpuState.l cpuState
+push_h : MachineState -> MachineStateDiff
+push_h machineState =
+    push_ (getH machineState) (getL machineState) machineState
 
 
 
 -- 0xe6
 
 
-ani : ByteValue -> CpuState -> MachineStateDiff
-ani firstArg cpuState =
+ani : ByteValue -> MachineState -> MachineStateDiff
+ani firstArg machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
 
         newA =
-            Bitwise.and cpuState.a firstArg
+            Bitwise.and (getA machineState) firstArg
     in
     Events
         (List.concat
-            [ [ SetRegisterA newA, SetPC newPc ]
-            , logic_flags_a cpuState
+            [ [ setRegisterA newA, setPC newPc ]
+            , logic_flags_a machineState
             ]
         )
 
@@ -739,24 +895,24 @@ ani firstArg cpuState =
 -- 0xeb
 
 
-xchg : CpuState -> MachineStateDiff
-xchg cpuState =
+xchg : MachineState -> MachineStateDiff
+xchg machineState =
     let
         saveOne =
-            cpuState.d
+            getD machineState
 
         saveTwo =
-            cpuState.e
+            getE machineState
 
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
     in
     Events
-        [ SetRegisterD cpuState.h
-        , SetRegisterE cpuState.l
-        , SetRegisterH saveOne
-        , SetRegisterL saveTwo
-        , SetPC newPc
+        [ setRegisterD (getH machineState)
+        , setRegisterE (getL machineState)
+        , setRegisterH saveOne
+        , setRegisterL saveTwo
+        , setPC newPc
         ]
 
 
@@ -764,26 +920,26 @@ xchg cpuState =
 -- 0xf1
 
 
-pop_psw : CpuState -> MachineStateDiff
-pop_psw cpuState =
+pop_psw : MachineState -> MachineStateDiff
+pop_psw machineState =
     let
         addressForA =
-            cpuState.sp + 1
+            getSP machineState + 1
 
         psw =
-            Memory.readMemory cpuState.sp cpuState.memory
+            Memory.readMemory (getSP machineState) (getMemory machineState)
 
         newSp =
-            cpuState.sp + 2
+            getSP machineState + 2
     in
     Events
-        [ SetRegisterA (Memory.readMemory addressForA cpuState.memory)
-        , SetFlag (SetFlagZ (0x01 == Bitwise.and psw 0x01))
-        , SetFlag (SetFlagS (0x02 == Bitwise.and psw 0x02))
-        , SetFlag (SetFlagP (0x04 == Bitwise.and psw 0x04))
-        , SetFlag (SetFlagCY (0x05 == Bitwise.and psw 0x08))
-        , SetFlag (SetFlagAC (0x10 == Bitwise.and psw 0x10))
-        , SetSP newSp
+        [ setRegisterA (Memory.readMemory addressForA (getMemory machineState))
+        , setFlagZ (0x01 == Bitwise.and psw 0x01)
+        , setFlagS (0x02 == Bitwise.and psw 0x02)
+        , setFlagP (0x04 == Bitwise.and psw 0x04)
+        , setFlagCY (0x05 == Bitwise.and psw 0x08)
+        , setFlagAC (0x10 == Bitwise.and psw 0x10)
+        , setSP newSp
         ]
 
 
@@ -791,29 +947,29 @@ pop_psw cpuState =
 -- 0xf5
 
 
-push_psw : CpuState -> MachineStateDiff
-push_psw cpuState =
+push_psw : MachineState -> MachineStateDiff
+push_psw machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
 
         addressForA =
-            cpuState.sp - 1
+            getSP machineState - 1
 
         addressForPSW =
-            cpuState.sp - 2
+            getSP machineState - 2
 
         newSP =
-            cpuState.sp - 2
+            getSP machineState - 2
 
         psw =
-            Psw.createPSW cpuState.conditionCodes
+            Psw.createPSW (getConditionCodes machineState)
     in
     Events
-        [ SetMemory addressForA cpuState.a
-        , SetMemory addressForPSW psw
-        , SetSP newSP
-        , SetPC newPc
+        [ setMemory addressForA (getA machineState)
+        , setMemory addressForPSW psw
+        , setSP newSP
+        , setPC newPc
         ]
 
 
@@ -821,15 +977,15 @@ push_psw cpuState =
 -- 0xfb
 
 
-ei : CpuState -> MachineStateDiff
-ei cpuState =
+ei : MachineState -> MachineStateDiff
+ei machineState =
     let
         newPc =
-            cpuState.pc + 1
+            getPC machineState + 1
     in
     Events
-        [ SetIntEnable True
-        , SetPC newPc
+        [ setIntEnable True
+        , setPC newPc
         ]
 
 
@@ -837,19 +993,19 @@ ei cpuState =
 -- 0xfe
 
 
-cpi : ByteValue -> CpuState -> MachineStateDiff
-cpi firstArg cpuState =
+cpi : ByteValue -> MachineState -> MachineStateDiff
+cpi firstArg machineState =
     let
         x =
-            cpuState.a - firstArg
+            getA machineState - firstArg
 
         newPc =
-            cpuState.pc + 2
+            getPC machineState + 2
     in
     Events
-        [ SetFlag (SetFlagZ (ConditionCodesFlags.zFlag x))
-        , SetFlag (SetFlagS (ConditionCodesFlags.sFlag x))
-        , SetFlag (SetFlagP (ConditionCodesFlags.pFlag x))
-        , SetFlag (SetFlagCY (cpuState.a < firstArg))
-        , SetPC newPc
+        [ setFlagZ (ConditionCodesFlags.zFlag x)
+        , setFlagS (ConditionCodesFlags.sFlag x)
+        , setFlagP (ConditionCodesFlags.pFlag x)
+        , setFlagCY (getA machineState < firstArg)
+        , setPC newPc
         ]

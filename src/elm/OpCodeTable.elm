@@ -1,27 +1,27 @@
 module OpCodeTable exposing (getOpCodeFromTable)
 
 import Dict exposing (Dict)
+import EmulatorState exposing (ByteValue, MachineState, MachineStateDiff(..))
 import MachineInstructions exposing (..)
-import MachineState exposing (ByteValue, CpuState, MachineStateDiff(..))
 import OpCode exposing (OpCode, OpCodeData, OpCodeSpec(..))
 
 
-unimplementedInstructionZero : CpuState -> MachineStateDiff
+unimplementedInstructionZero : MachineState -> MachineStateDiff
 unimplementedInstructionZero cpuState =
     Failed (Just cpuState) "not implemented yet, no args"
 
 
-unimplementedInstructionOne : ByteValue -> CpuState -> MachineStateDiff
+unimplementedInstructionOne : ByteValue -> MachineState -> MachineStateDiff
 unimplementedInstructionOne firstArg cpuState =
     Failed (Just cpuState) ("not implemented yet, first arg: " ++ String.fromInt firstArg)
 
 
-unimplementedInstructionTwo : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
+unimplementedInstructionTwo : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 unimplementedInstructionTwo firstArg secondArg cpuState =
     Failed (Just cpuState) ("not implemented yet, first arg: " ++ String.fromInt firstArg ++ ", second arg: " ++ String.fromInt secondArg)
 
 
-unknownInstruction : CpuState -> MachineStateDiff
+unknownInstruction : MachineState -> MachineStateDiff
 unknownInstruction cpuState =
     Failed (Just cpuState) "unknown instruction"
 

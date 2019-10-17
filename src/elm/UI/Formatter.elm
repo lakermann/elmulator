@@ -1,30 +1,32 @@
 module UI.Formatter exposing (..)
 
+import EmulatorState exposing (EmulatorState(..), MachineState)
 import Hex
-import MachineState exposing (CpuState, MachineState(..))
+import Psw exposing (createPSW)
 
 
-formatCpuState : CpuState -> String
+formatCpuState : MachineState -> String
 formatCpuState cpuState =
     String.join "\n" (formatRegisters cpuState)
 
 
-formatRegisters : CpuState -> List String
-formatRegisters cpuState =
-    [ "a:  " ++ Hex.padX2 cpuState.a
-    , "b:  " ++ Hex.padX2 cpuState.b
-    , "d:  " ++ Hex.padX2 cpuState.c
-    , "d:  " ++ Hex.padX2 cpuState.d
-    , "e:  " ++ Hex.padX2 cpuState.e
-    , "h:  " ++ Hex.padX2 cpuState.h
-    , "l:  " ++ Hex.padX2 cpuState.l
-    , "sp: " ++ Hex.padX4 cpuState.sp
-    , "pc: " ++ Hex.padX4 cpuState.pc
-    , "cycleCount: " ++ String.fromInt cpuState.cycleCount
+formatRegisters : MachineState -> List String
+formatRegisters machineState =
+    [ "a:   " ++ Hex.padX2 machineState.cpuState.a
+    , "b:   " ++ Hex.padX2 machineState.cpuState.b
+    , "d:   " ++ Hex.padX2 machineState.cpuState.c
+    , "d:   " ++ Hex.padX2 machineState.cpuState.d
+    , "e:   " ++ Hex.padX2 machineState.cpuState.e
+    , "h:   " ++ Hex.padX2 machineState.cpuState.h
+    , "l:   " ++ Hex.padX2 machineState.cpuState.l
+    , "psw: " ++ Hex.padX2 (createPSW machineState.cpuState.conditionCodes)
+    , "sp:  " ++ Hex.padX4 machineState.cpuState.sp
+    , "pc:  " ++ Hex.padX4 machineState.cpuState.pc
+    , "cycleCount: " ++ String.fromInt machineState.cpuState.cycleCount
     ]
 
 
-cpustate : MachineState -> String
+cpustate : EmulatorState -> String
 cpustate state =
     case state of
         Invalid Nothing string ->

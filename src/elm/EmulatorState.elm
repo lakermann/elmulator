@@ -1,21 +1,42 @@
-module MachineState exposing (..)
+module EmulatorState exposing (..)
 
 import Array exposing (Array)
 
+
+type alias ByteValue =
+    Int
+
+
+
 -- 8 bit
-type alias ByteValue
-    = Int
+
 
 type alias RegisterValue =
     ByteValue
 
--- 16 bit
+
 type alias AddressValue =
     Int
 
-type MachineState
-    = Valid CpuState
-    | Invalid (Maybe CpuState) String
+
+
+-- 16 bit
+
+
+type EmulatorState
+    = Valid MachineState
+    | Invalid (Maybe MachineState) String
+
+
+type alias Memory =
+    Array ByteValue
+
+
+type alias MachineState =
+    { cpuState : CpuState
+    , memory : Memory
+    }
+
 
 type alias CpuState =
     { a : RegisterValue
@@ -27,15 +48,10 @@ type alias CpuState =
     , l : RegisterValue
     , sp : AddressValue
     , pc : AddressValue
-    , memory : Memory
     , conditionCodes : ConditionCodes
     , intEnable : Flag
     , cycleCount : Int
     }
-
-
-type alias Memory =
-    Array ByteValue
 
 
 type alias ConditionCodes =
@@ -54,6 +70,11 @@ type alias Flag =
 
 
 type MachineStateDiffEvent
+    = SetCpu SetCpuStateEvent
+    | SetMemory AddressValue ByteValue
+
+
+type SetCpuStateEvent
     = SetRegisterA RegisterValue
     | SetRegisterB RegisterValue
     | SetRegisterC RegisterValue
@@ -61,7 +82,6 @@ type MachineStateDiffEvent
     | SetRegisterE RegisterValue
     | SetRegisterH RegisterValue
     | SetRegisterL RegisterValue
-    | SetMemory AddressValue ByteValue
     | SetPC AddressValue
     | SetSP AddressValue
     | SetFlag SetFlagEvent
@@ -78,5 +98,5 @@ type SetFlagEvent
 
 
 type MachineStateDiff
-    = Failed (Maybe CpuState) String
+    = Failed (Maybe MachineState) String
     | Events (List MachineStateDiffEvent)

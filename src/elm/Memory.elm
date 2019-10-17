@@ -1,7 +1,7 @@
 module Memory exposing (..)
 
 import Array
-import MachineState exposing (AddressValue, ByteValue, Memory)
+import EmulatorState exposing (AddressValue, ByteValue, Memory)
 
 
 readMemory : AddressValue -> Memory -> ByteValue

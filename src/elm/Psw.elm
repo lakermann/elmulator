@@ -1,8 +1,8 @@
 module Psw exposing (..)
 
-import Bitwise
 import BitOperations exposing (flagToByte)
-import MachineState exposing (ByteValue, ConditionCodes)
+import Bitwise
+import EmulatorState exposing (ByteValue, ConditionCodes)
 
 
 createPSW : ConditionCodes -> ByteValue

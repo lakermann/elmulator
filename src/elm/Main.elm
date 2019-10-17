@@ -10,6 +10,7 @@ import Canvas exposing (rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
 import Cpu exposing (oneStep)
+import EmulatorState exposing (EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
@@ -18,7 +19,6 @@ import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
-import MachineState exposing (CpuState, MachineState(..))
 import Task
 import UI.Formatter exposing (cpustate)
 import UI.KeyDecoder exposing (keyDecoder)
@@ -45,7 +45,7 @@ main =
 
 type alias Model =
     { data : Maybe Bytes
-    , currentCpuState : MachineState
+    , currentCpuState : EmulatorState
     }
 
 

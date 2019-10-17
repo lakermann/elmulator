@@ -2,7 +2,7 @@ module PswTests exposing (..)
 
 import Cpu
 import Expect
-import MachineState exposing (ConditionCodes)
+import EmulatorState exposing (ConditionCodes)
 import Psw
 import Test exposing (..)
 

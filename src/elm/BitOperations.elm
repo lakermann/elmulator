@@ -1,7 +1,7 @@
 module BitOperations exposing (..)
 
 import Bitwise
-import MachineState exposing (AddressValue, ByteValue, Flag)
+import EmulatorState exposing (AddressValue, ByteValue, Flag)
 
 
 flagToByte : Flag -> ByteValue

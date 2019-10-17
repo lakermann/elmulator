@@ -1,7 +1,7 @@
 module InstructionDisassembler exposing (..)
 
+import EmulatorState exposing (ByteValue)
 import Instruction exposing (Instruction)
-import MachineState exposing (ByteValue)
 import OpCode exposing (OpCode, getOpCodeLength)
 import OpCodeTable exposing (getOpCodeFromTable)
 
