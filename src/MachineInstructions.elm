@@ -1,7 +1,8 @@
 module MachineInstructions exposing (..)
 
 import BitOperations exposing (combineBytes, getAddressLE)
-import MachineState exposing (ByteValue, ConditionCodes, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..))
+import ConditionCodesFlags
+import MachineState exposing (ByteValue, ConditionCodes, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), SetFlagEvent(..))
 import Psw
 
 
@@ -72,6 +73,29 @@ inx_b cpuState =
     in
     Events
         [ SetMemory address data
+        , SetPC newPc
+        ]
+
+
+
+-- 0x05
+--0x05	DCR B	1	Z, S, P, AC	B <- B-1
+
+
+dcr_b : CpuState -> MachineStateDiff
+dcr_b cpuState =
+    let
+        newPc =
+            cpuState.pc + 1
+
+        newB =
+            cpuState.b - 1
+    in
+    Events
+        [ SetRegisterB newB
+        , SetFlag (SetFlagZ (ConditionCodesFlags.zFlag newB))
+        , SetFlag (SetFlagS (ConditionCodesFlags.sFlag newB))
+        , SetFlag (SetFlagP (ConditionCodesFlags.pFlag newB))
         , SetPC newPc
         ]
 
