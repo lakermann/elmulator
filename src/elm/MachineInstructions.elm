@@ -3,8 +3,8 @@ module MachineInstructions exposing (..)
 import BitOperations exposing (combineBytes, getAddressLE)
 import Bitwise
 import ConditionCodesFlags
-import Cpu
 import MachineState exposing (ByteValue, ConditionCodes, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), RegisterValue, SetFlagEvent(..))
+import Memory
 import Psw
 
 
@@ -104,6 +104,36 @@ dad_ firstRegister secondRegister cpuState =
         [ SetRegisterH newH
         , SetRegisterL newL
         , SetFlag (SetFlagZ newCY)
+        , SetPC newPc
+        ]
+
+
+mov_m_ : (ByteValue -> MachineStateDiffEvent) -> CpuState -> MachineStateDiff
+mov_m_ diffEvent cpuState =
+    let
+        memoryAddress =
+            getAddressLE cpuState.l cpuState.h
+
+        newPc =
+            cpuState.pc + 1
+    in
+    Events
+        [ diffEvent (Memory.readMemory memoryAddress cpuState.memory)
+        , SetPC newPc
+        ]
+
+
+mov_register_ : ByteValue -> CpuState -> MachineStateDiff
+mov_register_ firstArg cpuState =
+    let
+        memoryAddress =
+            getAddressLE cpuState.l cpuState.h
+
+        newPc =
+            cpuState.pc + 1
+    in
+    Events
+        [ SetMemory memoryAddress firstArg
         , SetPC newPc
         ]
 
@@ -267,7 +297,7 @@ ldax_d cpuState =
             Bitwise.or (Bitwise.shiftLeftBy 8 cpuState.d) cpuState.e
     in
     Events
-        [ SetRegisterA (Cpu.readMemoryProvider memoryAddress 0 cpuState.memory)
+        [ SetRegisterA (Memory.readMemory memoryAddress cpuState.memory)
         , SetPC newPc
         ]
 
@@ -312,7 +342,7 @@ dad_h cpuState =
 -- 0x31
 
 
-lxi_sp_d16 : ByteVlue -> ByteValue -> CpuState -> MachineStateDiff
+lxi_sp_d16 : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
 lxi_sp_d16 firstArg secondArg cpuState =
     let
         newPc =
@@ -357,6 +387,79 @@ mvi_m_d8 firstArg cpuState =
             getAddressLE cpuState.l cpuState.h
     in
     mvi_d8_ (SetMemory address firstArg) cpuState
+
+
+
+-- 0x3a
+
+
+lda : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
+lda firstArg secondArg cpuState =
+    let
+        newPc =
+            cpuState.pc + 3
+
+        memoryAddress =
+            getAddressLE firstArg secondArg
+    in
+    Events
+        [ SetRegisterA (Memory.readMemory memoryAddress cpuState.memory)
+        , SetPC newPc
+        ]
+
+
+
+-- 0x3e
+
+
+mvi_a_d8 : ByteValue -> CpuState -> MachineStateDiff
+mvi_a_d8 firstArg cpuState =
+    mvi_d8_ (SetRegisterA firstArg) cpuState
+
+
+
+-- 0x56
+
+
+mov_d_m : CpuState -> MachineStateDiff
+mov_d_m cpuState =
+    mov_m_ (\data -> SetRegisterD data) cpuState
+
+
+
+-- 0x5e
+
+
+mov_e_m : CpuState -> MachineStateDiff
+mov_e_m cpuState =
+    mov_m_ (\data -> SetRegisterE data) cpuState
+
+
+
+-- 0x66
+
+
+mov_h_m : CpuState -> MachineStateDiff
+mov_h_m cpuState =
+    mov_m_ (\data -> SetRegisterH data) cpuState
+
+
+
+--0x77
+
+
+mov_m_a : CpuState -> MachineStateDiff
+mov_m_a cpuState =
+    mov_register_ cpuState.a cpuState
+
+
+
+-- 0x7e: 							//MOV A,M
+
+
+mov_a_m : CpuState -> MachineStateDiff
+mov_a_m cpuState =
+    mov_m_ (\data -> SetRegisterA data) cpuState
 
 
 
