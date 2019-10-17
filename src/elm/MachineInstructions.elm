@@ -35,13 +35,23 @@ dcr_ diffEvent registerValue cpuState =
         newRegisterValue =
             registerValue - 1
     in
-    Events
-        [ diffEvent newRegisterValue
-        , SetFlag (SetFlagZ (ConditionCodesFlags.zFlag newRegisterValue))
-        , SetFlag (SetFlagS (ConditionCodesFlags.sFlag newRegisterValue))
-        , SetFlag (SetFlagP (ConditionCodesFlags.pFlag newRegisterValue))
-        , SetPC newPc
-        ]
+    if newRegisterValue < 0 then
+        Events
+            [ diffEvent (256 - newRegisterValue)
+            , SetFlag (SetFlagZ (ConditionCodesFlags.zFlag newRegisterValue))
+            , SetFlag (SetFlagS (ConditionCodesFlags.sFlag newRegisterValue))
+            , SetFlag (SetFlagP (ConditionCodesFlags.pFlag newRegisterValue))
+            , SetPC newPc
+            ]
+
+    else
+        Events
+            [ diffEvent newRegisterValue
+            , SetFlag (SetFlagZ (ConditionCodesFlags.zFlag newRegisterValue))
+            , SetFlag (SetFlagS (ConditionCodesFlags.sFlag newRegisterValue))
+            , SetFlag (SetFlagP (ConditionCodesFlags.pFlag newRegisterValue))
+            , SetPC newPc
+            ]
 
 
 mvi_d8_ : MachineStateDiffEvent -> CpuState -> MachineStateDiff
