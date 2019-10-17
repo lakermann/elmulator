@@ -5,13 +5,16 @@ import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
 import Browser
 import Bytes exposing (Bytes)
+import Canvas exposing (rect, shapes)
+import Canvas.Settings exposing (fill)
+import Color exposing (Color)
 import Cpu exposing (oneStep)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
 import Hex
-import Html exposing (Html, canvas, div, h1, h3, p, pre, text)
-import Html.Attributes exposing (class)
+import Html exposing (Html, div, h1, h3, p, pre, text)
+import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
@@ -215,9 +218,25 @@ pageHeader =
         ]
 
 
-screen : Html Msg
+screen : Html msg
 screen =
-    div [ class "screen-wrapper" ] [ canvas [ class "screen-canvas" ] [] ]
+    let
+        width =
+            256
+
+        height =
+            224
+    in
+    Canvas.toHtml ( width, 224 )
+        []
+        [ shapes [ fill Color.green ] [ rect ( 0, 0 ) width height ]
+        , renderPixel
+        ]
+
+
+renderPixel =
+    shapes [ fill Color.black ]
+        [ rect ( 0, 0 ) 1 1 ]
 
 
 
