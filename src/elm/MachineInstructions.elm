@@ -847,13 +847,13 @@ pop_d machineState =
 -- 0xd3
 
 
-out : ByteValue -> CpuState -> MachineStateDiff
-out _ cpuState =
+out : ByteValue -> MachineState -> MachineStateDiff
+out _ machineState =
     let
         newPc =
-            cpuState.pc + 2
+            (getPC machineState) + 2
     in
-    Events [ SetPC newPc ]
+    Events [ setPC newPc ]
 
 
 
