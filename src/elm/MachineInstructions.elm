@@ -688,6 +688,19 @@ pop_d cpuState =
 
 
 
+-- 0xd3
+
+
+out : ByteValue -> CpuState -> MachineStateDiff
+out _ cpuState =
+    let
+        newPc =
+            cpuState.pc + 2
+    in
+    Events [ SetPC newPc ]
+
+
+
 -- 0xd5
 
 
