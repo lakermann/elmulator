@@ -21,6 +21,11 @@ unimplementedInstructionTwo firstArg secondArg cpuState =
     Failed (Just cpuState) ("not implemented yet, first arg: " ++ String.fromInt firstArg ++ ", second arg: " ++ String.fromInt secondArg)
 
 
+unknownInstruction : CpuState -> MachineStateDiff
+unknownInstruction cpuState =
+    Failed (Just cpuState) "unknown instruction"
+
+
 opCodeTable : Dict Int OpCodeData
 opCodeTable =
     Dict.fromList
@@ -32,24 +37,24 @@ opCodeTable =
         , ( 0x05, OpCodeData "DCR B" (OneByte MachineInstructions.dcr_b) )
         , ( 0x06, OpCodeData "MVI B, D8" (TwoBytes MachineInstructions.mvi_b_d8) )
         , ( 0x07, OpCodeData "RLC" (OneByte unimplementedInstructionZero) )
-        , --(0x08, OpCodeMetaInformation "-" 0),
-          ( 0x09, OpCodeData "DAD B" (OneByte MachineInstructions.dad_b) )
+        , ( 0x08, OpCodeData "-" (OneByte unknownInstruction))
+        , ( 0x09, OpCodeData "DAD B" (OneByte MachineInstructions.dad_b) )
         , ( 0x0A, OpCodeData "LDAX B" (OneByte unimplementedInstructionZero) )
         , ( 0x0B, OpCodeData "DCX B" (OneByte unimplementedInstructionZero) )
         , ( 0x0C, OpCodeData "INR C" (OneByte unimplementedInstructionZero) )
         , ( 0x0D, OpCodeData "DCR C" (OneByte MachineInstructions.dcr_c) )
         , ( 0x0E, OpCodeData "MVI C,D8" (TwoBytes MachineInstructions.mvi_c_d8) )
         , ( 0x0F, OpCodeData "RRC" (OneByte MachineInstructions.rrc) )
-        , --(0x10, OpCodeMetaInformation "-" 0),
-          ( 0x11, OpCodeData "LXI D,D16" (ThreeBytes MachineInstructions.lxi_d_d16) )
+        , (0x10, OpCodeMetaInformation "-" (OneByte unknownInstruction))
+        , ( 0x11, OpCodeData "LXI D,D16" (ThreeBytes MachineInstructions.lxi_d_d16) )
         , ( 0x12, OpCodeData "STAX D" (OneByte unimplementedInstructionZero) )
         , ( 0x13, OpCodeData "INX D" (OneByte unimplementedInstructionZero) )
         , ( 0x14, OpCodeData "INR D" (OneByte unimplementedInstructionZero) )
         , ( 0x15, OpCodeData "DCR D" (OneByte unimplementedInstructionZero) )
         , ( 0x16, OpCodeData "MVI D, D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0x17, OpCodeData "RAL" (OneByte unimplementedInstructionZero) )
-        , --(0x18, OpCodeMetaInformation "-" 0),
-          ( 0x19, OpCodeData "DAD D" (OneByte unimplementedInstructionZero) )
+        , ( 0x18, OpCodeData "-" (OneByte unknownInstruction))
+        , ( 0x19, OpCodeData "DAD D" (OneByte unimplementedInstructionZero) )
         , ( 0x1A, OpCodeData "LDAX D" (OneByte unimplementedInstructionZero) )
         , ( 0x1B, OpCodeData "DCX D" (OneByte unimplementedInstructionZero) )
         , ( 0x1C, OpCodeData "INR E" (OneByte unimplementedInstructionZero) )
@@ -64,8 +69,8 @@ opCodeTable =
         , ( 0x25, OpCodeData "DCR H" (OneByte unimplementedInstructionZero) )
         , ( 0x26, OpCodeData "MVI H,D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0x27, OpCodeData "DAA" (OneByte unimplementedInstructionZero) )
-        , --(0x28, OpCodeMetaInformation "-" 0),
-          ( 0x29, OpCodeData "DAD H" (OneByte unimplementedInstructionZero) )
+        , ( 0x28, OpCodeData "-" (OneByte unknownInstruction))
+        , ( 0x29, OpCodeData "DAD H" (OneByte unimplementedInstructionZero) )
         , ( 0x2A, OpCodeData "LHLD adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0x2B, OpCodeData "DCX H" (OneByte unimplementedInstructionZero) )
         , ( 0x2C, OpCodeData "INR L" (OneByte unimplementedInstructionZero) )
@@ -80,8 +85,8 @@ opCodeTable =
         , ( 0x35, OpCodeData "DCR M" (OneByte unimplementedInstructionZero) )
         , ( 0x36, OpCodeData "MVI M,D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0x37, OpCodeData "STC" (OneByte unimplementedInstructionZero) )
-        , --(0x38, OpCodeMetaInformation "-" 0),
-          ( 0x39, OpCodeData "DAD SP" (OneByte unimplementedInstructionZero) )
+        , ( 0x38, OpCodeData "-" (OneByte unknownInstruction) )
+        , ( 0x39, OpCodeData "DAD SP" (OneByte unimplementedInstructionZero) )
         , ( 0x3A, OpCodeData "LDA adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0x3B, OpCodeData "DCX SP" (OneByte unimplementedInstructionZero) )
         , ( 0x3C, OpCodeData "INR A" (OneByte unimplementedInstructionZero) )
@@ -227,8 +232,8 @@ opCodeTable =
         , ( 0xC8, OpCodeData "RZ" (OneByte unimplementedInstructionZero) )
         , ( 0xC9, OpCodeData "RET" (OneByte unimplementedInstructionZero) )
         , ( 0xCA, OpCodeData "JZ adr" (ThreeBytes unimplementedInstructionTwo) )
-        , --(0xcb, OpCodeMetaInformation "-" 0),
-          ( 0xCC, OpCodeData "CZ adr" (ThreeBytes unimplementedInstructionTwo) )
+        , ( 0xcb, OpCodeData "-" (OneByte unknownInstruction))
+        , ( 0xCC, OpCodeData "CZ adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xCD, OpCodeData "CALL adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xCE, OpCodeData "ACI D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0xCF, OpCodeData "RST 1" (OneByte unimplementedInstructionZero) )
@@ -241,12 +246,12 @@ opCodeTable =
         , ( 0xD6, OpCodeData "SUI D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0xD7, OpCodeData "RST 2" (OneByte unimplementedInstructionZero) )
         , ( 0xD8, OpCodeData "RC" (OneByte unimplementedInstructionZero) )
-        , --(0xd9, OpCodeMetaInformation "-" 0),
-          ( 0xDA, OpCodeData "JC adr" (ThreeBytes unimplementedInstructionTwo) )
+        , ( 0xd9, OpCodeData "-" (OneByte unknownInstruction))
+        , ( 0xDA, OpCodeData "JC adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xDB, OpCodeData "IN D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0xDC, OpCodeData "CC adr" (ThreeBytes unimplementedInstructionTwo) )
-        , --(0xdd, OpCodeMetaInformation "-" 0),
-          ( 0xDE, OpCodeData "SBI D8" (TwoBytes unimplementedInstructionOne) )
+        , ( 0xdd, OpCodeData "-" (OneByte unknownInstruction))
+        , ( 0xDE, OpCodeData "SBI D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0xDF, OpCodeData "RST 3" (OneByte unimplementedInstructionZero) )
         , ( 0xE0, OpCodeData "RPO" (OneByte unimplementedInstructionZero) )
         , ( 0xE1, OpCodeData "POP H" (OneByte unimplementedInstructionZero) )
@@ -261,8 +266,8 @@ opCodeTable =
         , ( 0xEA, OpCodeData "JPE adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xEB, OpCodeData "XCHG" (OneByte unimplementedInstructionZero) )
         , ( 0xEC, OpCodeData "CPE adr" (ThreeBytes unimplementedInstructionTwo) )
-        , --(0xed, OpCodeMetaInformation "-" 0),
-          ( 0xEE, OpCodeData "XRI D8" (TwoBytes unimplementedInstructionOne) )
+        , ( 0xed, OpCodeData "-" (OneByte unknownInstruction))
+        , ( 0xEE, OpCodeData "XRI D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0xEF, OpCodeData "RST 5" (OneByte unimplementedInstructionZero) )
         , ( 0xF0, OpCodeData "RP" (OneByte unimplementedInstructionZero) )
         , ( 0xF1, OpCodeData "POP PSW" (OneByte unimplementedInstructionZero) )
@@ -277,8 +282,8 @@ opCodeTable =
         , ( 0xFA, OpCodeData "JM adr" (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xFB, OpCodeData "EI" (OneByte unimplementedInstructionZero) )
         , ( 0xFC, OpCodeData "CM adr" (ThreeBytes unimplementedInstructionTwo) )
-        , --(0xfd, OpCodeMetaInformation "-" 0),
-          ( 0xFE, OpCodeData "CPI D8" (TwoBytes unimplementedInstructionOne) )
+        , ( 0xfd, OpCodeData "-" (OneByte unknownInstruction))
+        , ( 0xFE, OpCodeData "CPI D8" (TwoBytes unimplementedInstructionOne) )
         , ( 0xFF, OpCodeData "RST 7" (OneByte unimplementedInstructionZero) )
         ]
 

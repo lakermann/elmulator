@@ -1,0 +1,16 @@
+
+.screen-wrapper {
+  border: 5px solid #e9ecef;
+  border-radius: 2px;
+  background: rgb(155, 188, 15);
+}
+
+.screen-canvas {
+  width: 256px;
+  height: 224px;
+}
+
+.code-wrapper {
+  height: 650px;
+  overflow-y: scroll;
+}

@@ -5,12 +5,12 @@
   "main": "index.js",
   "scripts": {
     "analyse": "npx elm-analyse -s -o",
-    "run:watch": "npx elm-live src/Main.elm --open --start-page=index.html -- --output=elmulator.js",
+    "run:watch": "npx elm-live src/elm/Main.elm --open --dir=src --start-page=index.html -- --output=src/js/elmulator.js",
     "test": "npx elm-test",
     "test:ci": "mkdir -p test-reports && npx elm-test --report=junit > ./test-reports/junit.xml",
     "test:watch": "npx elm-test --watch",
-    "build:dev": "npx elm make src/Main.elm --output elmulator.js",
-    "build:prod": "npx elm make src/Main.elm --output elmulator.js --optimize"
+    "build:dev": "npx elm make src/elm/Main.elm --output src/js/elmulator.js",
+    "build:prod": "npx elm make src/elm/Main.elm --output src/js/elmulator.js --optimize"
   },
   "author": "",
   "license": "",
