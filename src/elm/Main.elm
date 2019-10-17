@@ -213,7 +213,7 @@ pageHeader =
 
 screen : Html Msg
 screen =
-    div [ class "screen-wrapper" ] [ canvas [ width 160, height 144, class "screen-canvas" ] [] ]
+    div [ class "screen-wrapper" ] [ canvas [ class "screen-canvas" ] [] ]
 
 
 
