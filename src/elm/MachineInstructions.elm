@@ -37,7 +37,7 @@ dcr_ diffEvent registerValue cpuState =
     in
     if newRegisterValue < 0 then
         Events
-            [ diffEvent (256 - newRegisterValue)
+            [ diffEvent (256 - abs newRegisterValue)
             , SetFlag (SetFlagZ (ConditionCodesFlags.zFlag newRegisterValue))
             , SetFlag (SetFlagS (ConditionCodesFlags.sFlag newRegisterValue))
             , SetFlag (SetFlagP (ConditionCodesFlags.pFlag newRegisterValue))
