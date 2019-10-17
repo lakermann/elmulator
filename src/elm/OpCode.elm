@@ -14,6 +14,7 @@ type OpCodeSpec
 
 type alias OpCodeData =
     { name : String
+    , cycles : Int
     , opCodeSpec : OpCodeSpec
     }
 
