@@ -1,0 +1,11 @@
+
+.screen-wrapper {
+  border: 5px solid #e9ecef;
+  border-radius: 2px;
+  background: rgb(155, 188, 15);
+}
+
+.screen-canvas {
+  width: 100%;
+  height: 100%;
+}
