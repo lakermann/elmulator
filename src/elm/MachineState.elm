@@ -30,6 +30,7 @@ type alias CpuState =
     , memory : Memory
     , conditionCodes : ConditionCodes
     , intEnable : Flag
+    , cycleCount : Int
     }
 
 
@@ -65,6 +66,7 @@ type MachineStateDiffEvent
     | SetSP AddressValue
     | SetFlag SetFlagEvent
     | SetIntEnable Flag
+    | AddCycles Int
 
 
 type SetFlagEvent

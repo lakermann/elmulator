@@ -153,6 +153,7 @@ formatRegisters cpuState =
     , "l:  " ++ Hex.padX2 cpuState.l
     , "sp: " ++ Hex.padX4 cpuState.sp
     , "pc: " ++ Hex.padX4 cpuState.pc
+    , "cycleCount: " ++ (String.fromInt cpuState.cycleCount)
     ]
 
 
