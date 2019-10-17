@@ -13,15 +13,16 @@ import Cpu exposing (oneStep)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
-import Hex
 import Html exposing (Html, div, h1, h3, p, pre, text)
 import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
-import Json.Decode as Decode
 import MachineState exposing (CpuState, MachineState(..))
 import Task
+import UI.Formatter exposing (formatCpuState)
+import UI.KeyDecoder exposing (keyDecoder)
+import UI.Msg exposing (Msg(..))
 
 
 
@@ -55,14 +56,6 @@ init _ =
 
 
 -- UPDATE
-
-
-type Msg
-    = RomRequested
-    | RomSelected File
-    | RomLoaded Bytes
-    | NextStepRequested
-    | Reset
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -138,26 +131,6 @@ cpustate state =
 
         Valid cpuState ->
             formatCpuState cpuState
-
-
-formatCpuState : CpuState -> String
-formatCpuState cpuState =
-    String.join "\n" (formatRegisters cpuState)
-
-
-formatRegisters : CpuState -> List String
-formatRegisters cpuState =
-    [ "a:  " ++ Hex.padX2 cpuState.a
-    , "b:  " ++ Hex.padX2 cpuState.b
-    , "d:  " ++ Hex.padX2 cpuState.c
-    , "d:  " ++ Hex.padX2 cpuState.d
-    , "e:  " ++ Hex.padX2 cpuState.e
-    , "h:  " ++ Hex.padX2 cpuState.h
-    , "l:  " ++ Hex.padX2 cpuState.l
-    , "sp: " ++ Hex.padX4 cpuState.sp
-    , "pc: " ++ Hex.padX4 cpuState.pc
-    , "cycleCount: " ++ (String.fromInt cpuState.cycleCount)
-    ]
 
 
 view : Model -> Html Msg
@@ -251,23 +224,3 @@ renderPixel =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Browser.Events.onKeyDown keyDecoder
-
-
-keyDecoder : Decode.Decoder Msg
-keyDecoder =
-    Decode.field "key" Decode.string
-        |> Decode.andThen
-            (\string ->
-                case string of
-                    "l" ->
-                        Decode.succeed RomRequested
-
-                    "r" ->
-                        Decode.succeed Reset
-
-                    "n" ->
-                        Decode.succeed NextStepRequested
-
-                    _ ->
-                        Decode.fail "Pressed key is not a Elmulator Button"
-            )
