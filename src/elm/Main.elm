@@ -9,7 +9,7 @@ import Bytes exposing (Bytes)
 import Canvas exposing (rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (oneStep)
+import Cpu exposing (nStep, oneStep)
 import EmulatorState exposing (EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
@@ -76,10 +76,10 @@ update msg model =
             , Cmd.none
             )
 
-        NextStepRequested ->
+        NextStepsRequested n ->
             case model.currentCpuState of
                 Valid currentCpuState ->
-                    ( { model | currentCpuState = oneStep currentCpuState }
+                    ( { model | currentCpuState = nStep n currentCpuState }
                     , Cmd.none
                     )
 
@@ -147,10 +147,18 @@ view model =
                 , Button.button
                     [ Button.outlinePrimary
                     , Button.attrs
-                        [ onClick NextStepRequested
+                        [ onClick (NextStepsRequested 1)
                         ]
                     ]
                     [ text "(n)ext step" ]
+                , text "   "
+                , Button.button
+                    [ Button.outlinePrimary
+                    , Button.attrs
+                        [ onClick (NextStepsRequested 1500)
+                        ]
+                    ]
+                    [ text "ne(x)t 1500 step" ]
                 , text "   "
                 , Button.button
                     [ Button.outlineDanger

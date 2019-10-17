@@ -17,7 +17,10 @@ keyDecoder =
                         Decode.succeed Reset
 
                     "n" ->
-                        Decode.succeed NextStepRequested
+                        Decode.succeed (NextStepsRequested 1)
+
+                    "x" ->
+                        Decode.succeed (NextStepsRequested 1500)
 
                     _ ->
                         Decode.fail "Pressed key is not a Elmulator Button"

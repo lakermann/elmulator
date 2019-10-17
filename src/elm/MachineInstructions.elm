@@ -238,18 +238,19 @@ inx_ firstArg firstDiffEvent secondArg secondDiffEvent machineState =
             getPC machineState + 1
 
         newSecond =
-            secondArg + 1
+            --l
+            modBy 256 (secondArg + 1)
     in
     if newSecond == 0 then
         Events
-            [ firstDiffEvent (firstArg + 1)
+            [ firstDiffEvent (modBy 256 (firstArg + 1))
             , secondDiffEvent newSecond
             , setPC newPc
             ]
 
     else
         Events
-            [ firstDiffEvent newSecond
+            [ secondDiffEvent newSecond
             , setPC newPc
             ]
 
@@ -851,7 +852,7 @@ out : ByteValue -> MachineState -> MachineStateDiff
 out _ machineState =
     let
         newPc =
-            (getPC machineState) + 2
+            getPC machineState + 2
     in
     Events [ setPC newPc ]
 

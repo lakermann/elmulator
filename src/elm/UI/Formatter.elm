@@ -14,7 +14,7 @@ formatRegisters : MachineState -> List String
 formatRegisters machineState =
     [ "a:   " ++ Hex.padX2 machineState.cpuState.a
     , "b:   " ++ Hex.padX2 machineState.cpuState.b
-    , "d:   " ++ Hex.padX2 machineState.cpuState.c
+    , "c:   " ++ Hex.padX2 machineState.cpuState.c
     , "d:   " ++ Hex.padX2 machineState.cpuState.d
     , "e:   " ++ Hex.padX2 machineState.cpuState.e
     , "h:   " ++ Hex.padX2 machineState.cpuState.h
@@ -23,6 +23,7 @@ formatRegisters machineState =
     , "sp:  " ++ Hex.padX4 machineState.cpuState.sp
     , "pc:  " ++ Hex.padX4 machineState.cpuState.pc
     , "cycleCount: " ++ String.fromInt machineState.cpuState.cycleCount
+    , "flags: " ++ Hex.padX4 (Psw.createPSW machineState.cpuState.conditionCodes)
     ]
 
 

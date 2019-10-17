@@ -21,6 +21,24 @@ oneStep cpuState =
     apply machineStateDiff cpuState
 
 
+nStep : Int -> MachineState -> EmulatorState
+nStep n machineState =
+    let
+        ns =
+            oneStep machineState
+    in
+    if n > 1 then
+        case ns of
+            Valid cs ->
+                nStep (n - 1) cs
+
+            Invalid _ _ ->
+                ns
+
+    else
+        ns
+
+
 getCurrentOpCode : MachineState -> ByteValue
 getCurrentOpCode machineState =
     let

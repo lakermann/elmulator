@@ -240,7 +240,7 @@ opCodeTable =
         , ( 0xD0, OpCodeData "RNC" 11 (OneByte unimplementedInstructionZero) )
         , ( 0xD1, OpCodeData "POP D" 10 (OneByte MachineInstructions.pop_d) )
         , ( 0xD2, OpCodeData "JNC adr" 10 (ThreeBytes unimplementedInstructionTwo) )
-        , ( 0xD3, OpCodeData "OUT D8" 10 (TwoBytes unimplementedInstructionOne) )
+        , ( 0xD3, OpCodeData "OUT D8" 10 (TwoBytes MachineInstructions.out) )
         , ( 0xD4, OpCodeData "CNC adr" 17 (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xD5, OpCodeData "PUSH D" 11 (OneByte MachineInstructions.push_d) )
         , ( 0xD6, OpCodeData "SUI D8" 7 (TwoBytes unimplementedInstructionOne) )

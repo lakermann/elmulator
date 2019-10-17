@@ -8,5 +8,5 @@ type Msg
     = RomRequested
     | RomSelected File
     | RomLoaded Bytes
-    | NextStepRequested
+    | NextStepsRequested Int
     | Reset
