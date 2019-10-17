@@ -12,6 +12,20 @@ import Psw
 -- general
 
 
+logic_flags_a : CpuState -> List MachineStateDiffEvent
+logic_flags_a cpuState =
+    let
+        regA =
+            cpuState.a
+    in
+    [ SetFlag (SetFlagCY False)
+    , SetFlag (SetFlagAC False)
+    , SetFlag (SetFlagZ (regA == 0))
+    , SetFlag (SetFlagS (0x80 == Bitwise.and regA 0x80))
+    , SetFlag (SetFlagP (ConditionCodesFlags.pFlag regA))
+    ]
+
+
 dcr_ : (RegisterValue -> MachineStateDiffEvent) -> RegisterValue -> CpuState -> MachineStateDiff
 dcr_ diffEvent registerValue cpuState =
     let
@@ -454,12 +468,87 @@ mov_m_a cpuState =
 
 
 
--- 0x7e: 							//MOV A,M
+-- 0x7e
 
 
 mov_a_m : CpuState -> MachineStateDiff
 mov_a_m cpuState =
     mov_m_ (\data -> SetRegisterA data) cpuState
+
+
+
+-- 0xa7
+
+
+ana_a : CpuState -> MachineStateDiff
+ana_a cpuState =
+    let
+        newPc =
+            cpuState.pc + 1
+    in
+    Events
+        (List.concat
+            [ [ SetRegisterA (Bitwise.and cpuState.a cpuState.a), SetPC newPc ]
+            , logic_flags_a cpuState
+            ]
+        )
+
+
+
+--0xaf
+
+
+xra_a : CpuState -> MachineStateDiff
+xra_a cpuState =
+    let
+        newPc =
+            cpuState.pc + 1
+    in
+    Events
+        (List.concat
+            [ [ SetRegisterA (Bitwise.xor cpuState.a cpuState.a), SetPC newPc ]
+            , logic_flags_a cpuState
+            ]
+        )
+
+
+
+-- 0xc1
+
+
+pop_b : CpuState -> MachineStateDiff
+pop_b cpuState =
+    let
+        newSp =
+            cpuState.sp + 2
+
+        addressForC =
+            cpuState.sp
+
+        addressForB =
+            cpuState.sp + 1
+
+        memory =
+            cpuState.memory
+    in
+    Events
+        [ SetRegisterB (Memory.readMemory addressForB memory)
+        , SetRegisterC (Memory.readMemory addressForC memory)
+        , SetSP newSp
+        ]
+
+
+
+-- 0xc2
+
+
+jnz : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
+jnz firstArg secondArg cpuState =
+    if False == cpuState.conditionCodes.z then
+        Events [ SetPC (getAddressLE firstArg secondArg) ]
+
+    else
+        Events [ SetPC (cpuState.pc + 3) ]
 
 
 
@@ -478,22 +567,93 @@ jmp firstArg secondArg _ =
 push_b : CpuState -> MachineStateDiff
 push_b cpuState =
     let
-        newPc =
-            cpuState.pc + 1
-
         addressForB =
             cpuState.sp - 1
 
         addressForC =
             cpuState.sp - 2
 
-        newSP =
+        newSp =
             cpuState.sp - 2
     in
     Events
         [ SetMemory addressForB cpuState.b
         , SetMemory addressForC cpuState.c
-        , SetSP newSP
+        , SetSP newSp
+        ]
+
+
+
+-- 0xc6
+
+
+adi_d8 : ByteValue -> CpuState -> MachineStateDiff
+adi_d8 firstArg cpuState =
+    let
+        x =
+            cpuState.a + firstArg
+
+        newPc =
+            cpuState.pc + 2
+    in
+    Events
+        [ SetRegisterA x
+        , SetFlag (SetFlagZ (0 == Bitwise.and x 0xFF))
+        , SetFlag (SetFlagS (0x80 == Bitwise.and x 0x80))
+        , SetFlag (SetFlagP (ConditionCodesFlags.pFlag (Bitwise.and x 0xFF)))
+        , SetFlag (SetFlagCY (ConditionCodesFlags.cyFlagAdd x))
+        , SetPC newPc
+        ]
+
+
+
+-- 0xc9
+
+
+ret : CpuState -> MachineStateDiff
+ret cpuState =
+    let
+        newSp =
+            cpuState.sp + 2
+
+        memSpLow =
+            Memory.readMemory cpuState.sp cpuState.memory
+
+        memSpHigh =
+            Bitwise.shiftLeftBy 8 (Memory.readMemory (cpuState.sp + 1) cpuState.memory)
+    in
+    Events
+        [ SetSP newSp
+        , SetPC (Bitwise.or memSpLow memSpHigh)
+        ]
+
+
+
+-- 0xcd
+
+
+call : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
+call firstArg secondArg cpuState =
+    let
+        newPc =
+            getAddressLE firstArg secondArg
+
+        newSp =
+            cpuState.sp - 2
+
+        memoryOne =
+            cpuState.sp - 1
+
+        memoryTwo =
+            cpuState.sp - 2
+
+        data =
+            cpuState.pc + 2
+    in
+    Events
+        [ SetMemory memoryOne (Bitwise.and (Bitwise.shiftRightBy 8 data) 0xFF)
+        , SetMemory memoryTwo (Bitwise.and data 0xFF)
+        , SetSP newSp
         , SetPC newPc
         ]
 
