@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "analyse": "npx elm-analyse -s -o",
-    "run:watch": "npx elm-live src/elm/Main.elm --open --dir=src --start-page=index.html -- --output=js/elmulator.js",
+    "run:watch": "npx elm-live src/elm/Main.elm --open --dir=src --start-page=index.html -- --output=src/js/elmulator.js",
     "test": "npx elm-test",
     "test:ci": "mkdir -p test-reports && npx elm-test --report=junit > ./test-reports/junit.xml",
     "test:watch": "npx elm-test --watch",
