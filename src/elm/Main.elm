@@ -61,7 +61,7 @@ type Msg
     = RomRequested
     | RomSelected File
     | RomLoaded Bytes
-    | NextStepRequested MachineState
+    | NextStepRequested
     | Reset
 
 
@@ -83,8 +83,8 @@ update msg model =
             , Cmd.none
             )
 
-        NextStepRequested machineState ->
-            case machineState of
+        NextStepRequested ->
+            case model.currentCpuState of
                 Valid currentCpuState ->
                     ( { model | currentCpuState = oneStep currentCpuState }
                     , Cmd.none
@@ -174,7 +174,7 @@ view model =
                                 [ onClick RomRequested
                                 ]
                             ]
-                            [ text "(L)oad ROM" ]
+                            [ text "(l)oad rom" ]
                         ]
                     ]
                 ]
@@ -189,14 +189,14 @@ view model =
                         [ onClick Reset
                         ]
                     ]
-                    [ text "(R)eset" ]
+                    [ text "(r)eset" ]
                 , Button.button
                     [ Button.outlinePrimary
                     , Button.attrs
-                        [ onClick (NextStepRequested model.currentCpuState)
+                        [ onClick NextStepRequested
                         ]
                     ]
-                    [ text "(N)ext Step" ]
+                    [ text "(n)ext step" ]
                 , Grid.row []
                     [ Grid.col []
                         [ h3 [] [ text "Screen" ]
@@ -257,11 +257,14 @@ keyDecoder =
         |> Decode.andThen
             (\string ->
                 case string of
-                    "L" ->
+                    "l" ->
                         Decode.succeed RomRequested
 
-                    "R" ->
+                    "r" ->
                         Decode.succeed Reset
+
+                    "n" ->
+                        Decode.succeed NextStepRequested
 
                     _ ->
                         Decode.fail "Pressed key is not a Elmulator Button"
