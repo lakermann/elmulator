@@ -2,6 +2,7 @@ module UI.Formatter exposing (..)
 
 import EmulatorState exposing (EmulatorState(..), MachineState)
 import Hex
+import Memory
 import Psw exposing (createPSW)
 
 
@@ -23,7 +24,27 @@ formatRegisters machineState =
     , "sp:  " ++ Hex.padX4 machineState.cpuState.sp
     , "pc:  " ++ Hex.padX4 machineState.cpuState.pc
     , "cycleCount: " ++ String.fromInt machineState.cpuState.cycleCount
-    , "flags: " ++ Hex.padX4 (Psw.createPSW machineState.cpuState.conditionCodes)
+    , "-----------------------"
+    , "sp -4: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp - 4) machineState.memory)
+    , "sp -3: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp - 3) machineState.memory)
+    , "sp -2: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp - 2) machineState.memory)
+    , "sp -1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp - 1) machineState.memory)
+    , "sp 0: " ++ Hex.padX2 (Memory.readMemory machineState.cpuState.sp machineState.memory)
+    , "sp 1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 1) machineState.memory)
+    , "sp 2: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 2) machineState.memory)
+    , "sp 3: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 3) machineState.memory)
+    , "sp 4: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 4) machineState.memory)
+    , "-----------------------"
+    , "pc -4: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 4) machineState.memory)
+    , "pc -3: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 3) machineState.memory)
+    , "pc -2: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 2) machineState.memory)
+    , "pc -1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 1) machineState.memory)
+    , "pc 0: " ++ Hex.padX2 (Memory.readMemory machineState.cpuState.pc machineState.memory)
+    , "pc 1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 1) machineState.memory)
+    , "pc 2: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 2) machineState.memory)
+    , "pc 3: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 3) machineState.memory)
+    , "pc 4: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 4) machineState.memory)
+    , "-----------------------"
     ]
 
 
