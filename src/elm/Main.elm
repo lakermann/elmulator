@@ -184,19 +184,20 @@ view model =
                 [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
                 , pageHeader
                 , Button.button
-                    [ Button.outlineDanger
-                    , Button.attrs
-                        [ onClick Reset
-                        ]
-                    ]
-                    [ text "(r)eset" ]
-                , Button.button
                     [ Button.outlinePrimary
                     , Button.attrs
                         [ onClick NextStepRequested
                         ]
                     ]
                     [ text "(n)ext step" ]
+                , text "   "
+                , Button.button
+                    [ Button.outlineDanger
+                    , Button.attrs
+                        [ onClick Reset
+                        ]
+                    ]
+                    [ text "(r)eset" ]
                 , Grid.row []
                     [ Grid.col []
                         [ h3 [] [ text "Screen" ]
