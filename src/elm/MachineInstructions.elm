@@ -152,6 +152,47 @@ mov_register_ firstArg cpuState =
         ]
 
 
+pop_ : (ByteValue -> MachineStateDiffEvent) -> (ByteValue -> MachineStateDiffEvent) -> CpuState -> MachineStateDiff
+pop_ firstDiffEvent secondDiffEvent cpuState =
+    let
+        newSp =
+            cpuState.sp + 2
+
+        addressForTwo =
+            cpuState.sp
+
+        addressForOne =
+            cpuState.sp + 1
+
+        memory =
+            cpuState.memory
+    in
+    Events
+        [ secondDiffEvent (Memory.readMemory addressForOne memory)
+        , firstDiffEvent (Memory.readMemory addressForTwo memory)
+        , SetSP newSp
+        ]
+
+
+push_ : ByteValue -> ByteValue -> CpuState -> MachineStateDiff
+push_ firstArg secondArg cpuState =
+    let
+        addressForOne =
+            cpuState.sp - 1
+
+        addressForTwo =
+            cpuState.sp - 2
+
+        newSp =
+            cpuState.sp - 2
+    in
+    Events
+        [ SetMemory addressForOne firstArg
+        , SetMemory addressForTwo secondArg
+        , SetSP newSp
+        ]
+
+
 
 -- 0x00
 
@@ -518,24 +559,7 @@ xra_a cpuState =
 
 pop_b : CpuState -> MachineStateDiff
 pop_b cpuState =
-    let
-        newSp =
-            cpuState.sp + 2
-
-        addressForC =
-            cpuState.sp
-
-        addressForB =
-            cpuState.sp + 1
-
-        memory =
-            cpuState.memory
-    in
-    Events
-        [ SetRegisterB (Memory.readMemory addressForB memory)
-        , SetRegisterC (Memory.readMemory addressForC memory)
-        , SetSP newSp
-        ]
+    pop_ (\data -> SetRegisterB data) (\data -> SetRegisterC data) cpuState
 
 
 
@@ -566,21 +590,7 @@ jmp firstArg secondArg _ =
 
 push_b : CpuState -> MachineStateDiff
 push_b cpuState =
-    let
-        addressForB =
-            cpuState.sp - 1
-
-        addressForC =
-            cpuState.sp - 2
-
-        newSp =
-            cpuState.sp - 2
-    in
-    Events
-        [ SetMemory addressForB cpuState.b
-        , SetMemory addressForC cpuState.c
-        , SetSP newSp
-        ]
+    push_ cpuState.b cpuState.c cpuState
 
 
 
@@ -659,6 +669,115 @@ call firstArg secondArg cpuState =
 
 
 
+-- 0xd1
+
+
+pop_d : CpuState -> MachineStateDiff
+pop_d cpuState =
+    pop_ (\data -> SetRegisterD data) (\data -> SetRegisterE data) cpuState
+
+
+
+-- 0xd5
+
+
+push_d : CpuState -> MachineStateDiff
+push_d cpuState =
+    push_ cpuState.d cpuState.e cpuState
+
+
+
+-- 0xe1
+
+
+pop_h : CpuState -> MachineStateDiff
+pop_h cpuState =
+    pop_ (\data -> SetRegisterH data) (\data -> SetRegisterL data) cpuState
+
+
+
+-- 0xe5
+
+
+push_h : CpuState -> MachineStateDiff
+push_h cpuState =
+    push_ cpuState.h cpuState.l cpuState
+
+
+
+-- 0xe6
+
+
+ani : ByteValue -> CpuState -> MachineStateDiff
+ani firstArg cpuState =
+    let
+        newPc =
+            cpuState.pc + 1
+
+        newA =
+            Bitwise.and cpuState.a firstArg
+    in
+    Events
+        (List.concat
+            [ [ SetRegisterA newA, SetPC newPc ]
+            , logic_flags_a cpuState
+            ]
+        )
+
+
+
+-- 0xeb
+
+
+xchg : CpuState -> MachineStateDiff
+xchg cpuState =
+    let
+        saveOne =
+            cpuState.d
+
+        saveTwo =
+            cpuState.e
+
+        newPc =
+            cpuState.pc + 1
+    in
+    Events
+        [ SetRegisterD cpuState.h
+        , SetRegisterE cpuState.l
+        , SetRegisterH saveOne
+        , SetRegisterL saveTwo
+        , SetPC newPc
+        ]
+
+
+
+-- 0xf1
+
+
+pop_psw : CpuState -> MachineStateDiff
+pop_psw cpuState =
+    let
+        addressForA =
+            cpuState.sp + 1
+
+        psw =
+            Memory.readMemory cpuState.sp cpuState.memory
+
+        newSp =
+            cpuState.sp + 2
+    in
+    Events
+        [ SetRegisterA (Memory.readMemory addressForA cpuState.memory)
+        , SetFlag (SetFlagZ (0x01 == Bitwise.and psw 0x01))
+        , SetFlag (SetFlagS (0x02 == Bitwise.and psw 0x02))
+        , SetFlag (SetFlagP (0x04 == Bitwise.and psw 0x04))
+        , SetFlag (SetFlagCY (0x05 == Bitwise.and psw 0x08))
+        , SetFlag (SetFlagAC (0x10 == Bitwise.and psw 0x10))
+        , SetSP newSp
+        ]
+
+
+
 -- 0xf5
 
 
@@ -684,5 +803,43 @@ push_psw cpuState =
         [ SetMemory addressForA cpuState.a
         , SetMemory addressForPSW psw
         , SetSP newSP
+        , SetPC newPc
+        ]
+
+
+
+-- 0xfb
+
+
+ei : CpuState -> MachineStateDiff
+ei cpuState =
+    let
+        newPc =
+            cpuState.pc + 1
+    in
+    Events
+        [ SetIntEnable True
+        , SetPC newPc
+        ]
+
+
+
+-- 0xfe
+
+
+cpi : ByteValue -> CpuState -> MachineStateDiff
+cpi firstArg cpuState =
+    let
+        x =
+            cpuState.a - firstArg
+
+        newPc =
+            cpuState.pc + 2
+    in
+    Events
+        [ SetFlag (SetFlagZ (ConditionCodesFlags.zFlag x))
+        , SetFlag (SetFlagS (ConditionCodesFlags.sFlag x))
+        , SetFlag (SetFlagP (ConditionCodesFlags.pFlag x))
+        , SetFlag (SetFlagCY (cpuState.a < firstArg))
         , SetPC newPc
         ]
