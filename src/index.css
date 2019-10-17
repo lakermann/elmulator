@@ -9,3 +9,8 @@
   width: 256px;
   height: 224px;
 }
+
+.code-wrapper {
+  height: 300px;
+  overflow-y: scroll;
+}

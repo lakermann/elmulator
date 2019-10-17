@@ -198,7 +198,7 @@ view model =
                         ]
                     , Grid.col []
                         [ h3 [] [ text "Code" ]
-                        , pre [] [ text (disassemble content) ]
+                        , div [ class "code-wrapper" ] [ pre [] [ text (disassemble content) ] ]
                         ]
                     ]
                 ]
