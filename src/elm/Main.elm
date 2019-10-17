@@ -20,7 +20,7 @@ import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
 import MachineState exposing (CpuState, MachineState(..))
 import Task
-import UI.Formatter exposing (formatCpuState)
+import UI.Formatter exposing (cpustate)
 import UI.KeyDecoder exposing (keyDecoder)
 import UI.Msg exposing (Msg(..))
 
@@ -118,19 +118,6 @@ disassemble data =
             disassembleToInstructions decodedFile
     in
     String.join "\n" (List.map instructionToString disassembledFile)
-
-
-cpustate : MachineState -> String
-cpustate state =
-    case state of
-        Invalid Nothing string ->
-            "ERROR:" ++ "\n" ++ string ++ "\n\n" ++ "No last known CPU state"
-
-        Invalid (Just cpuState) string ->
-            "ERROR:" ++ "\n" ++ string ++ "\n\n" ++ "Last known CPU state:" ++ "\n" ++ formatCpuState cpuState
-
-        Valid cpuState ->
-            formatCpuState cpuState
 
 
 view : Model -> Html Msg
