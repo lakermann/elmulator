@@ -1,17 +1,19 @@
 module Main exposing (main)
 
-import Array
 import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
 import Browser
 import Bytes exposing (Bytes)
+import Canvas exposing (rect, shapes)
+import Canvas.Settings exposing (fill)
+import Color exposing (Color)
 import Cpu exposing (oneStep)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
 import Hex
-import Html exposing (Html, canvas, div, h1, h3, p, pre, text)
+import Html exposing (Html, div, h1, h3, p, pre, text)
 import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
@@ -96,7 +98,7 @@ update msg model =
 
 
 loadDataIntoMemory : Model -> Bytes -> Model
-loadDataIntoMemory model data =
+loadDataIntoMemory _ data =
     let
         decodedFile =
             decodeFile data
@@ -126,21 +128,32 @@ disassemble data =
 cpustate : MachineState -> String
 cpustate state =
     case state of
-        Invalid _ string ->
-            string
+        Invalid Nothing string ->
+            "ERROR:" ++ "\n" ++ string ++ "\n\n" ++ "No last known CPU state"
+
+        Invalid (Just cpuState) string ->
+            "ERROR:" ++ "\n" ++ string ++ "\n\n" ++ "Last known CPU state:" ++ "\n" ++ (formatCpuState cpuState)
 
         Valid cpuState ->
-            String.join "\n"
-                [ "a:  " ++ Hex.padX2 cpuState.a
-                , "b:  " ++ Hex.padX2 cpuState.b
-                , "d:  " ++ Hex.padX2 cpuState.c
-                , "d:  " ++ Hex.padX2 cpuState.d
-                , "e:  " ++ Hex.padX2 cpuState.e
-                , "h:  " ++ Hex.padX2 cpuState.h
-                , "l:  " ++ Hex.padX2 cpuState.l
-                , "sp: " ++ Hex.padX4 cpuState.sp
-                , "pc: " ++ Hex.padX4 cpuState.pc
-                ]
+            formatCpuState cpuState
+
+formatCpuState : CpuState -> String
+formatCpuState cpuState =
+    String.join "\n" (formatRegisters cpuState)
+
+
+formatRegisters : CpuState -> List String
+formatRegisters cpuState =
+    [ "a:  " ++ Hex.padX2 cpuState.a
+    , "b:  " ++ Hex.padX2 cpuState.b
+    , "d:  " ++ Hex.padX2 cpuState.c
+    , "d:  " ++ Hex.padX2 cpuState.d
+    , "e:  " ++ Hex.padX2 cpuState.e
+    , "h:  " ++ Hex.padX2 cpuState.h
+    , "l:  " ++ Hex.padX2 cpuState.l
+    , "sp: " ++ Hex.padX4 cpuState.sp
+    , "pc: " ++ Hex.padX4 cpuState.pc
+    ]
 
 
 view : Model -> Html Msg
@@ -205,9 +218,25 @@ pageHeader =
         ]
 
 
-screen : Html Msg
+screen : Html msg
 screen =
-    div [ class "screen-wrapper" ] [ canvas [ class "screen-canvas" ] [] ]
+    let
+        width =
+            256
+
+        height =
+            224
+    in
+    Canvas.toHtml ( width, 224 )
+        []
+        [ shapes [ fill Color.green ] [ rect ( 0, 0 ) width height ]
+        , renderPixel
+        ]
+
+
+renderPixel =
+    shapes [ fill Color.black ]
+        [ rect ( 0, 0 ) 1 1 ]
 
 
 
