@@ -11,8 +11,8 @@ import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
 import Hex
-import Html exposing (Html, div, h1, h3, p, pre, text)
-import Html.Attributes exposing (class)
+import Html exposing (Html, canvas, div, h1, h3, p, pre, text)
+import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
@@ -98,10 +98,13 @@ update msg model =
 loadDataIntoMemory : Model -> Bytes -> Model
 loadDataIntoMemory model data =
     let
-        decodedFile = decodeFile data
-        initialCpuState = Cpu.init decodedFile
+        decodedFile =
+            decodeFile data
+
+        initialCpuState =
+            Cpu.init decodedFile
     in
-        Model (Just data) initialCpuState
+    Model (Just data) initialCpuState
 
 
 
@@ -186,12 +189,16 @@ view model =
                     ]
                 , Grid.row []
                     [ Grid.col []
-                        [ h3 [] [ text "Code" ]
-                        , pre [] [ text (disassemble content) ]
+                        [ h3 [] [ text "Screen" ]
+                        , screen
                         ]
                     , Grid.col []
                         [ h3 [] [ text "CPU State" ]
                         , pre [] [ text (cpustate model.currentCpuState) ]
+                        ]
+                    , Grid.col []
+                        [ h3 [] [ text "Code" ]
+                        , pre [] [ text (disassemble content) ]
                         ]
                     ]
                 ]
@@ -202,6 +209,11 @@ pageHeader =
     div []
         [ h1 [] [ text "Elmulator ", p [ class "lead" ] [ text "A 8080 Emulator written in Elm" ] ]
         ]
+
+
+screen : Html Msg
+screen =
+    div [ class "screen-wrapper" ] [ canvas [ width 160, height 144, class "screen-canvas" ] [] ]
 
 
 
