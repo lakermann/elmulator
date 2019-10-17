@@ -16,7 +16,7 @@ all =
                     let
                       dummyImpl = (\cpuState -> Failed (Just cpuState) "not implemented yet")
                       opCodeSpec = OpCode.OneByte dummyImpl
-                      opCodeData = OpCodeData "NOP" opCodeSpec
+                      opCodeData = OpCodeData "NOP" 4 opCodeSpec
                       opCode = OpCode 0x00 opCodeData
                     in
                     Instruction 1
@@ -29,7 +29,7 @@ all =
                     let
                         dummyImpl = (\_ -> \_ -> \cpuState -> Failed (Just cpuState) "not implemented yet")
                         opCodeSpec = OpCode.ThreeBytes dummyImpl
-                        opCodeData = OpCodeData "JMP" opCodeSpec
+                        opCodeData = OpCodeData "JMP" 10 opCodeSpec
                         opCode = OpCode 0xc3 opCodeData
                     in
                     Instruction 0xa1b2

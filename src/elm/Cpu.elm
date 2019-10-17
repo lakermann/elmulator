@@ -2,7 +2,7 @@ module Cpu exposing (..)
 
 import Array
 import MachineState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, Flag, MachineState(..), MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetFlagEvent(..))
-import OpCode exposing (OpCode, getImplementation)
+import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 
 
@@ -42,8 +42,10 @@ evaluate cpuState opCode =
         firstValueProvider = readMemoryProvider address 1 memory
         secondValueProvider = readMemoryProvider address 2 memory
         implementation = getImplementation opCode firstValueProvider secondValueProvider
+        cycles = getCycles opCode
     in
       implementation cpuState
+      |> addCycles cycles
 
 readMemoryProvider : AddressValue -> Int -> Memory -> () -> ByteValue
 readMemoryProvider address offset memory =
@@ -54,6 +56,16 @@ readMemoryProvider address offset memory =
         Just value -> value
 
         Nothing -> 0 -- TODO: What should we do here?
+
+
+addCycles : Int -> MachineStateDiff -> MachineStateDiff
+addCycles cycles machineStateDiff =
+    case machineStateDiff of
+        Failed _ _ -> machineStateDiff
+
+
+        Events list -> Events (list ++ [ AddCycles cycles] )
+
 
 apply : MachineStateDiff -> CpuState -> MachineState
 apply machineStateDiff cpuState =
@@ -103,6 +115,10 @@ applyEvent event cpuState =
 
         SetIntEnable flag ->
             { cpuState | intEnable = flag }
+
+        AddCycles cycles ->
+            { cpuState | cycleCount = cpuState.cycleCount + cycles }
+
 
 
 setMemory : AddressValue -> ByteValue -> CpuState -> CpuState
@@ -155,7 +171,8 @@ init rom =
             0x0000 -- PC
             memory
             conditionCodes
-            False
+            False -- intEnable
+            0 -- cycleCount
         )
 
 

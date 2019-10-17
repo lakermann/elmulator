@@ -1,4 +1,4 @@
-module OpCode exposing (OpCode, OpCodeSpec(..), OpCodeData, ImplOneByte, getOpCodeLength, getImplementation, getName)
+module OpCode exposing (OpCode, OpCodeSpec(..), OpCodeData, ImplOneByte, getOpCodeLength, getImplementation, getName, getCycles)
 
 import MachineState exposing (AddressValue, ByteValue, CpuState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory)
 
@@ -14,6 +14,7 @@ type OpCodeSpec
 
 type alias OpCodeData =
     { name : String
+    , cycles : Int
     , opCodeSpec : OpCodeSpec
     }
 
@@ -65,3 +66,6 @@ getSpec opCode = opCode.data.opCodeSpec
 
 getName: OpCode -> String
 getName opCode = opCode.data.name
+
+getCycles: OpCode -> Int
+getCycles opCode = opCode.data.cycles

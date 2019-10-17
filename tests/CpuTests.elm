@@ -31,7 +31,7 @@ all =
       ]
     ]
 
-allZeroCpuState = CpuState 0 0 0 0 0 0 0 0 0 Array.empty (ConditionCodes False False False False False) False
+allZeroCpuState = CpuState 0 0 0 0 0 0 0 0 0 Array.empty (ConditionCodes False False False False False) False 0
 
 getValueOfRegisterB : MachineState -> Maybe Int
 getValueOfRegisterB machineState =

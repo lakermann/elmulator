@@ -4,6 +4,7 @@ import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
 import Browser
+import Browser.Events
 import Bytes exposing (Bytes)
 import Canvas exposing (rect, shapes)
 import Canvas.Settings exposing (fill)
@@ -18,6 +19,7 @@ import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
+import Json.Decode as Decode
 import MachineState exposing (CpuState, MachineState(..))
 import Task
 
@@ -59,7 +61,7 @@ type Msg
     = RomRequested
     | RomSelected File
     | RomLoaded Bytes
-    | NextStepRequested MachineState
+    | NextStepRequested
     | Reset
 
 
@@ -81,8 +83,8 @@ update msg model =
             , Cmd.none
             )
 
-        NextStepRequested machineState ->
-            case machineState of
+        NextStepRequested ->
+            case model.currentCpuState of
                 Valid currentCpuState ->
                     ( { model | currentCpuState = oneStep currentCpuState }
                     , Cmd.none
@@ -132,10 +134,11 @@ cpustate state =
             "ERROR:" ++ "\n" ++ string ++ "\n\n" ++ "No last known CPU state"
 
         Invalid (Just cpuState) string ->
-            "ERROR:" ++ "\n" ++ string ++ "\n\n" ++ "Last known CPU state:" ++ "\n" ++ (formatCpuState cpuState)
+            "ERROR:" ++ "\n" ++ string ++ "\n\n" ++ "Last known CPU state:" ++ "\n" ++ formatCpuState cpuState
 
         Valid cpuState ->
             formatCpuState cpuState
+
 
 formatCpuState : CpuState -> String
 formatCpuState cpuState =
@@ -153,6 +156,7 @@ formatRegisters cpuState =
     , "l:  " ++ Hex.padX2 cpuState.l
     , "sp: " ++ Hex.padX4 cpuState.sp
     , "pc: " ++ Hex.padX4 cpuState.pc
+    , "cycleCount: " ++ (String.fromInt cpuState.cycleCount)
     ]
 
 
@@ -171,7 +175,7 @@ view model =
                                 [ onClick RomRequested
                                 ]
                             ]
-                            [ text "Load ROM" ]
+                            [ text "(l)oad rom" ]
                         ]
                     ]
                 ]
@@ -181,19 +185,20 @@ view model =
                 [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
                 , pageHeader
                 , Button.button
+                    [ Button.outlinePrimary
+                    , Button.attrs
+                        [ onClick NextStepRequested
+                        ]
+                    ]
+                    [ text "(n)ext step" ]
+                , text "   "
+                , Button.button
                     [ Button.outlineDanger
                     , Button.attrs
                         [ onClick Reset
                         ]
                     ]
-                    [ text "Reset" ]
-                , Button.button
-                    [ Button.outlinePrimary
-                    , Button.attrs
-                        [ onClick (NextStepRequested model.currentCpuState)
-                        ]
-                    ]
-                    [ text "Next Step" ]
+                    [ text "(r)eset" ]
                 , Grid.row []
                     [ Grid.col []
                         [ h3 [] [ text "Screen" ]
@@ -227,7 +232,7 @@ screen =
         height =
             224
     in
-    Canvas.toHtml ( width, 224 )
+    Canvas.toHtml ( width, height )
         []
         [ shapes [ fill Color.green ] [ rect ( 0, 0 ) width height ]
         , renderPixel
@@ -244,5 +249,25 @@ renderPixel =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Sub.none
+subscriptions model =
+    Browser.Events.onKeyDown keyDecoder
+
+
+keyDecoder : Decode.Decoder Msg
+keyDecoder =
+    Decode.field "key" Decode.string
+        |> Decode.andThen
+            (\string ->
+                case string of
+                    "l" ->
+                        Decode.succeed RomRequested
+
+                    "r" ->
+                        Decode.succeed Reset
+
+                    "n" ->
+                        Decode.succeed NextStepRequested
+
+                    _ ->
+                        Decode.fail "Pressed key is not a Elmulator Button"
+            )
