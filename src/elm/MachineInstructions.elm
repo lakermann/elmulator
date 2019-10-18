@@ -293,11 +293,19 @@ mov_m_ diffEvent machineState =
 
         newPc =
             getPC machineState + 1
+
+        memoryAccessResult =
+            Memory.readMemory memoryAddress (getMemory machineState)
     in
-    Events
-        [ diffEvent (Memory.readMemory memoryAddress (getMemory machineState))
-        , setPC newPc
-        ]
+    case memoryAccessResult of
+        Memory.Valid byteValue ->
+                Events
+                    [ diffEvent (byteValue)
+                    , setPC newPc
+                    ]
+
+        Memory.Invalid message ->
+            Failed (Just machineState) message
 
 
 mov_register_ : ByteValue -> MachineState -> MachineStateDiff
@@ -329,12 +337,24 @@ pop_ firstDiffEvent secondDiffEvent machineState =
 
         memory =
             getMemory machineState
+
+        firstMemoryAccessResult =
+            Memory.readMemory addressForOne memory
+
+        secondMemoryAccessResult =
+            Memory.readMemory addressForTwo memory
     in
-    Events
-        [ secondDiffEvent (Memory.readMemory addressForOne memory)
-        , firstDiffEvent (Memory.readMemory addressForTwo memory)
-        , setSP newSp
-        ]
+    case (firstMemoryAccessResult, secondMemoryAccessResult) of
+        (Memory.Valid firstByteValue, Memory.Valid secondByteValue) ->
+            Events
+                [ secondDiffEvent (firstByteValue)
+                , firstDiffEvent (secondByteValue)
+                , setSP newSp
+                ]
+        (Memory.Valid _, Memory.Invalid message) ->
+            Failed (Just machineState) message
+        (Memory.Invalid message, _) ->
+            Failed (Just machineState) message
 
 
 push_ : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
@@ -513,11 +533,21 @@ ldax_d machineState =
 
         memoryAddress =
             Bitwise.or (Bitwise.shiftLeftBy 8 (getD machineState)) (getE machineState)
+
+        memoryAccessResult =
+            Memory.readMemory memoryAddress (getMemory machineState)
     in
-    Events
-        [ setRegisterA (Memory.readMemory memoryAddress (getMemory machineState))
-        , setPC newPc
-        ]
+    case memoryAccessResult of
+        Memory.Valid byteValue ->
+                Events
+                    [ setRegisterA (byteValue)
+                    , setPC newPc
+                    ]
+
+        Memory.Invalid message ->
+            Failed (Just machineState) message
+
+
 
 
 
@@ -619,11 +649,19 @@ lda firstArg secondArg machineState =
 
         memoryAddress =
             getAddressLE firstArg secondArg
+
+        memoryAccessResult =
+            Memory.readMemory memoryAddress (getMemory machineState)
     in
-    Events
-        [ setRegisterA (Memory.readMemory memoryAddress (getMemory machineState))
-        , setPC newPc
-        ]
+    case memoryAccessResult of
+        Memory.Valid byteValue ->
+            Events
+                    [ setRegisterA (byteValue)
+                    , setPC newPc
+                    ]
+
+        Memory.Invalid message ->
+            Failed (Just machineState) message
 
 
 
@@ -790,22 +828,34 @@ adi_d8 firstArg machineState =
 ret : MachineState -> MachineStateDiff
 ret machineState =
     let
-        newSp =
-            getSP machineState + 2
-
         memSpLow =
             Memory.readMemory (getSP machineState) (getMemory machineState)
 
         memSpHigh =
-            Bitwise.shiftLeftBy 8 (Memory.readMemory (getSP machineState + 1) (getMemory machineState))
+            Memory.readMemory (getSP machineState + 1) (getMemory machineState)
     in
-    Events
-        [ setSP newSp
-        , setPC (Bitwise.or memSpLow memSpHigh)
-        ]
+    case (memSpLow, memSpHigh) of
+        (Memory.Valid spLowByteValue, Memory.Valid spHighByteValue) ->
+            createRet spLowByteValue spHighByteValue machineState
+        (Memory.Valid _, Memory.Invalid message) ->
+            Failed (Just machineState) message
+        (Memory.Invalid message, _) ->
+            Failed (Just machineState) message
 
-
-
+createRet : ByteValue -> ByteValue -> (MachineState -> MachineStateDiff)
+createRet memSpLow memSpHigh machineState =
+    let
+        newSp =
+            getSP machineState + 2
+        memSpHighShifted =
+            Bitwise.shiftLeftBy 8 memSpHigh
+        newPC =
+            Bitwise.or memSpLow memSpHighShifted
+    in
+        Events
+            [ setSP newSp
+            , setPC newPC
+            ]
 -- 0xcd
 
 
@@ -931,21 +981,33 @@ pop_psw machineState =
         addressForA =
             getSP machineState + 1
 
-        psw =
+        pswAccessResult =
             Memory.readMemory (getSP machineState) (getMemory machineState)
 
         newSp =
             getSP machineState + 2
+
+        memoryAccessResult =
+            Memory.readMemory addressForA (getMemory machineState)
     in
-    Events
-        [ setRegisterA (Memory.readMemory addressForA (getMemory machineState))
-        , setFlagZ (0x01 == Bitwise.and psw 0x01)
-        , setFlagS (0x02 == Bitwise.and psw 0x02)
-        , setFlagP (0x04 == Bitwise.and psw 0x04)
-        , setFlagCY (0x05 == Bitwise.and psw 0x08)
-        , setFlagAC (0x10 == Bitwise.and psw 0x10)
-        , setSP newSp
-        ]
+    case (pswAccessResult, memoryAccessResult) of
+        (Memory.Valid psw, Memory.Valid byteValue) ->
+            Events
+                    [ setRegisterA (byteValue)
+                    , setFlagZ (0x01 == Bitwise.and psw 0x01)
+                    , setFlagS (0x02 == Bitwise.and psw 0x02)
+                    , setFlagP (0x04 == Bitwise.and psw 0x04)
+                    , setFlagCY (0x05 == Bitwise.and psw 0x08)
+                    , setFlagAC (0x10 == Bitwise.and psw 0x10)
+                    , setSP newSp
+                    ]
+
+        (Memory.Invalid message, _) ->
+             Failed (Just machineState) message
+
+        (Memory.Valid _, Memory.Invalid message) ->
+             Failed (Just machineState) message
+
 
 
 

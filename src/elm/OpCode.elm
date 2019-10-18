@@ -1,6 +1,7 @@
 module OpCode exposing (ImplOneByte, OpCode, OpCodeData, OpCodeSpec(..), getCycles, getImplementation, getName, getOpCodeLength)
 
 import EmulatorState exposing (AddressValue, ByteValue, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory)
+import Memory exposing (MemoryAccessResult(..), MemoryProvider)
 
 
 type alias ImplOneByte =
@@ -51,7 +52,7 @@ getOpCodeLength opCode =
             3
 
 
-getImplementation : OpCode -> (() -> ByteValue) -> (() -> ByteValue) -> (MachineState -> MachineStateDiff)
+getImplementation : OpCode -> MemoryProvider -> MemoryProvider -> (MachineState -> MachineStateDiff)
 getImplementation opCode firstValueProvider secondValueProvider =
     let
         opCodeSpec =
@@ -66,7 +67,7 @@ getImplementation opCode firstValueProvider secondValueProvider =
                 firstArg =
                     firstValueProvider ()
             in
-            implTwoBytes firstArg
+              unwrapMemoryAccessTwoBytes implTwoBytes firstArg
 
         ThreeBytes implThreeBytes ->
             let
@@ -76,7 +77,30 @@ getImplementation opCode firstValueProvider secondValueProvider =
                 secondArg =
                     secondValueProvider ()
             in
-            implThreeBytes firstArg secondArg
+              unwrapMemoryAccessThreeBytes implThreeBytes firstArg secondArg
+
+unwrapMemoryAccessTwoBytes: ImplTwoBytes -> MemoryAccessResult -> (MachineState -> MachineStateDiff)
+unwrapMemoryAccessTwoBytes implTwoBytes firstAccessResult =
+    case firstAccessResult of
+        Valid byteValue ->
+            implTwoBytes byteValue
+
+        Invalid message ->
+            illegalMemoryAccess message
+
+unwrapMemoryAccessThreeBytes: ImplThreeBytes -> MemoryAccessResult -> MemoryAccessResult -> (MachineState -> MachineStateDiff)
+unwrapMemoryAccessThreeBytes implThreeBytes firstAccessResult secondAccessResult =
+    case (firstAccessResult, secondAccessResult) of
+        (Valid firstByteValue, Valid secondByteValue) ->
+            implThreeBytes firstByteValue secondByteValue
+        (Valid _, Invalid message) ->
+            illegalMemoryAccess message
+        (Invalid message, _) ->
+            illegalMemoryAccess message
+
+illegalMemoryAccess : String -> (MachineState -> MachineStateDiff)
+illegalMemoryAccess message previousState =
+    Failed (Just previousState) message
 
 
 getSpec : OpCode -> OpCodeSpec

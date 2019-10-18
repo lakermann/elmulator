@@ -1,7 +1,7 @@
 module UI.Formatter exposing (..)
 
 import BitOperations exposing (flagToByte)
-import EmulatorState exposing (EmulatorState(..), MachineState)
+import EmulatorState exposing (AddressValue, EmulatorState(..), MachineState, Memory)
 import Hex
 import Memory
 import Psw exposing (createPSW)
@@ -33,22 +33,34 @@ formatRegisters machineState =
     , "p 1:   " ++ Hex.padX2 machineState.ports.one
     , "p 2:   " ++ Hex.padX2 machineState.ports.two
     , "-----------------------"
-    , "sp -1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp - 1) machineState.memory)
-    , "sp 0:  " ++ Hex.padX2 (Memory.readMemory machineState.cpuState.sp machineState.memory)
-    , "sp 1:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 1) machineState.memory)
-    , "sp 2:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 2) machineState.memory)
+    , "sp -1: " ++ displayMemory machineState.cpuState.sp -1 machineState.memory
+    , "sp 0:  " ++ displayMemory machineState.cpuState.sp 0 machineState.memory
+    , "sp 1:  " ++ displayMemory machineState.cpuState.sp 1 machineState.memory
+    , "sp 2:  " ++ displayMemory machineState.cpuState.sp 2 machineState.memory
     , "-----------------------"
-    , "pc -4: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 4) machineState.memory)
-    , "pc -3: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 3) machineState.memory)
-    , "pc -2: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 2) machineState.memory)
-    , "pc -1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 1) machineState.memory)
-    , "pc 0:  " ++ Hex.padX2 (Memory.readMemory machineState.cpuState.pc machineState.memory)
-    , "pc 1:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 1) machineState.memory)
-    , "pc 2:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 2) machineState.memory)
-    , "pc 3:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 3) machineState.memory)
-    , "pc 4:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 4) machineState.memory)
+    , "pc -4: " ++ displayMemory machineState.cpuState.pc -4 machineState.memory
+    , "pc -3: " ++ displayMemory machineState.cpuState.pc -3 machineState.memory
+    , "pc -2: " ++ displayMemory machineState.cpuState.pc -2 machineState.memory
+    , "pc -1: " ++ displayMemory machineState.cpuState.pc -1 machineState.memory
+    , "pc 0:  " ++ displayMemory machineState.cpuState.pc 0 machineState.memory
+    , "pc 1:  " ++ displayMemory machineState.cpuState.pc 1 machineState.memory
+    , "pc 2:  " ++ displayMemory machineState.cpuState.pc 2 machineState.memory
+    , "pc 3:  " ++ displayMemory machineState.cpuState.pc 3 machineState.memory
+    , "pc 4:  " ++ displayMemory machineState.cpuState.pc 4 machineState.memory
     , "-----------------------"
     ]
+
+displayMemory : AddressValue -> Int -> Memory -> String
+displayMemory address offset memory =
+    let
+        memoryAccessResult = Memory.readMemory (address + offset) memory
+     in
+        case memoryAccessResult of
+            Memory.Valid byteValue ->
+                Hex.padX2 byteValue
+
+            Memory.Invalid message ->
+                "ERROR: " ++ message
 
 
 cpustate : EmulatorState -> String

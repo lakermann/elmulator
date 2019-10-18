@@ -5,7 +5,7 @@ import Bitwise
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
 import IO exposing (pressLeft, pressRight, pressSpace, relaseLeft, relaseRight, relaseSpace)
 import MachineInstructions exposing (push_)
-import Memory exposing (readMemoryProvider)
+import Memory exposing (createMemoryProvider)
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 import UI.Msg exposing (GameKey(..))
@@ -133,10 +133,10 @@ evaluate machineState opCode =
             machineState.memory
 
         firstValueProvider =
-            readMemoryProvider address 1 memory
+            createMemoryProvider address 1 memory
 
         secondValueProvider =
-            readMemoryProvider address 2 memory
+            createMemoryProvider address 2 memory
 
         implementation =
             getImplementation opCode firstValueProvider secondValueProvider
