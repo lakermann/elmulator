@@ -9,7 +9,7 @@ import Bytes exposing (Bytes)
 import Canvas exposing (rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (nStep, oneStep)
+import Cpu exposing (leftPressed, leftReleased, nStep)
 import EmulatorState exposing (EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
@@ -21,7 +21,7 @@ import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
 import Task
 import UI.Formatter exposing (cpustate)
-import UI.KeyDecoder exposing (keyDecoder)
+import UI.KeyDecoder exposing (keyDecoderDown, keyDecoderUp)
 import UI.Msg exposing (Msg(..))
 
 
@@ -80,6 +80,30 @@ update msg model =
             case model.currentCpuState of
                 Valid currentCpuState ->
                     ( { model | currentCpuState = nStep n currentCpuState }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        LeftDown ->
+            case model.currentCpuState of
+                Valid currentCpuState ->
+                    ( { model | currentCpuState = leftPressed currentCpuState }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        LeftUp ->
+            case model.currentCpuState of
+                Valid currentCpuState ->
+                    ( { model | currentCpuState = leftReleased currentCpuState }
                     , Cmd.none
                     )
 
@@ -218,4 +242,7 @@ renderPixel =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Browser.Events.onKeyDown keyDecoder
+    Sub.batch
+        [ Browser.Events.onKeyDown keyDecoderDown
+        , Browser.Events.onKeyUp keyDecoderUp
+        ]

@@ -2,6 +2,7 @@ module Cpu exposing (..)
 
 import Array
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
+import IO exposing (pressLeft, relasesLeft)
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 
@@ -322,3 +323,13 @@ initShiftRegister =
 initPorts : Ports
 initPorts =
     Ports 1 0
+
+
+leftPressed : MachineState -> EmulatorState
+leftPressed machineState =
+    apply (pressLeft machineState) machineState
+
+
+leftReleased : MachineState -> EmulatorState
+leftReleased machineState =
+    apply (relasesLeft machineState) machineState

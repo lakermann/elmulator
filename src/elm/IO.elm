@@ -1,7 +1,7 @@
 module IO exposing (..)
 
 import Bitwise
-import EmulatorState exposing (ByteValue, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), RegisterValue, SetCpuStateEvent(..), SetShiftRegisterEvent(..))
+import EmulatorState exposing (ByteValue, EmulatorState, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), RegisterValue, SetCpuStateEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..))
 
 
 io_in : ByteValue -> MachineState -> MachineStateDiff
@@ -69,3 +69,21 @@ io_out address machineState =
 
         _ ->
             Events [ SetCpu (SetPC newPc) ]
+
+
+pressLeft : MachineState -> MachineStateDiff
+pressLeft machineState =
+    let
+        newValue =
+            Bitwise.or machineState.ports.one 16
+    in
+    Events [ SetPort (SetOne newValue) ]
+
+
+relasesLeft : MachineState -> MachineStateDiff
+relasesLeft machineState =
+    let
+        newValue =
+            Bitwise.and machineState.ports.one (255 - 16)
+    in
+    Events [ SetPort (SetOne newValue) ]

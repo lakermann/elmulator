@@ -4,8 +4,8 @@ import Json.Decode as Decode
 import UI.Msg exposing (Msg(..))
 
 
-keyDecoder : Decode.Decoder Msg
-keyDecoder =
+keyDecoderDown : Decode.Decoder Msg
+keyDecoderDown =
     Decode.field "key" Decode.string
         |> Decode.andThen
             (\string ->
@@ -21,6 +21,23 @@ keyDecoder =
 
                     "x" ->
                         Decode.succeed (NextStepsRequested 1500)
+
+                    "a" ->
+                        Decode.succeed LeftDown
+
+                    _ ->
+                        Decode.fail "Pressed key is not a Elmulator Button"
+            )
+
+
+keyDecoderUp : Decode.Decoder Msg
+keyDecoderUp =
+    Decode.field "key" Decode.string
+        |> Decode.andThen
+            (\string ->
+                case string of
+                    "a" ->
+                        Decode.succeed LeftUp
 
                     _ ->
                         Decode.fail "Pressed key is not a Elmulator Button"

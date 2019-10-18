@@ -9,4 +9,6 @@ type Msg
     | RomSelected File
     | RomLoaded Bytes
     | NextStepsRequested Int
+    | LeftDown
+    | LeftUp
     | Reset
