@@ -10,7 +10,7 @@ import Bytes exposing (Bytes)
 import Canvas exposing (Renderable, rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (checkForInterrupt, keyPressed, keyReleased, nStep, readMemory)
+import Cpu exposing (checkForInterrupt, keyPressed, keyReleased, nStep)
 import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
@@ -21,6 +21,7 @@ import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
+import Memory exposing (readMemorySlice)
 import Task
 import Time
 import UI.Formatter exposing (cpustate)
@@ -261,7 +262,7 @@ readGraphicsMemory : EmulatorState -> Maybe (Array ByteValue)
 readGraphicsMemory emulatorState =
     case emulatorState of
         Valid machineState ->
-            Just (readMemory 0x2400 0x3FFF machineState.memory)
+            Just (readMemorySlice 0x2400 0x3FFF machineState.memory)
 
         Invalid _ _ ->
             Nothing
