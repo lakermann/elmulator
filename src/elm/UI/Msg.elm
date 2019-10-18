@@ -10,10 +10,12 @@ type Msg
     | RomSelected File
     | RomLoaded Bytes
     | NextStepsRequested Int
+    | Emulation Time.Posix
     | KeyDown GameKey
     | KeyUp GameKey
     | Reset
-    | Tick Time.Posix
+    | TickInterrupt Time.Posix
+    | InterruptRequested
 
 
 type GameKey

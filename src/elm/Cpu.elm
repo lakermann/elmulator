@@ -48,7 +48,7 @@ checkForInterrupt : MachineState -> EmulatorState
 checkForInterrupt machineState =
     let
         intEnabled =
-            True
+            False
 
         --machineState.cpuState.intEnable
     in
@@ -57,6 +57,11 @@ checkForInterrupt machineState =
 
     else
         Valid machineState
+
+
+interrupt : MachineState -> EmulatorState
+interrupt machineState =
+    generateInterrupt machineState 2
 
 
 generateInterrupt : MachineState -> Int -> EmulatorState
@@ -86,8 +91,8 @@ generateInterruptEvents machineState number =
     in
     Events
         (List.concat
-            [ [ SetCpu (SetPC newPc) ]
-            , pushEvents
+            [ pushEvents
+            , [ SetCpu (SetPC newPc) ]
             ]
         )
 
@@ -319,7 +324,7 @@ init rom =
                 -- H
                 0x00
                 -- L
-                0xF000
+                0xFFFF
                 -- SP
                 0x00
                 -- PC

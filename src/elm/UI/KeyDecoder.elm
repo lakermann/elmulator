@@ -22,6 +22,9 @@ keyDecoderDown =
                     "x" ->
                         Decode.succeed (NextStepsRequested 1500)
 
+                    "i" ->
+                        Decode.succeed InterruptRequested
+
                     "a" ->
                         Decode.succeed (KeyDown Left)
 

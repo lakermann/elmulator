@@ -368,11 +368,15 @@ push_ firstArg secondArg machineState =
 
         newSp =
             getSP machineState - 2
+
+        newPc =
+            getPC machineState + 1
     in
     Events
         [ setMemory addressForOne firstArg
         , setMemory addressForTwo secondArg
         , setSP newSp
+        , setPC newPc
         ]
 
 
@@ -625,6 +629,28 @@ sta firstArg secondArg machineState =
 
 
 
+-- 0x35
+
+
+dcr_m : MachineState -> MachineStateDiff
+dcr_m machineState =
+    let
+        newPc =
+            machineState.cpuState.pc + 1
+
+        newMemoryValue =
+            Memory.readMemory (getAddressLE machineState.cpuState.h machineState.cpuState.l) machineState.memory - 1
+    in
+    Events
+        [ setMemory (getAddressLE machineState.cpuState.h machineState.cpuState.l) newMemoryValue
+        , setFlagZ (ConditionCodesFlags.zFlag newMemoryValue)
+        , setFlagS (ConditionCodesFlags.sFlag newMemoryValue)
+        , setFlagP (ConditionCodesFlags.pFlag newMemoryValue)
+        , setPC newPc
+        ]
+
+
+
 -- 0x36
 
 
@@ -822,6 +848,29 @@ adi_d8 firstArg machineState =
 
 
 
+-- 0xc8
+
+
+rz : MachineState -> MachineStateDiff
+rz machineState =
+    if machineState.cpuState.conditionCodes.z then
+        let
+            newSp =
+                machineState.cpuState.sp + 2
+
+            newPc =
+                Bitwise.or (Memory.readMemory machineState.cpuState.sp machineState.memory) (Bitwise.shiftLeftBy 8 (Memory.readMemory (machineState.cpuState.sp + 1) machineState.memory))
+        in
+        Events
+            [ setSP newSp
+            , setPC newPc
+            ]
+
+    else
+        Events [ setPC (machineState.cpuState.pc + 1) ]
+
+
+
 -- 0xc9
 
 
@@ -933,7 +982,7 @@ ani : ByteValue -> MachineState -> MachineStateDiff
 ani firstArg machineState =
     let
         newPc =
-            getPC machineState + 1
+            getPC machineState + 2
 
         newA =
             Bitwise.and (getA machineState) firstArg
