@@ -1,7 +1,7 @@
 module UI.KeyDecoder exposing (..)
 
 import Json.Decode as Decode
-import UI.Msg exposing (Msg(..))
+import UI.Msg exposing (GameKey(..), Msg(..))
 
 
 keyDecoderDown : Decode.Decoder Msg
@@ -23,7 +23,13 @@ keyDecoderDown =
                         Decode.succeed (NextStepsRequested 1500)
 
                     "a" ->
-                        Decode.succeed LeftDown
+                        Decode.succeed (KeyDown Left)
+
+                    "d" ->
+                        Decode.succeed (KeyDown Right)
+
+                    "s" ->
+                        Decode.succeed (KeyDown Space)
 
                     _ ->
                         Decode.fail "Pressed key is not a Elmulator Button"
@@ -37,7 +43,13 @@ keyDecoderUp =
             (\string ->
                 case string of
                     "a" ->
-                        Decode.succeed LeftUp
+                        Decode.succeed (KeyUp Left)
+
+                    "d" ->
+                        Decode.succeed (KeyUp Right)
+
+                    "s" ->
+                        Decode.succeed (KeyUp Space)
 
                     _ ->
                         Decode.fail "Pressed key is not a Elmulator Button"

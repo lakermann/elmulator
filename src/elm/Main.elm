@@ -9,7 +9,7 @@ import Bytes exposing (Bytes)
 import Canvas exposing (rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (leftPressed, leftReleased, nStep)
+import Cpu exposing (keyPressed, keyReleased, nStep)
 import EmulatorState exposing (EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
@@ -88,10 +88,10 @@ update msg model =
                     , Cmd.none
                     )
 
-        LeftDown ->
+        KeyDown key ->
             case model.currentCpuState of
                 Valid currentCpuState ->
-                    ( { model | currentCpuState = leftPressed currentCpuState }
+                    ( { model | currentCpuState = keyPressed key currentCpuState }
                     , Cmd.none
                     )
 
@@ -100,10 +100,10 @@ update msg model =
                     , Cmd.none
                     )
 
-        LeftUp ->
+        KeyUp key ->
             case model.currentCpuState of
                 Valid currentCpuState ->
-                    ( { model | currentCpuState = leftReleased currentCpuState }
+                    ( { model | currentCpuState = keyReleased key currentCpuState }
                     , Cmd.none
                     )
 

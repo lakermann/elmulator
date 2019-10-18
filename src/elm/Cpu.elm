@@ -2,9 +2,10 @@ module Cpu exposing (..)
 
 import Array
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
-import IO exposing (pressLeft, relasesLeft)
+import IO exposing (pressLeft, pressRight, pressSpace, relaseLeft, relaseRight, relaseSpace)
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
+import UI.Msg exposing (GameKey(..))
 
 
 oneStep : MachineState -> EmulatorState
@@ -325,11 +326,27 @@ initPorts =
     Ports 1 0
 
 
-leftPressed : MachineState -> EmulatorState
-leftPressed machineState =
-    apply (pressLeft machineState) machineState
+keyPressed : GameKey -> MachineState -> EmulatorState
+keyPressed key machineState =
+    case key of
+        Left ->
+            apply (pressLeft machineState) machineState
+
+        Right ->
+            apply (pressRight machineState) machineState
+
+        Space ->
+            apply (pressSpace machineState) machineState
 
 
-leftReleased : MachineState -> EmulatorState
-leftReleased machineState =
-    apply (relasesLeft machineState) machineState
+keyReleased : GameKey -> MachineState -> EmulatorState
+keyReleased key machineState =
+    case key of
+        Left ->
+            apply (relaseLeft machineState) machineState
+
+        Right ->
+            apply (relaseRight machineState) machineState
+
+        Space ->
+            apply (relaseSpace machineState) machineState

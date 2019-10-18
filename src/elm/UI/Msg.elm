@@ -9,6 +9,12 @@ type Msg
     | RomSelected File
     | RomLoaded Bytes
     | NextStepsRequested Int
-    | LeftDown
-    | LeftUp
+    | KeyDown GameKey
+    | KeyUp GameKey
     | Reset
+
+
+type GameKey
+    = Left
+    | Right
+    | Space

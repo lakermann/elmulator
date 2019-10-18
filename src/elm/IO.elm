@@ -80,10 +80,46 @@ pressLeft machineState =
     Events [ SetPort (SetOne newValue) ]
 
 
-relasesLeft : MachineState -> MachineStateDiff
-relasesLeft machineState =
+relaseLeft : MachineState -> MachineStateDiff
+relaseLeft machineState =
     let
         newValue =
             Bitwise.and machineState.ports.one (255 - 16)
+    in
+    Events [ SetPort (SetOne newValue) ]
+
+
+pressRight : MachineState -> MachineStateDiff
+pressRight machineState =
+    let
+        newValue =
+            Bitwise.or machineState.ports.one 32
+    in
+    Events [ SetPort (SetOne newValue) ]
+
+
+relaseRight : MachineState -> MachineStateDiff
+relaseRight machineState =
+    let
+        newValue =
+            Bitwise.and machineState.ports.one (255 - 32)
+    in
+    Events [ SetPort (SetOne newValue) ]
+
+
+pressSpace : MachineState -> MachineStateDiff
+pressSpace machineState =
+    let
+        newValue =
+            Bitwise.or machineState.ports.one 8
+    in
+    Events [ SetPort (SetOne newValue) ]
+
+
+relaseSpace : MachineState -> MachineStateDiff
+relaseSpace machineState =
+    let
+        newValue =
+            Bitwise.and machineState.ports.one (255 - 8)
     in
     Events [ SetPort (SetOne newValue) ]
