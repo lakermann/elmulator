@@ -1,5 +1,6 @@
 module UI.Formatter exposing (..)
 
+import BitOperations exposing (flagToByte)
 import EmulatorState exposing (EmulatorState(..), MachineState)
 import Hex
 import Memory
@@ -23,6 +24,7 @@ formatRegisters machineState =
     , "psw: " ++ Hex.padX2 (createPSW machineState.cpuState.conditionCodes)
     , "sp:  " ++ Hex.padX4 machineState.cpuState.sp
     , "pc:  " ++ Hex.padX4 machineState.cpuState.pc
+    , "ie:  " ++ Hex.padX2 (flagToByte machineState.cpuState.intEnable)
     , "cycleCount: " ++ String.fromInt machineState.cpuState.cycleCount
     , "-----------------------"
     , "sr l:  " ++ Hex.padX2 machineState.shiftRegister.lower

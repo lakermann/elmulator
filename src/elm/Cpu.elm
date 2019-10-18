@@ -1,8 +1,10 @@
 module Cpu exposing (..)
 
 import Array
+import Bitwise
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
 import IO exposing (pressLeft, pressRight, pressSpace, relaseLeft, relaseRight, relaseSpace)
+import MachineInstructions exposing (push_)
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 import UI.Msg exposing (GameKey(..))
@@ -39,6 +41,64 @@ nStep n machineState =
 
     else
         ns
+
+
+checkForInterrupt : MachineState -> EmulatorState
+checkForInterrupt machineState =
+    let
+        intEnabled =
+            True
+
+        --machineState.cpuState.intEnable
+    in
+    if intEnabled then
+        generateInterrupt machineState 2
+
+    else
+        Valid machineState
+
+
+generateInterrupt : MachineState -> Int -> EmulatorState
+generateInterrupt machineState number =
+    let
+        machineStateDiff =
+            genereateInterruptEvents machineState number
+    in
+    apply machineStateDiff machineState
+
+
+genereateInterruptEvents : MachineState -> Int -> MachineStateDiff
+genereateInterruptEvents machineState number =
+    let
+        newPc =
+            8 * number
+
+        pcHigh =
+            Bitwise.shiftRightBy 8 (Bitwise.and machineState.cpuState.pc 0xFF00)
+
+        pcLow =
+            Bitwise.and machineState.cpuState.pc 0xFF
+    in
+    let
+        pushEvents =
+            extractEvents (push_ pcHigh pcLow machineState)
+    in
+    Events
+        (List.concat
+            [ [ SetCpu (SetPC newPc) ]
+            , pushEvents
+            ]
+        )
+
+
+extractEvents : MachineStateDiff -> List MachineStateDiffEvent
+extractEvents machineStateDiff =
+    case machineStateDiff of
+        Failed _ _ ->
+            []
+
+        Events list ->
+            list
 
 
 getCurrentOpCode : MachineState -> ByteValue

@@ -9,7 +9,7 @@ import Bytes exposing (Bytes)
 import Canvas exposing (rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (keyPressed, keyReleased, nStep)
+import Cpu exposing (checkForInterrupt, keyPressed, keyReleased, nStep)
 import EmulatorState exposing (EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
@@ -20,6 +20,7 @@ import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
 import Task
+import Time
 import UI.Formatter exposing (cpustate)
 import UI.KeyDecoder exposing (keyDecoderDown, keyDecoderUp)
 import UI.Msg exposing (Msg(..))
@@ -104,6 +105,18 @@ update msg model =
             case model.currentCpuState of
                 Valid currentCpuState ->
                     ( { model | currentCpuState = keyReleased key currentCpuState }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        Tick _ ->
+            case model.currentCpuState of
+                Valid currentCpuState ->
+                    ( { model | currentCpuState = checkForInterrupt currentCpuState }
                     , Cmd.none
                     )
 
@@ -243,6 +256,7 @@ renderPixel =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ Browser.Events.onKeyDown keyDecoderDown
+        [ Time.every 17 Tick
+        , Browser.Events.onKeyDown keyDecoderDown
         , Browser.Events.onKeyUp keyDecoderUp
         ]

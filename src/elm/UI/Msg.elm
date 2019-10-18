@@ -2,6 +2,7 @@ module UI.Msg exposing (..)
 
 import Bytes exposing (Bytes)
 import File exposing (File)
+import Time
 
 
 type Msg
@@ -12,6 +13,7 @@ type Msg
     | KeyDown GameKey
     | KeyUp GameKey
     | Reset
+    | Tick Time.Posix
 
 
 type GameKey
