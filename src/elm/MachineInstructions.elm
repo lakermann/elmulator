@@ -846,18 +846,7 @@ pop_d machineState =
 
 
 -- 0xd3
-
-
-out : ByteValue -> MachineState -> MachineStateDiff
-out _ machineState =
-    let
-        newPc =
-            getPC machineState + 2
-    in
-    Events [ setPC newPc ]
-
-
-
+-- see IO
 -- 0xd5
 
 
@@ -867,6 +856,8 @@ push_d machineState =
 
 
 
+-- 0xdb
+-- see IO
 -- 0xe1
 
 

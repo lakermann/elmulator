@@ -1,7 +1,7 @@
 module Cpu exposing (..)
 
 import Array
-import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..))
+import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 
@@ -137,6 +137,13 @@ applyEvent event machineState =
             in
             { machineState | cpuState = newCpuState }
 
+        SetShiftRegister shiftRegisterEvent ->
+            let
+                newShiftRegister =
+                    setShiftRegister shiftRegisterEvent machineState.shiftRegister
+            in
+            { machineState | shiftRegister = newShiftRegister }
+
 
 setMemory : AddressValue -> ByteValue -> MachineState -> MachineState
 setMemory address value cpuState =
@@ -206,6 +213,19 @@ setFlag event conditionCodes =
             { conditionCodes | ac = flag }
 
 
+setShiftRegister : SetShiftRegisterEvent -> ShiftRegister -> ShiftRegister
+setShiftRegister event shiftRegister =
+    case event of
+        SetLower data ->
+            { shiftRegister | lower = data }
+
+        SetUpper data ->
+            { shiftRegister | upper = data }
+
+        SetOffset data ->
+            { shiftRegister | offset = data }
+
+
 init : List ByteValue -> EmulatorState
 init rom =
     let
@@ -214,6 +234,9 @@ init rom =
 
         conditionCodes =
             initConditionCodes
+
+        shiftRegister =
+            initShiftRegister
     in
     Valid
         (MachineState
@@ -243,6 +266,7 @@ init rom =
              -- cycleCount
             )
             memory
+            shiftRegister
         )
 
 
@@ -267,3 +291,8 @@ initMemory rom =
 initConditionCodes : ConditionCodes
 initConditionCodes =
     ConditionCodes False False False False False
+
+
+initShiftRegister : ShiftRegister
+initShiftRegister =
+    ShiftRegister 0 0 0

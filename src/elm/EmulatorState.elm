@@ -35,6 +35,7 @@ type alias Memory =
 type alias MachineState =
     { cpuState : CpuState
     , memory : Memory
+    , shiftRegister : ShiftRegister
     }
 
 
@@ -69,9 +70,23 @@ type alias Flag =
     Bool
 
 
+type alias ShiftRegister =
+    { lower : ByteValue
+    , upper : ByteValue
+    , offset : ByteValue
+    }
+
+
 type MachineStateDiffEvent
     = SetCpu SetCpuStateEvent
     | SetMemory AddressValue ByteValue
+    | SetShiftRegister SetShiftRegisterEvent
+
+
+type SetShiftRegisterEvent
+    = SetLower ByteValue
+    | SetUpper ByteValue
+    | SetOffset ByteValue
 
 
 type SetCpuStateEvent

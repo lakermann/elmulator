@@ -173,7 +173,7 @@ view model =
                         , screen
                         ]
                     , Grid.col []
-                        [ h3 [] [ text "CPU State" ]
+                        [ h3 [] [ text "Machine State" ]
                         , pre [] [ text (cpustate model.currentCpuState) ]
                         ]
                     , Grid.col []
