@@ -5,6 +5,7 @@ import Bitwise
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
 import IO exposing (pressLeft, pressRight, pressSpace, relaseLeft, relaseRight, relaseSpace)
 import MachineInstructions exposing (push_)
+import Memory exposing (readMemoryProvider)
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 import UI.Msg exposing (GameKey(..))
@@ -67,13 +68,13 @@ generateInterrupt : MachineState -> Int -> EmulatorState
 generateInterrupt machineState number =
     let
         machineStateDiff =
-            genereateInterruptEvents machineState number
+            generateInterruptEvents machineState number
     in
     apply machineStateDiff machineState
 
 
-genereateInterruptEvents : MachineState -> Int -> MachineStateDiff
-genereateInterruptEvents machineState number =
+generateInterruptEvents : MachineState -> Int -> MachineStateDiff
+generateInterruptEvents machineState number =
     let
         newPc =
             8 * number
@@ -150,30 +151,6 @@ evaluate machineState opCode =
     in
     implementation machineState
         |> addCycles cycles
-
-
-readMemoryProvider : AddressValue -> Int -> Memory -> () -> ByteValue
-readMemoryProvider address offset memory =
-    let
-        readValue =
-            Array.get (address + offset) memory
-    in
-    \_ ->
-        case readValue of
-            Just value ->
-                value
-
-            Nothing ->
-                0
-
-
-
--- TODO: What should we do here?
-
-
-readMemory : AddressValue -> AddressValue -> Memory -> Array ByteValue
-readMemory startAddress endAddress memory =
-    Array.slice startAddress endAddress memory
 
 
 addCycles : Int -> MachineStateDiff -> MachineStateDiff
