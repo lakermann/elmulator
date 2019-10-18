@@ -106,8 +106,8 @@ positionToPixel displayRowIndex displayColumnIndex byte offset =
         isSet = maskedByte /= 0
         shiftedRowIndex = displayRowIndex - offset
         color = if isSet then
-                    Black
-                 else
                     White
+                 else
+                    Black
     in
         Pixel shiftedRowIndex displayColumnIndex color
