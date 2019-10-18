@@ -10,7 +10,7 @@ import Bytes exposing (Bytes)
 import Canvas exposing (Renderable, rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (checkForInterrupt, keyPressed, keyReleased, nStep, readMemory)
+import Cpu exposing (checkForInterrupt, interrupt, keyPressed, keyReleased, nStep, readMemory)
 import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
@@ -115,10 +115,34 @@ update msg model =
                     , Cmd.none
                     )
 
-        Tick _ ->
+        TickInterrupt _ ->
             case model.currentCpuState of
                 Valid currentCpuState ->
                     ( { model | currentCpuState = checkForInterrupt currentCpuState }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        Emulation _ ->
+            case model.currentCpuState of
+                Valid currentCpuState ->
+                    ( { model | currentCpuState = nStep 100 currentCpuState }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        InterruptRequested ->
+            case model.currentCpuState of
+                Valid currentCpuState ->
+                    ( { model | currentCpuState = interrupt currentCpuState }
                     , Cmd.none
                     )
 
@@ -200,6 +224,14 @@ view model =
                     [ text "ne(x)t 1500 step" ]
                 , text "   "
                 , Button.button
+                    [ Button.outlinePrimary
+                    , Button.attrs
+                        [ onClick InterruptRequested
+                        ]
+                    ]
+                    [ text "(i)nterrupt" ]
+                , text "   "
+                , Button.button
                     [ Button.outlineDanger
                     , Button.attrs
                         [ onClick Reset
@@ -274,7 +306,9 @@ readGraphicsMemory emulatorState =
 subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.batch
-        [ Time.every 17 Tick
-        , Browser.Events.onKeyDown keyDecoderDown
+        [ Browser.Events.onKeyDown keyDecoderDown
         , Browser.Events.onKeyUp keyDecoderUp
+
+        --, Time.every 1 Emulation
+        --, Time.every 17 TickInterrupt
         ]
