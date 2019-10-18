@@ -7,10 +7,10 @@ import Bootstrap.Grid as Grid
 import Browser
 import Browser.Events
 import Bytes exposing (Bytes)
-import Canvas exposing (rect, shapes)
+import Canvas exposing (Renderable, rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (keyPressed, keyReleased, nStep)
+import Cpu exposing (keyPressed, keyReleased, nStep, readMemory)
 import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
@@ -196,7 +196,7 @@ view model =
                 , Grid.row []
                     [ Grid.col []
                         [ h3 [] [ text "Screen" ]
-                        , screen
+                        , screen model.currentCpuState
                         ]
                     , Grid.col []
                         [ h3 [] [ text "Machine State" ]
@@ -217,31 +217,47 @@ pageHeader =
         ]
 
 
-screen : Html msg
-screen =
+screen : EmulatorState -> Html msg
+screen emulatorState =
     let
         width =
             256
 
         height =
             224
+
+        renderedScreen =
+            toRenderable (readGraphicsMemory emulatorState)
     in
     Canvas.toHtml ( width, height )
         []
-        ([ shapes [ fill Color.green ] [ rect ( 0, 0 ) width height ] ] ++ renderPixel)
+        ( renderedScreen )
 
 
-renderPixel =
-    renderScreen (toPixels graphicBytes)
+toRenderable : Maybe (Array ByteValue) -> List Renderable
+toRenderable maybeGraphicsMemory =
+    case maybeGraphicsMemory of
+        Just graphicsMemory -> renderScreen (toPixels graphicsMemory)
 
-graphicBytes : Array ByteValue
-graphicBytes = Array.repeat (256*224) 0xF0
+
+        Nothing -> [ shapes [ fill Color.green ] [ rect ( 0, 0 ) 256 224 ] ]
+
+
+
+readGraphicsMemory : EmulatorState -> Maybe (Array ByteValue)
+readGraphicsMemory emulatorState =
+    case emulatorState of
+        Valid machineState -> Just (readMemory 0x2400 0x3fff machineState.memory)
+
+
+        Invalid _ _ -> Nothing
+
 
 -- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Browser.Events.onKeyDown keyDecoderDown
         , Browser.Events.onKeyUp keyDecoderUp

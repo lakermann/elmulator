@@ -59,11 +59,11 @@ toPixels bytes =
         |> List.foldl (++) []
 
 createPixelRow : Array ByteValue -> Int -> List Pixel
-createPixelRow bytes memroyRowIndex =
+createPixelRow bytes memoryRowIndex =
     let
-        memoryColumnIndices = List.map (\x -> x * 8) (List.range 0 8)
+        memoryColumnIndices = List.map (\x -> x * 8) (List.range 0 32)
     in
-        List.map (createSinglePixel bytes memroyRowIndex) memoryColumnIndices
+        List.map (createSinglePixel bytes memoryRowIndex) memoryColumnIndices
         |> List.foldl (++) []
 
 createSinglePixel : Array ByteValue -> Int -> Int -> List Pixel
