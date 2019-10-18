@@ -1,6 +1,6 @@
 module Cpu exposing (..)
 
-import Array
+import Array exposing (Array)
 import Bitwise
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
 import IO exposing (pressLeft, pressRight, pressSpace, relaseLeft, relaseRight, relaseSpace)
@@ -164,6 +164,11 @@ readMemoryProvider address offset memory =
 
 
 -- TODO: What should we do here?
+
+
+readMemory : AddressValue -> AddressValue -> Memory -> Array ByteValue
+readMemory startAddress endAddress memory =
+    Array.slice startAddress endAddress memory
 
 
 addCycles : Int -> MachineStateDiff -> MachineStateDiff

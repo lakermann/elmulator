@@ -1,19 +1,21 @@
 module Main exposing (main)
 
+import Array exposing (Array)
 import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
 import Browser
 import Browser.Events
 import Bytes exposing (Bytes)
-import Canvas exposing (rect, shapes)
+import Canvas exposing (Renderable, rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (checkForInterrupt, keyPressed, keyReleased, nStep)
-import EmulatorState exposing (EmulatorState(..), MachineState)
+import Cpu exposing (checkForInterrupt, keyPressed, keyReleased, nStep, readMemory)
+import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
+import Graphics exposing (Pixel(..), renderScreen, toPixels)
 import Html exposing (Html, div, h1, h3, p, pre, text)
 import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
@@ -207,7 +209,7 @@ view model =
                 , Grid.row []
                     [ Grid.col []
                         [ h3 [] [ text "Screen" ]
-                        , screen
+                        , screen model.currentCpuState
                         ]
                     , Grid.col []
                         [ h3 [] [ text "Machine State" ]
@@ -228,25 +230,41 @@ pageHeader =
         ]
 
 
-screen : Html msg
-screen =
+screen : EmulatorState -> Html msg
+screen emulatorState =
     let
         width =
             256
 
         height =
             224
+
+        renderedScreen =
+            toRenderable (readGraphicsMemory emulatorState)
     in
     Canvas.toHtml ( width, height )
         []
-        [ shapes [ fill Color.green ] [ rect ( 0, 0 ) width height ]
-        , renderPixel
-        ]
+        renderedScreen
 
 
-renderPixel =
-    shapes [ fill Color.black ]
-        [ rect ( 0, 0 ) 1 1 ]
+toRenderable : Maybe (Array ByteValue) -> List Renderable
+toRenderable maybeGraphicsMemory =
+    case maybeGraphicsMemory of
+        Just graphicsMemory ->
+            renderScreen (toPixels graphicsMemory)
+
+        Nothing ->
+            [ shapes [ fill Color.green ] [ rect ( 0, 0 ) 256 224 ] ]
+
+
+readGraphicsMemory : EmulatorState -> Maybe (Array ByteValue)
+readGraphicsMemory emulatorState =
+    case emulatorState of
+        Valid machineState ->
+            Just (readMemory 0x2400 0x3FFF machineState.memory)
+
+        Invalid _ _ ->
+            Nothing
 
 
 
@@ -254,7 +272,7 @@ renderPixel =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.batch
         [ Time.every 17 Tick
         , Browser.Events.onKeyDown keyDecoderDown
