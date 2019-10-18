@@ -1,6 +1,6 @@
 module Cpu exposing (..)
 
-import Array
+import Array exposing (Array)
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..))
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
@@ -100,8 +100,12 @@ readMemoryProvider address offset memory =
                 0
 
 
-
 -- TODO: What should we do here?
+
+
+readMemory : AddressValue -> AddressValue -> Memory -> Array ByteValue
+readMemory startAddress endAddress memory =
+    Array.slice startAddress endAddress memory
 
 
 addCycles : Int -> MachineStateDiff -> MachineStateDiff

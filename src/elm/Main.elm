@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Array exposing (Array)
 import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
 import Bootstrap.Grid as Grid
@@ -9,11 +10,12 @@ import Bytes exposing (Bytes)
 import Canvas exposing (rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (nStep, oneStep)
-import EmulatorState exposing (EmulatorState(..), MachineState)
+import Cpu exposing (nStep)
+import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
+import Graphics exposing (Pixel(..), renderScreen, toPixels)
 import Html exposing (Html, div, h1, h3, p, pre, text)
 import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
@@ -202,16 +204,14 @@ screen =
     in
     Canvas.toHtml ( width, height )
         []
-        [ shapes [ fill Color.green ] [ rect ( 0, 0 ) width height ]
-        , renderPixel
-        ]
+        ([ shapes [ fill Color.green ] [ rect ( 0, 0 ) width height ] ] ++ renderPixel)
 
 
 renderPixel =
-    shapes [ fill Color.black ]
-        [ rect ( 0, 0 ) 1 1 ]
+    renderScreen (toPixels graphicBytes)
 
-
+graphicBytes : Array ByteValue
+graphicBytes = Array.repeat (256*224) 0xF0
 
 -- SUBSCRIPTIONS
 
