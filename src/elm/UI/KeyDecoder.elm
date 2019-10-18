@@ -1,11 +1,11 @@
 module UI.KeyDecoder exposing (..)
 
 import Json.Decode as Decode
-import UI.Msg exposing (Msg(..))
+import UI.Msg exposing (GameKey(..), Msg(..))
 
 
-keyDecoder : Decode.Decoder Msg
-keyDecoder =
+keyDecoderDown : Decode.Decoder Msg
+keyDecoderDown =
     Decode.field "key" Decode.string
         |> Decode.andThen
             (\string ->
@@ -21,6 +21,35 @@ keyDecoder =
 
                     "x" ->
                         Decode.succeed (NextStepsRequested 1500)
+
+                    "a" ->
+                        Decode.succeed (KeyDown Left)
+
+                    "d" ->
+                        Decode.succeed (KeyDown Right)
+
+                    "s" ->
+                        Decode.succeed (KeyDown Space)
+
+                    _ ->
+                        Decode.fail "Pressed key is not a Elmulator Button"
+            )
+
+
+keyDecoderUp : Decode.Decoder Msg
+keyDecoderUp =
+    Decode.field "key" Decode.string
+        |> Decode.andThen
+            (\string ->
+                case string of
+                    "a" ->
+                        Decode.succeed (KeyUp Left)
+
+                    "d" ->
+                        Decode.succeed (KeyUp Right)
+
+                    "s" ->
+                        Decode.succeed (KeyUp Space)
 
                     _ ->
                         Decode.fail "Pressed key is not a Elmulator Button"

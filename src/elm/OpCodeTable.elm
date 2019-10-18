@@ -2,6 +2,7 @@ module OpCodeTable exposing (getOpCodeFromTable)
 
 import Dict exposing (Dict)
 import EmulatorState exposing (ByteValue, MachineState, MachineStateDiff(..))
+import IO
 import MachineInstructions exposing (..)
 import OpCode exposing (OpCode, OpCodeData, OpCodeSpec(..))
 
@@ -240,7 +241,7 @@ opCodeTable =
         , ( 0xD0, OpCodeData "RNC" 11 (OneByte unimplementedInstructionZero) )
         , ( 0xD1, OpCodeData "POP D" 10 (OneByte MachineInstructions.pop_d) )
         , ( 0xD2, OpCodeData "JNC adr" 10 (ThreeBytes unimplementedInstructionTwo) )
-        , ( 0xD3, OpCodeData "OUT D8" 10 (TwoBytes MachineInstructions.out) )
+        , ( 0xD3, OpCodeData "OUT D8" 10 (TwoBytes IO.io_out) )
         , ( 0xD4, OpCodeData "CNC adr" 17 (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xD5, OpCodeData "PUSH D" 11 (OneByte MachineInstructions.push_d) )
         , ( 0xD6, OpCodeData "SUI D8" 7 (TwoBytes unimplementedInstructionOne) )
@@ -248,7 +249,7 @@ opCodeTable =
         , ( 0xD8, OpCodeData "RC" 11 (OneByte unimplementedInstructionZero) )
         , ( 0xD9, OpCodeData "-" 0 (OneByte unknownInstruction) )
         , ( 0xDA, OpCodeData "JC adr" 10 (ThreeBytes unimplementedInstructionTwo) )
-        , ( 0xDB, OpCodeData "IN D8" 10 (TwoBytes unimplementedInstructionOne) )
+        , ( 0xDB, OpCodeData "IN D8" 10 (TwoBytes IO.io_in) )
         , ( 0xDC, OpCodeData "CC adr" 10 (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xDD, OpCodeData "-" 0 (OneByte unknownInstruction) )
         , ( 0xDE, OpCodeData "SBI D8" 7 (TwoBytes unimplementedInstructionOne) )

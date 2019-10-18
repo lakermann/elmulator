@@ -1,9 +1,11 @@
 module Cpu exposing (..)
 
-import Array exposing (Array)
-import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..))
+import Array
+import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
+import IO exposing (pressLeft, pressRight, pressSpace, relaseLeft, relaseRight, relaseSpace)
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
+import UI.Msg exposing (GameKey(..))
 
 
 oneStep : MachineState -> EmulatorState
@@ -100,6 +102,7 @@ readMemoryProvider address offset memory =
                 0
 
 
+
 -- TODO: What should we do here?
 
 
@@ -140,6 +143,20 @@ applyEvent event machineState =
                     setCpuState setCpuStateEvent machineState.cpuState
             in
             { machineState | cpuState = newCpuState }
+
+        SetShiftRegister shiftRegisterEvent ->
+            let
+                newShiftRegister =
+                    setShiftRegister shiftRegisterEvent machineState.shiftRegister
+            in
+            { machineState | shiftRegister = newShiftRegister }
+
+        SetPort setPortEvent ->
+            let
+                newPorts =
+                    setPorts setPortEvent machineState.ports
+            in
+            { machineState | ports = newPorts }
 
 
 setMemory : AddressValue -> ByteValue -> MachineState -> MachineState
@@ -210,6 +227,29 @@ setFlag event conditionCodes =
             { conditionCodes | ac = flag }
 
 
+setShiftRegister : SetShiftRegisterEvent -> ShiftRegister -> ShiftRegister
+setShiftRegister event shiftRegister =
+    case event of
+        SetLower data ->
+            { shiftRegister | lower = data }
+
+        SetUpper data ->
+            { shiftRegister | upper = data }
+
+        SetOffset data ->
+            { shiftRegister | offset = data }
+
+
+setPorts : SetPortEvent -> Ports -> Ports
+setPorts event ports =
+    case event of
+        SetOne data ->
+            { ports | one = data }
+
+        SetTwo data ->
+            { ports | one = data }
+
+
 init : List ByteValue -> EmulatorState
 init rom =
     let
@@ -218,6 +258,12 @@ init rom =
 
         conditionCodes =
             initConditionCodes
+
+        shiftRegister =
+            initShiftRegister
+
+        ports =
+            initPorts
     in
     Valid
         (MachineState
@@ -247,6 +293,8 @@ init rom =
              -- cycleCount
             )
             memory
+            shiftRegister
+            ports
         )
 
 
@@ -271,3 +319,39 @@ initMemory rom =
 initConditionCodes : ConditionCodes
 initConditionCodes =
     ConditionCodes False False False False False
+
+
+initShiftRegister : ShiftRegister
+initShiftRegister =
+    ShiftRegister 0 0 0
+
+
+initPorts : Ports
+initPorts =
+    Ports 1 0
+
+
+keyPressed : GameKey -> MachineState -> EmulatorState
+keyPressed key machineState =
+    case key of
+        Left ->
+            apply (pressLeft machineState) machineState
+
+        Right ->
+            apply (pressRight machineState) machineState
+
+        Space ->
+            apply (pressSpace machineState) machineState
+
+
+keyReleased : GameKey -> MachineState -> EmulatorState
+keyReleased key machineState =
+    case key of
+        Left ->
+            apply (relaseLeft machineState) machineState
+
+        Right ->
+            apply (relaseRight machineState) machineState
+
+        Space ->
+            apply (relaseSpace machineState) machineState

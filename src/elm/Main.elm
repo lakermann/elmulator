@@ -10,8 +10,8 @@ import Bytes exposing (Bytes)
 import Canvas exposing (rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (nStep)
-import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
+import Cpu exposing (keyPressed, keyReleased, nStep)
+import EmulatorState exposing (EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
@@ -23,7 +23,7 @@ import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
 import Task
 import UI.Formatter exposing (cpustate)
-import UI.KeyDecoder exposing (keyDecoder)
+import UI.KeyDecoder exposing (keyDecoderDown, keyDecoderUp)
 import UI.Msg exposing (Msg(..))
 
 
@@ -82,6 +82,30 @@ update msg model =
             case model.currentCpuState of
                 Valid currentCpuState ->
                     ( { model | currentCpuState = nStep n currentCpuState }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        KeyDown key ->
+            case model.currentCpuState of
+                Valid currentCpuState ->
+                    ( { model | currentCpuState = keyPressed key currentCpuState }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        KeyUp key ->
+            case model.currentCpuState of
+                Valid currentCpuState ->
+                    ( { model | currentCpuState = keyReleased key currentCpuState }
                     , Cmd.none
                     )
 
@@ -175,7 +199,7 @@ view model =
                         , screen
                         ]
                     , Grid.col []
-                        [ h3 [] [ text "CPU State" ]
+                        [ h3 [] [ text "Machine State" ]
                         , pre [] [ text (cpustate model.currentCpuState) ]
                         ]
                     , Grid.col []
@@ -218,4 +242,7 @@ graphicBytes = Array.repeat (256*224) 0xF0
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Browser.Events.onKeyDown keyDecoder
+    Sub.batch
+        [ Browser.Events.onKeyDown keyDecoderDown
+        , Browser.Events.onKeyUp keyDecoderUp
+        ]
