@@ -11,7 +11,7 @@ import Canvas exposing (rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
 import Cpu exposing (keyPressed, keyReleased, nStep)
-import EmulatorState exposing (EmulatorState(..), MachineState)
+import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
 import FileDecoder exposing (decodeFile)
