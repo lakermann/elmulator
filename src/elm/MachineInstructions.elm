@@ -638,16 +638,25 @@ dcr_m machineState =
         newPc =
             machineState.cpuState.pc + 1
 
-        newMemoryValue =
-            Memory.readMemory (getAddressLE machineState.cpuState.h machineState.cpuState.l) machineState.memory - 1
+        memoryAccessResult =
+            Memory.readMemory (getAddressLE machineState.cpuState.h machineState.cpuState.l) machineState.memory
     in
-    Events
-        [ setMemory (getAddressLE machineState.cpuState.h machineState.cpuState.l) newMemoryValue
-        , setFlagZ (ConditionCodesFlags.zFlag newMemoryValue)
-        , setFlagS (ConditionCodesFlags.sFlag newMemoryValue)
-        , setFlagP (ConditionCodesFlags.pFlag newMemoryValue)
-        , setPC newPc
-        ]
+    case memoryAccessResult of
+        Memory.Valid memoryValue ->
+            let
+                newMemoryValue = memoryValue - 1
+            in
+                Events
+                    [ setMemory (getAddressLE machineState.cpuState.h machineState.cpuState.l) newMemoryValue
+                    , setFlagZ (ConditionCodesFlags.zFlag newMemoryValue)
+                    , setFlagS (ConditionCodesFlags.sFlag newMemoryValue)
+                    , setFlagP (ConditionCodesFlags.pFlag newMemoryValue)
+                    , setPC newPc
+                    ]
+
+        Memory.Invalid message ->
+            Failed (Just machineState) message
+
 
 
 
@@ -855,21 +864,38 @@ rz : MachineState -> MachineStateDiff
 rz machineState =
     if machineState.cpuState.conditionCodes.z then
         let
-            newSp =
-                machineState.cpuState.sp + 2
 
-            newPc =
-                Bitwise.or (Memory.readMemory machineState.cpuState.sp machineState.memory) (Bitwise.shiftLeftBy 8 (Memory.readMemory (machineState.cpuState.sp + 1) machineState.memory))
+            firstMemoryAccessResult =
+                (Memory.readMemory machineState.cpuState.sp machineState.memory)
+
+            secondMemoryAccessResult =
+                (Memory.readMemory (machineState.cpuState.sp + 1) machineState.memory)
+
         in
-        Events
-            [ setSP newSp
-            , setPC newPc
-            ]
+            case (firstMemoryAccessResult, secondMemoryAccessResult) of
+                (Memory.Valid spLow, Memory.Valid spHigh) ->
+                    createRz spLow spHigh machineState
+                (Memory.Valid _, Memory.Invalid message) ->
+                    Failed (Just machineState) message
+                (Memory.Invalid message, _) ->
+                    Failed (Just machineState) message
 
     else
         Events [ setPC (machineState.cpuState.pc + 1) ]
 
+createRz : Int -> Int -> (MachineState -> MachineStateDiff)
+createRz spLow spHigh machineState =
+    let
+        newSp =
+            machineState.cpuState.sp + 2
 
+        newPc =
+            Bitwise.or spLow (Bitwise.shiftLeftBy 8 spHigh)
+    in
+        Events
+           [ setSP newSp
+           , setPC newPc
+           ]
 
 -- 0xc9
 
