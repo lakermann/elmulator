@@ -1,7 +1,7 @@
 module Cpu exposing (..)
 
 import Array
-import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
+import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
 import OpCode exposing (OpCode, getCycles, getImplementation)
 import OpCodeTable exposing (getOpCodeFromTable)
 
@@ -144,6 +144,13 @@ applyEvent event machineState =
             in
             { machineState | shiftRegister = newShiftRegister }
 
+        SetPort setPortEvent ->
+            let
+                newPorts =
+                    setPorts setPortEvent machineState.ports
+            in
+            { machineState | ports = newPorts }
+
 
 setMemory : AddressValue -> ByteValue -> MachineState -> MachineState
 setMemory address value cpuState =
@@ -226,6 +233,16 @@ setShiftRegister event shiftRegister =
             { shiftRegister | offset = data }
 
 
+setPorts : SetPortEvent -> Ports -> Ports
+setPorts event ports =
+    case event of
+        SetOne data ->
+            { ports | one = data }
+
+        SetTwo data ->
+            { ports | one = data }
+
+
 init : List ByteValue -> EmulatorState
 init rom =
     let
@@ -237,6 +254,9 @@ init rom =
 
         shiftRegister =
             initShiftRegister
+
+        ports =
+            initPorts
     in
     Valid
         (MachineState
@@ -267,6 +287,7 @@ init rom =
             )
             memory
             shiftRegister
+            ports
         )
 
 
@@ -296,3 +317,8 @@ initConditionCodes =
 initShiftRegister : ShiftRegister
 initShiftRegister =
     ShiftRegister 0 0 0
+
+
+initPorts : Ports
+initPorts =
+    Ports 1 0

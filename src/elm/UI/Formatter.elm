@@ -25,24 +25,26 @@ formatRegisters machineState =
     , "pc:  " ++ Hex.padX4 machineState.cpuState.pc
     , "cycleCount: " ++ String.fromInt machineState.cpuState.cycleCount
     , "-----------------------"
-    , "shiftRegister lower: " ++ Hex.padX2 machineState.shiftRegister.lower
-    , "shiftRegister upper: " ++ Hex.padX2 machineState.shiftRegister.upper
-    , "shiftRegister offset: " ++ Hex.padX2 machineState.shiftRegister.offset
+    , "sr l:  " ++ Hex.padX2 machineState.shiftRegister.lower
+    , "sr u:  " ++ Hex.padX2 machineState.shiftRegister.upper
+    , "sr o:  " ++ Hex.padX2 machineState.shiftRegister.offset
+    , "p 1:   " ++ Hex.padX2 machineState.ports.one
+    , "p 2:   " ++ Hex.padX2 machineState.ports.two
     , "-----------------------"
     , "sp -1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp - 1) machineState.memory)
-    , "sp 0: " ++ Hex.padX2 (Memory.readMemory machineState.cpuState.sp machineState.memory)
-    , "sp 1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 1) machineState.memory)
-    , "sp 2: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 2) machineState.memory)
+    , "sp 0:  " ++ Hex.padX2 (Memory.readMemory machineState.cpuState.sp machineState.memory)
+    , "sp 1:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 1) machineState.memory)
+    , "sp 2:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.sp + 2) machineState.memory)
     , "-----------------------"
     , "pc -4: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 4) machineState.memory)
     , "pc -3: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 3) machineState.memory)
     , "pc -2: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 2) machineState.memory)
     , "pc -1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc - 1) machineState.memory)
-    , "pc 0: " ++ Hex.padX2 (Memory.readMemory machineState.cpuState.pc machineState.memory)
-    , "pc 1: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 1) machineState.memory)
-    , "pc 2: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 2) machineState.memory)
-    , "pc 3: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 3) machineState.memory)
-    , "pc 4: " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 4) machineState.memory)
+    , "pc 0:  " ++ Hex.padX2 (Memory.readMemory machineState.cpuState.pc machineState.memory)
+    , "pc 1:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 1) machineState.memory)
+    , "pc 2:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 2) machineState.memory)
+    , "pc 3:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 3) machineState.memory)
+    , "pc 4:  " ++ Hex.padX2 (Memory.readMemory (machineState.cpuState.pc + 4) machineState.memory)
     , "-----------------------"
     ]
 
