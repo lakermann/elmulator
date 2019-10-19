@@ -1,4 +1,8 @@
-# Elm-ulator
+# Elm-ulator [![Build Status](https://travis-ci.org/lakermann/elmulator.svg?branch=master)](https://travis-ci.org/lakermann/elmulator)
+
+_by [Samuel Bucheli](https://github.com/SamuelBucheliZ), Stefan Friedli and [Lukas Akermann](https://github.com/lakermann)_
+
+* <https://lakermann.github.io/elmulator>
 
 ## Developer Onboarding
 
@@ -17,14 +21,6 @@
     "[elm]": {
         "editor.formatOnSave": true
     }
-    ```
-
-## Deployment
-
-1. Set the heroku app to the [static buildpack](https://github.com/heroku/heroku-buildpack-static):
-
-    ```bash
-    heroku buildpacks:set https://github.com/heroku/heroku-buildpack-static.git.
     ```
 
 ## Documentation
