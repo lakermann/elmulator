@@ -8,12 +8,10 @@ jobs:
       install: npm install
       script:
         - npm run test:ci
-    - stage: Run Build
+    - stage: Run Build and Deploy
       install: npm install
       script:
         - npm install && npm run build:prod
-        - tar czfv application.tgz static.json -C src/ index.css index.html js
-    - stage: Deploy to github
       deploy:
         provider: pages
         skip-cleanup: true
