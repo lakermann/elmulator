@@ -1,0 +1,14 @@
+language: node_js
+node_js:
+  - "10"
+
+jobs:
+  include:
+    - stage: Run Tests
+      script:
+        - npm install && npm run test:ci
+    - stage: Run Build
+      script:
+        - npm install && npm run build:prod
+        - tar czfv application.tgz static.json -C src/index.html -C src/js/elmulator.js
+   
