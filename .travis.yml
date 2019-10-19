@@ -11,3 +11,9 @@ jobs:
       script:
         - npm install && npm run build:prod
         - tar czfv application.tgz static.json -C src/ index.css index.html js
+    - stage: Deploy to heroku
+      deploy:
+        provider: heroku
+        api_key: $HEROKU_TOKEN
+        file: application.tgz
+        app: elmulator
