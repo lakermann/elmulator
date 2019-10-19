@@ -11,4 +11,3 @@ jobs:
       script:
         - npm install && npm run build:prod
         - tar czfv application.tgz static.json -C src/index.html -C src/js/elmulator.js
-   
