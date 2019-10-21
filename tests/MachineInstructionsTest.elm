@@ -29,4 +29,13 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.nop allZeroMachineState)
             ]
+        , describe "lxi_b_d16"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        expectedMachineStateDiff =
+                            Events [ SetCpu (SetRegisterB 3), SetCpu (SetRegisterC 2), SetCpu (SetPC 3) ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.lxi_b_d16 2 3 allZeroMachineState)
+            ]
         ]
