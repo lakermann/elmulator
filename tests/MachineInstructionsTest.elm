@@ -14,13 +14,18 @@ allZeroMachineState =
 
 allZeroCpuState : CpuState
 allZeroCpuState =
-    CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False False False) False 0
+    CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0
+
+
+allFalseConditionCodes : ConditionCodes
+allFalseConditionCodes =
+    ConditionCodes False False False False False
 
 
 all : Test
 all =
     describe "MachineInstructions"
-        [ describe "nop"
+        [ describe "0x00 - nop"
             [ test "for zero machine state" <|
                 \() ->
                     let
@@ -29,7 +34,7 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.nop allZeroMachineState)
             ]
-        , describe "lxi_b_d16"
+        , describe "0x01 - lxi_b_d16"
             [ test "for zero machine state" <|
                 \() ->
                     let
@@ -37,5 +42,26 @@ all =
                             Events [ SetCpu (SetRegisterB 3), SetCpu (SetRegisterC 2), SetCpu (SetPC 3) ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.lxi_b_d16 2 3 allZeroMachineState)
+            ]
+        , describe "0x02 - stax_b"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        a =
+                            1
+
+                        b =
+                            2
+
+                        c =
+                            3
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a b c 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events [ SetMemory (b * 256 + c) a, SetCpu (SetPC 1) ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.stax_b machineState)
             ]
         ]
