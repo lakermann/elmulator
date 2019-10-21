@@ -114,6 +114,18 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.dcr_b allZeroMachineState)
             ]
+        , describe "0x06 - mvi_b_d8"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterB 0x0D)
+                                , SetCpu (SetPC 2)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.mvi_b_d8 0x0D allZeroMachineState)
+            ]
         ]
 
 
