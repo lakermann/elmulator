@@ -1,6 +1,6 @@
 # Elm-ulator [![Build Status](https://travis-ci.org/lakermann/elmulator.svg?branch=master)](https://travis-ci.org/lakermann/elmulator)
 
-_by [Samuel Bucheli](https://github.com/SamuelBucheliZ), Stefan Friedli and [Lukas Akermann](https://github.com/lakermann)_
+_by [Samuel Bucheli](https://github.com/SamuelBucheliZ), [Stefan Friedli](https://github.com/sfriedli) and [Lukas Akermann](https://github.com/lakermann)_
 
 * <https://lakermann.github.io/elmulator>
 
