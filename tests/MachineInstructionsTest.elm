@@ -330,7 +330,7 @@ all =
                         expectedMachineStateDiff =
                             Events
                                 [ SetCpu (SetRegisterA 0x0102)
-                                , SetCpu (SetPC 1)
+                                , SetCpu (SetPC 0x01)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ldax_d machineState)
@@ -388,5 +388,28 @@ all =
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mvi_h_d8 0x0D allZeroMachineState)
+            ]
+        , describe "0x29 - dad_h"
+            [ test "for h=0x01, l=0x02 machine state" <|
+                \() ->
+                    let
+                        h =
+                            0x01
+
+                        l =
+                            0x02
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 h l 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterH 0x02)
+                                , SetCpu (SetRegisterL 0x04)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.dad_h machineState)
             ]
         ]
