@@ -639,7 +639,7 @@ dcr_m machineState =
             machineState.cpuState.pc + 1
 
         memoryAccessResult =
-            Memory.readMemory (getAddressLE machineState.cpuState.h machineState.cpuState.l) machineState.memory
+            Memory.readMemory (getAddressLE machineState.cpuState.l machineState.cpuState.h) machineState.memory
     in
     case memoryAccessResult of
         Memory.Valid memoryValue ->
@@ -648,7 +648,7 @@ dcr_m machineState =
                     memoryValue - 1
             in
             Events
-                [ setMemory (getAddressLE machineState.cpuState.h machineState.cpuState.l) newMemoryValue
+                [ setMemory (getAddressLE machineState.cpuState.l machineState.cpuState.h) newMemoryValue
                 , setFlagZ (ConditionCodesFlags.zFlag newMemoryValue)
                 , setFlagS (ConditionCodesFlags.sFlag newMemoryValue)
                 , setFlagP (ConditionCodesFlags.pFlag newMemoryValue)
