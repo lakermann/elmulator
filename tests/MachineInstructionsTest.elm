@@ -116,6 +116,25 @@ all =
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.dcr_b allZeroMachineState)
+            , test "for b=0x01 machine state" <|
+                \() ->
+                    let
+                        b =
+                            0x01
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterB 0)
+                                , SetCpu (SetFlag (SetFlagZ True))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.dcr_b machineState)
             ]
         , describe "0x06 - mvi_b_d8"
             [ test "for zero machine state" <|
@@ -158,8 +177,38 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.dad_b machineState)
             ]
+        , describe "0x0d - dcr_c"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterC 0xFF)
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS True))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.dcr_c allZeroMachineState)
+            , test "for c=0x01 machine state" <|
+                \() ->
+                    let
+                        c =
+                            0x01
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 c 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterC 0)
+                                , SetCpu (SetFlag (SetFlagZ True))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.dcr_c machineState)
+            ]
         ]
-
-
-
---
