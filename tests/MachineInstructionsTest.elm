@@ -424,4 +424,22 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.lxi_sp_d16 0x02 0x03 allZeroMachineState)
             ]
+        , describe "0x32 - sta"
+            [ test "for a=0x01 machine state" <|
+                \() ->
+                    let
+                        a =
+                            0x01
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetMemory 0x0302 0x01
+                                , SetCpu (SetPC 3)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.sta 0x02 0x03 machineState)
+            ]
         ]
