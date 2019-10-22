@@ -348,4 +348,33 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.lxi_h_d16 0x02 0x03 allZeroMachineState)
             ]
+        , describe "0x23 - inx_h"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        expectedMachineStateDiff1 =
+                            Events
+                                [ SetCpu (SetRegisterL 0x01)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff1 (MachineInstructions.inx_h allZeroMachineState)
+            , test "for l=0xFF machine state" <|
+                \() ->
+                    let
+                        l =
+                            0xFF
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 l 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff2 =
+                            Events
+                                [ SetCpu (SetRegisterH 0x01)
+                                , SetCpu (SetRegisterL 0x00)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff2 (MachineInstructions.inx_h machineState)
+            ]
         ]
