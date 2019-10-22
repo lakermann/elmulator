@@ -67,8 +67,8 @@ all =
 
                         expectedMachineStateDiff =
                             Events
-                                [ SetMemory (b * 0x0100 + c) a
-                                , SetCpu (SetPC 1)
+                                [ SetMemory 0x0203 0x01
+                                , SetCpu (SetPC 0x01)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.stax_b machineState)
@@ -79,22 +79,25 @@ all =
                     let
                         expectedMachineStateDiff1 =
                             Events
-                                [ SetCpu (SetRegisterC 1)
-                                , SetCpu (SetPC 1)
+                                [ SetCpu (SetRegisterC 0x01)
+                                , SetCpu (SetPC 0x01)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff1 (MachineInstructions.inx_b allZeroMachineState)
             , test "for c=0xFF machine state" <|
                 \() ->
                     let
+                        c =
+                            0xFF
+
                         machineState =
-                            { allZeroMachineState | cpuState = CpuState 0 0 0xFF 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+                            { allZeroMachineState | cpuState = CpuState 0 0 c 0 0 0 0 0 0 allFalseConditionCodes False 0 }
 
                         expectedMachineStateDiff2 =
                             Events
-                                [ SetCpu (SetRegisterB 1)
-                                , SetCpu (SetRegisterC 0)
-                                , SetCpu (SetPC 1)
+                                [ SetCpu (SetRegisterB 0x01)
+                                , SetCpu (SetRegisterC 0x00)
+                                , SetCpu (SetPC 0x01)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff2 (MachineInstructions.inx_b machineState)
@@ -109,7 +112,7 @@ all =
                                 , SetCpu (SetFlag (SetFlagZ False))
                                 , SetCpu (SetFlag (SetFlagS True))
                                 , SetCpu (SetFlag (SetFlagP False))
-                                , SetCpu (SetPC 1)
+                                , SetCpu (SetPC 0x01)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.dcr_b allZeroMachineState)
@@ -121,10 +124,39 @@ all =
                         expectedMachineStateDiff =
                             Events
                                 [ SetCpu (SetRegisterB 0x0D)
-                                , SetCpu (SetPC 2)
+                                , SetCpu (SetPC 0x02)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mvi_b_d8 0x0D allZeroMachineState)
+            ]
+        , describe "0x09 - dad_b"
+            [ test "for b=0x01, c=0x02, h=0x03, l=0x04 machine state" <|
+                \() ->
+                    let
+                        b =
+                            0x01
+
+                        c =
+                            0x02
+
+                        h =
+                            0x03
+
+                        l =
+                            0x04
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 b c 0 0 h l 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterH 0x04)
+                                , SetCpu (SetRegisterL 0x06)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.dad_b machineState)
             ]
         ]
 

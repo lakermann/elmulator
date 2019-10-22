@@ -280,7 +280,7 @@ dad_ firstRegister secondRegister machineState =
     Events
         [ setRegisterH newH
         , setRegisterL newL
-        , setFlagZ newCY
+        , setFlagCY newCY
         , setPC newPc
         ]
 
