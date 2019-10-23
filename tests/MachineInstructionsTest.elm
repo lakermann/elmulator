@@ -638,4 +638,27 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mov_a_m machineState)
             ]
+        , describe "0xa7 - ana_a"
+            [ test "for a=0x80 machine state" <|
+                \() ->
+                    let
+                        a =
+                            0x80
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x80)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS True))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.ana_a machineState)
+            ]
         ]
