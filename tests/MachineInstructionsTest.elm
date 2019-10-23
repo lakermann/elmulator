@@ -437,7 +437,7 @@ all =
                         expectedMachineStateDiff =
                             Events
                                 [ SetMemory 0x0302 0x01
-                                , SetCpu (SetPC 3)
+                                , SetCpu (SetPC 0x03)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.sta 0x02 0x03 machineState)
@@ -451,11 +451,11 @@ all =
 
                         expectedMachineStateDiff =
                             Events
-                                [ SetMemory 0 1
+                                [ SetMemory 0 0x01
                                 , SetCpu (SetFlag (SetFlagZ False))
                                 , SetCpu (SetFlag (SetFlagS False))
                                 , SetCpu (SetFlag (SetFlagP False))
-                                , SetCpu (SetPC 1)
+                                , SetCpu (SetPC 0x01)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.dcr_m machineState)
@@ -477,7 +477,7 @@ all =
                                 , SetCpu (SetFlag (SetFlagZ False))
                                 , SetCpu (SetFlag (SetFlagS False))
                                 , SetCpu (SetFlag (SetFlagP False))
-                                , SetCpu (SetPC 1)
+                                , SetCpu (SetPC 0x01)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.dcr_m machineState)
@@ -498,9 +498,24 @@ all =
                         expectedMachineStateDiff =
                             Events
                                 [ SetMemory 0x0102 0x0D
-                                , SetCpu (SetPC 2)
+                                , SetCpu (SetPC 0x02)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mvi_m_d8 0x0D machineState)
+            ]
+        , describe "0x3a - lda"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList (range 0 0x0302) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x0302)
+                                , SetCpu (SetPC 0x03)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.lda 0x02 0x03 machineState)
             ]
         ]
