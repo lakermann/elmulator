@@ -736,4 +736,15 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.jnz 0x01 0x02 machineState)
             ]
+        , describe "0xc3 - jmp"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 0x0302)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.jmp 0x02 0x03 allZeroMachineState)
+            ]
         ]
