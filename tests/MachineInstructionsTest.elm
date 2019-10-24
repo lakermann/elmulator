@@ -710,4 +710,30 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.pop_b machineState)
             ]
+        , describe "0xc2 - jnz"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 0x0201)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.jnz 0x01 0x02 allZeroMachineState)
+            , test "for z=true machine state" <|
+                \() ->
+                    let
+                        z =
+                            True
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes z False False False False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 0x03)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.jnz 0x01 0x02 machineState)
+            ]
         ]
