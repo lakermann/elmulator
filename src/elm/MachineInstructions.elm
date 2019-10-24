@@ -343,13 +343,17 @@ pop_ firstDiffEvent secondDiffEvent machineState =
 
         secondMemoryAccessResult =
             Memory.readMemory addressForTwo memory
+
+        newPc =
+            getPC machineState + 1
     in
     case ( firstMemoryAccessResult, secondMemoryAccessResult ) of
         ( Memory.Valid firstByteValue, Memory.Valid secondByteValue ) ->
             Events
-                [ secondDiffEvent firstByteValue
-                , firstDiffEvent secondByteValue
+                [ secondDiffEvent secondByteValue
+                , firstDiffEvent firstByteValue
                 , setSP newSp
+                , setPC newPc
                 ]
 
         ( Memory.Valid _, Memory.Invalid message ) ->

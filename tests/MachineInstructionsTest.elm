@@ -684,4 +684,30 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.xra_a machineState)
             ]
+        , describe "0xc1 - pop_b"
+            [ test "for a=0x00 machine state" <|
+                \() ->
+                    let
+                        b =
+                            0x01
+
+                        c =
+                            0x02
+
+                        sp =
+                            0x03
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 b c 0 0 0 0 sp 0 allFalseConditionCodes False 0, memory = fromList (range 0 0x04) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterC 0x03)
+                                , SetCpu (SetRegisterB 0x04)
+                                , SetCpu (SetSP 0x05)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.pop_b machineState)
+            ]
         ]
