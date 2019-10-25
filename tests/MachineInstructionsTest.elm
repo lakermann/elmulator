@@ -789,4 +789,34 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.adi_d8 0x02 allZeroMachineState)
             ]
+        , describe "0xc8 - rz"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 1)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rz allZeroMachineState)
+            , test "for sp=0x01, z=true machine state" <|
+                \() ->
+                    let
+                        sp =
+                            0x01
+
+                        z =
+                            True
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 sp 0 (ConditionCodes z False False False False) False 0, memory = fromList (range 0 0x02) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetSP 0x03)
+                                , SetCpu (SetPC 0x0201)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rz machineState)
+            ]
         ]
