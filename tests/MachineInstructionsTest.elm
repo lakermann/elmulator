@@ -747,4 +747,30 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.jmp 0x02 0x03 allZeroMachineState)
             ]
+        , describe "0xc5 - push_b"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        b =
+                            0x03
+
+                        c =
+                            0x04
+
+                        sp =
+                            0x05
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 b c 0 0 0 0 sp 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetMemory 0x04 0x03
+                                , SetMemory 0x03 0x04
+                                , SetCpu (SetSP 0x03)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.push_b machineState)
+            ]
         ]
