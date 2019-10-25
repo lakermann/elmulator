@@ -773,4 +773,20 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.push_b machineState)
             ]
+        , describe "0xc6 - adi_d8"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x02)
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetPC 0x02)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.adi_d8 0x02 allZeroMachineState)
+            ]
         ]
