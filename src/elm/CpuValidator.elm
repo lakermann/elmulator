@@ -134,6 +134,38 @@ validate machineState =
                             /= False
                        )
                )
+            || (machineState.step
+                    == 1500
+                    && (machineState.cpuState.a
+                            /= 0x00
+                            || machineState.cpuState.b
+                            /= 0x08
+                            || machineState.cpuState.c
+                            /= 0x00
+                            || machineState.cpuState.d
+                            /= 0x1B
+                            || machineState.cpuState.e
+                            /= 0xF8
+                            || machineState.cpuState.h
+                            /= 0x20
+                            || machineState.cpuState.l
+                            /= 0xF8
+                            || machineState.cpuState.pc
+                            /= 0x1A34
+                            || machineState.cpuState.sp
+                            /= 0x23FE
+                            || machineState.cpuState.conditionCodes.ac
+                            /= False
+                            || machineState.cpuState.conditionCodes.cy
+                            /= False
+                            || machineState.cpuState.conditionCodes.s
+                            /= False
+                            || machineState.cpuState.conditionCodes.p
+                            /= True
+                            || machineState.cpuState.conditionCodes.z
+                            /= False
+                       )
+               )
     then
         Invalid (Just machineState) ("Invalid state, step=" ++ String.fromInt machineState.step)
 
