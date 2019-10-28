@@ -2,6 +2,7 @@ module Cpu exposing (..)
 
 import Array exposing (Array)
 import Bitwise
+import CpuValidator exposing (validate)
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
 import IO exposing (pressLeft, pressRight, pressSpace, relaseLeft, relaseRight, relaseSpace)
 import MachineInstructions exposing (push_)
@@ -165,12 +166,16 @@ addCycles cycles machineStateDiff =
 
 apply : MachineStateDiff -> MachineState -> EmulatorState
 apply machineStateDiff cpuState =
+    let
+        newStep =
+            cpuState.step + 1
+    in
     case machineStateDiff of
         Failed maybePreviousState errorMessage ->
             Invalid maybePreviousState errorMessage
 
         Events machineStateDiffEvents ->
-            Valid (List.foldl applyEvent cpuState machineStateDiffEvents)
+            validate (List.foldl applyEvent { cpuState | step = newStep } machineStateDiffEvents)
 
 
 applyEvent : MachineStateDiffEvent -> MachineState -> MachineState
@@ -337,6 +342,7 @@ init rom =
             memory
             shiftRegister
             ports
+            0
         )
 
 

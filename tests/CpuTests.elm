@@ -49,7 +49,7 @@ all =
 
 allZeroMachineState : MachineState
 allZeroMachineState =
-    MachineState allZeroCpuState Array.empty (ShiftRegister 0 0 0) (Ports 0 0)
+    MachineState allZeroCpuState Array.empty (ShiftRegister 0 0 0) (Ports 0 0) 0
 
 
 allZeroCpuState : CpuState
