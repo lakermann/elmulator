@@ -219,10 +219,10 @@ view model =
                 , Button.button
                     [ Button.outlinePrimary
                     , Button.attrs
-                        [ onClick (NextStepsRequested 1500)
+                        [ onClick (NextStepsRequested 15000)
                         ]
                     ]
-                    [ text "ne(x)t 1500 step" ]
+                    [ text "ne(x)t 15000 step" ]
                 , text "   "
                 , Button.button
                     [ Button.outlinePrimary
