@@ -167,74 +167,9 @@ validate machineState =
                        )
                )
             || (machineState.step
-                    == 1546
+                    == 2000
                     && (machineState.cpuState.a
-                            /= 0x39
-                            || machineState.cpuState.b
-                            /= 0x00
-                            || machineState.cpuState.c
-                            /= 0x00
-                            || machineState.cpuState.d
-                            /= 0x1C
-                            || machineState.cpuState.e
-                            /= 0x00
-                            || machineState.cpuState.h
-                            /= 0x21
-                            || machineState.cpuState.l
-                            /= 0x00
-                            || machineState.cpuState.pc
-                            /= 0x1A3A
-                            || machineState.cpuState.sp
-                            /= 0x23FE
-                            || machineState.cpuState.conditionCodes.ac
-                            /= False
-                            || machineState.cpuState.conditionCodes.cy
-                            /= False
-                            || machineState.cpuState.conditionCodes.s
-                            /= False
-                            || machineState.cpuState.conditionCodes.p
-                            /= True
-                            || machineState.cpuState.conditionCodes.z
-                            /= True
-                       )
-               )
-            || (machineState.step
-                    == 1547
-                    && (machineState.cpuState.a
-                            /= 0x39
-                            || machineState.cpuState.b
-                            /= 0x00
-                            || machineState.cpuState.c
-                            /= 0x00
-                            || machineState.cpuState.d
-                            /= 0x1C
-                            || machineState.cpuState.e
-                            /= 0x00
-                            || machineState.cpuState.h
-                            /= 0x21
-                            || machineState.cpuState.l
-                            /= 0x00
-                            || machineState.cpuState.pc
-                            /= 0x18DC
-                            --0x18db
-                            || machineState.cpuState.sp
-                            /= 0x2400
-                            || machineState.cpuState.conditionCodes.ac
-                            /= False
-                            || machineState.cpuState.conditionCodes.cy
-                            /= False
-                            || machineState.cpuState.conditionCodes.s
-                            /= False
-                            || machineState.cpuState.conditionCodes.p
-                            /= True
-                            || machineState.cpuState.conditionCodes.z
-                            /= True
-                       )
-               )
-            || (machineState.step
-                    == 1550
-                    && (machineState.cpuState.a
-                            /= 0x39
+                            /= 0x24
                             || machineState.cpuState.b
                             /= 0x00
                             || machineState.cpuState.c
@@ -246,7 +181,7 @@ validate machineState =
                             || machineState.cpuState.h
                             /= 0x24
                             || machineState.cpuState.l
-                            /= 0x00
+                            /= 0x5A
                             || machineState.cpuState.pc
                             /= 0x1A5F
                             || machineState.cpuState.sp
@@ -254,13 +189,13 @@ validate machineState =
                             || machineState.cpuState.conditionCodes.ac
                             /= False
                             || machineState.cpuState.conditionCodes.cy
-                            /= False
+                            /= True
                             || machineState.cpuState.conditionCodes.s
-                            /= False
+                            /= True
                             || machineState.cpuState.conditionCodes.p
                             /= True
                             || machineState.cpuState.conditionCodes.z
-                            /= True
+                            /= False
                        )
                )
     then

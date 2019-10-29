@@ -154,7 +154,7 @@ opCodeTable =
         , ( 0x79, OpCodeData "MOV A,C" 5 (OneByte unimplementedInstructionZero) )
         , ( 0x7A, OpCodeData "MOV A,D" 5 (OneByte unimplementedInstructionZero) )
         , ( 0x7B, OpCodeData "MOV A,E" 5 (OneByte unimplementedInstructionZero) )
-        , ( 0x7C, OpCodeData "MOV A,H" 5 (OneByte unimplementedInstructionZero) )
+        , ( 0x7C, OpCodeData "MOV A,H" 5 (OneByte MachineInstructions.mov_a_h) )
         , ( 0x7D, OpCodeData "MOV A,L" 5 (OneByte unimplementedInstructionZero) )
         , ( 0x7E, OpCodeData "MOV A,M" 7 (OneByte MachineInstructions.mov_a_m) )
         , ( 0x7F, OpCodeData "MOV A,A" 5 (OneByte unimplementedInstructionZero) )
