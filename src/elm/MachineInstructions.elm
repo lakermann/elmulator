@@ -952,11 +952,8 @@ createRet memSpLow memSpHigh machineState =
 call : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 call firstArg secondArg machineState =
     let
-        newPc =
-            getAddressLE firstArg secondArg
-
-        newSp =
-            getSP machineState - 2
+        data =
+            getPC machineState + 3
 
         memoryOne =
             getSP machineState - 1
@@ -964,8 +961,11 @@ call firstArg secondArg machineState =
         memoryTwo =
             getSP machineState - 2
 
-        data =
-            getPC machineState + 2
+        newSp =
+            getSP machineState - 2
+
+        newPc =
+            getAddressLE firstArg secondArg
     in
     Events
         [ setMemory memoryOne (Bitwise.and (Bitwise.shiftRightBy 8 data) 0xFF)

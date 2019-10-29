@@ -834,4 +834,24 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ret machineState)
             ]
+        , describe "0xcd - call"
+            [ test "for sp=0x02 machine state" <|
+                \() ->
+                    let
+                        sp =
+                            0x02
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 sp 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetMemory 0x01 0x00
+                                , SetMemory 0x00 0x03
+                                , SetCpu (SetSP 0x00)
+                                , SetCpu (SetPC 0x0302)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.call 0x02 0x03 machineState)
+            ]
         ]
