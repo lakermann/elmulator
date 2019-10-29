@@ -391,6 +391,70 @@ validate machineState =
                        )
                )
             || (machineState.step
+                    == 35000
+                    && (machineState.cpuState.a
+                            /= 0x3E
+                            || machineState.cpuState.b
+                            /= 0x00
+                            || machineState.cpuState.c
+                            /= 0x00
+                            || machineState.cpuState.d
+                            /= 0x1C
+                            || machineState.cpuState.e
+                            /= 0x00
+                            || machineState.cpuState.h
+                            /= 0x3E
+                            || machineState.cpuState.l
+                            /= 0x22
+                            || machineState.cpuState.pc
+                            /= 0x1A5F
+                            || machineState.cpuState.sp
+                            /= 0x23FC
+                            || machineState.cpuState.conditionCodes.ac
+                            /= False
+                            || machineState.cpuState.conditionCodes.cy
+                            /= True
+                            || machineState.cpuState.conditionCodes.s
+                            /= True
+                            || machineState.cpuState.conditionCodes.p
+                            /= True
+                            || machineState.cpuState.conditionCodes.z
+                            /= False
+                       )
+               )
+            || (machineState.step
+                    == 40000
+                    && (machineState.cpuState.a
+                            /= 0x00
+                            || machineState.cpuState.b
+                            /= 0x00
+                            || machineState.cpuState.c
+                            /= 0x00
+                            || machineState.cpuState.d
+                            /= 0x1B
+                            || machineState.cpuState.e
+                            /= 0x00
+                            || machineState.cpuState.h
+                            /= 0x40
+                            || machineState.cpuState.l
+                            /= 0x1E
+                            || machineState.cpuState.pc
+                            /= 0x08FE
+                            || machineState.cpuState.sp
+                            /= 0x23FC
+                            || machineState.cpuState.conditionCodes.ac
+                            /= False
+                            || machineState.cpuState.conditionCodes.cy
+                            /= False
+                            || machineState.cpuState.conditionCodes.s
+                            /= False
+                            || machineState.cpuState.conditionCodes.p
+                            /= True
+                            || machineState.cpuState.conditionCodes.z
+                            /= True
+                       )
+               )
+            || (machineState.step
                     == 45000
                     && (machineState.cpuState.a
                             /= 0x3F
