@@ -768,6 +768,25 @@ mov_m_a machineState =
 
 
 
+-- 0x7a
+
+
+mov_a_d : MachineState -> MachineStateDiff
+mov_a_d machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newA =
+            getD machineState
+    in
+    Events
+        [ setRegisterA newA
+        , setPC newPc
+        ]
+
+
+
 -- 0x7c
 
 
