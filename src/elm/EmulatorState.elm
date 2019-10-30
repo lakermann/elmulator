@@ -37,6 +37,7 @@ type alias MachineState =
     , memory : Memory
     , shiftRegister : ShiftRegister
     , ports : Ports
+    , step : Int
     }
 
 

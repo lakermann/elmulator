@@ -740,12 +740,69 @@ mov_h_m machineState =
 
 
 
+-- 0x6f
+
+
+mov_l_a : MachineState -> MachineStateDiff
+mov_l_a machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newL =
+            getA machineState
+    in
+    Events
+        [ setRegisterL newL
+        , setPC newPc
+        ]
+
+
+
 --0x77
 
 
 mov_m_a : MachineState -> MachineStateDiff
 mov_m_a machineState =
     mov_register_ (getA machineState) machineState
+
+
+
+-- 0x7a
+
+
+mov_a_d : MachineState -> MachineStateDiff
+mov_a_d machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newA =
+            getD machineState
+    in
+    Events
+        [ setRegisterA newA
+        , setPC newPc
+        ]
+
+
+
+-- 0x7c
+
+
+mov_a_h : MachineState -> MachineStateDiff
+mov_a_h machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newA =
+            getH machineState
+    in
+    Events
+        [ setRegisterA newA
+        , setPC newPc
+        ]
 
 
 
@@ -952,11 +1009,8 @@ createRet memSpLow memSpHigh machineState =
 call : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 call firstArg secondArg machineState =
     let
-        newPc =
-            getAddressLE firstArg secondArg
-
-        newSp =
-            getSP machineState - 2
+        data =
+            getPC machineState + 3
 
         memoryOne =
             getSP machineState - 1
@@ -964,8 +1018,11 @@ call firstArg secondArg machineState =
         memoryTwo =
             getSP machineState - 2
 
-        data =
-            getPC machineState + 2
+        newSp =
+            getSP machineState - 2
+
+        newPc =
+            getAddressLE firstArg secondArg
     in
     Events
         [ setMemory memoryOne (Bitwise.and (Bitwise.shiftRightBy 8 data) 0xFF)

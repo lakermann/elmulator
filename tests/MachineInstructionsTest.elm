@@ -10,7 +10,7 @@ import Test exposing (..)
 
 allZeroMachineState : MachineState
 allZeroMachineState =
-    MachineState allZeroCpuState Array.empty (ShiftRegister 0 0 0) (Ports 0 0)
+    MachineState allZeroCpuState Array.empty (ShiftRegister 0 0 0) (Ports 0 0) 0
 
 
 allZeroCpuState : CpuState
@@ -593,6 +593,24 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mov_h_m machineState)
             ]
+        , describe "0x6f - mov_l_a"
+            [ test "for a=0x2 machine state" <|
+                \() ->
+                    let
+                        a =
+                            0x02
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterL 0x02)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.mov_l_a machineState)
+            ]
         , describe "0x77 - mov_m_a"
             [ test "for a=0x0D, h=0x01, l=0x02 machine state" <|
                 \() ->
@@ -616,6 +634,42 @@ all =
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mov_m_a machineState)
+            ]
+        , describe "0x7a - mov_a_d"
+            [ test "for d=0x02 machine state" <|
+                \() ->
+                    let
+                        d =
+                            0x02
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 d 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x02)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.mov_a_d machineState)
+            ]
+        , describe "0x7c - mov_a_h"
+            [ test "for h=0x02 machine state" <|
+                \() ->
+                    let
+                        h =
+                            0x02
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 h 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x02)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.mov_a_h machineState)
             ]
         , describe "0x7e - mov_a_m"
             [ test "for h=0x0, l=0x02 machine state" <|
@@ -833,5 +887,25 @@ all =
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ret machineState)
+            ]
+        , describe "0xcd - call"
+            [ test "for sp=0x02 machine state" <|
+                \() ->
+                    let
+                        sp =
+                            0x02
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 sp 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetMemory 0x01 0x00
+                                , SetMemory 0x00 0x03
+                                , SetCpu (SetSP 0x00)
+                                , SetCpu (SetPC 0x0302)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.call 0x02 0x03 machineState)
             ]
         ]
