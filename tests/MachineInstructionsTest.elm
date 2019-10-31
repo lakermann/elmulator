@@ -908,4 +908,47 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.call 0x02 0x03 machineState)
             ]
+        , describe "0xd1 - pop_d"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList (range 0 0x01) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterE 0x00)
+                                , SetCpu (SetRegisterD 0x01)
+                                , SetCpu (SetSP 0x02)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.pop_d machineState)
+            ]
+        , describe "0xd5 - push_d"
+            [ test "for d=0x01, e=0x02, sp=0x03 machine state" <|
+                \() ->
+                    let
+                        d =
+                            0x01
+
+                        e =
+                            0x02
+
+                        sp =
+                            0x03
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 d e 0 0 sp 0 allFalseConditionCodes False 0, memory = fromList (range 0 0x01) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetMemory 2 1
+                                , SetMemory 1 2
+                                , SetCpu (SetSP 1)
+                                , SetCpu (SetPC 1)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.push_d machineState)
+            ]
         ]
