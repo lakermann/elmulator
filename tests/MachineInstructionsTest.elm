@@ -951,4 +951,21 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.push_d machineState)
             ]
+        , describe "0xe1 - pop_h"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList (range 0 0x01) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterL 0x00)
+                                , SetCpu (SetRegisterH 0x01)
+                                , SetCpu (SetSP 0x02)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.pop_h machineState)
+            ]
         ]
