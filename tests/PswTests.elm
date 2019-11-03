@@ -1,8 +1,8 @@
 module PswTests exposing (..)
 
 import Cpu
+import EmulatorState exposing (ConditionCodes, MachineStateDiffEvent(..), SetCpuStateEvent(..), SetFlagEvent(..))
 import Expect
-import EmulatorState exposing (ConditionCodes)
 import Psw
 import Test exposing (..)
 
@@ -74,5 +74,79 @@ all =
                     { conditionCodes | s = True, z = True, ac = True, p = True, cy = True }
                         |> Psw.createPSW
                         |> Expect.equal 215
+            ]
+        , describe "readPSW"
+            [ test "Flag []" <|
+                \() ->
+                    let                        
+                        expectedMachineStateDiffEvents =
+                            [ SetCpu (SetFlag (SetFlagZ False))
+                            , SetCpu (SetFlag (SetFlagS False))
+                            , SetCpu (SetFlag (SetFlagP False))
+                            , SetCpu (SetFlag (SetFlagCY False))
+                            , SetCpu (SetFlag (SetFlagAC False))
+                            ]
+                    in
+                    Expect.equal expectedMachineStateDiffEvents (Psw.readPSW 2)
+            , test "Flag [Z]" <|
+                \() ->
+                    let                        
+                        expectedMachineStateDiffEvents =
+                            [ SetCpu (SetFlag (SetFlagZ True))
+                            , SetCpu (SetFlag (SetFlagS False))
+                            , SetCpu (SetFlag (SetFlagP False))
+                            , SetCpu (SetFlag (SetFlagCY False))
+                            , SetCpu (SetFlag (SetFlagAC False))
+                            ]
+                    in
+                    Expect.equal expectedMachineStateDiffEvents (Psw.readPSW 66)
+            , test "Flag [S]" <|
+                \() ->
+                    let                        
+                        expectedMachineStateDiffEvents =
+                            [ SetCpu (SetFlag (SetFlagZ False))
+                            , SetCpu (SetFlag (SetFlagS True))
+                            , SetCpu (SetFlag (SetFlagP False))
+                            , SetCpu (SetFlag (SetFlagCY False))
+                            , SetCpu (SetFlag (SetFlagAC False))
+                            ]
+                    in
+                    Expect.equal expectedMachineStateDiffEvents (Psw.readPSW 130)
+            , test "Flag [P]" <|
+                \() ->
+                    let                        
+                        expectedMachineStateDiffEvents =
+                            [ SetCpu (SetFlag (SetFlagZ False))
+                            , SetCpu (SetFlag (SetFlagS False))
+                            , SetCpu (SetFlag (SetFlagP True))
+                            , SetCpu (SetFlag (SetFlagCY False))
+                            , SetCpu (SetFlag (SetFlagAC False))
+                            ]
+                    in
+                    Expect.equal expectedMachineStateDiffEvents (Psw.readPSW 6)
+            , test "Flag [CY]" <|
+                \() ->
+                    let                        
+                        expectedMachineStateDiffEvents =
+                            [ SetCpu (SetFlag (SetFlagZ False))
+                            , SetCpu (SetFlag (SetFlagS False))
+                            , SetCpu (SetFlag (SetFlagP False))
+                            , SetCpu (SetFlag (SetFlagCY True))
+                            , SetCpu (SetFlag (SetFlagAC False))
+                            ]
+                    in
+                    Expect.equal expectedMachineStateDiffEvents (Psw.readPSW 3)
+            , test "Flag [AC]" <|
+                \() ->
+                    let                        
+                        expectedMachineStateDiffEvents =
+                            [ SetCpu (SetFlag (SetFlagZ False))
+                            , SetCpu (SetFlag (SetFlagS False))
+                            , SetCpu (SetFlag (SetFlagP False))
+                            , SetCpu (SetFlag (SetFlagCY False))
+                            , SetCpu (SetFlag (SetFlagAC True))
+                            ]
+                    in
+                    Expect.equal expectedMachineStateDiffEvents (Psw.readPSW 18)
             ]
         ]

@@ -2,7 +2,7 @@ module Psw exposing (..)
 
 import BitOperations exposing (flagToByte)
 import Bitwise
-import EmulatorState exposing (ByteValue, ConditionCodes)
+import EmulatorState exposing (ByteValue, ConditionCodes, MachineStateDiffEvent(..), SetCpuStateEvent(..), SetFlagEvent(..))
 
 
 createPSW : ConditionCodes -> ByteValue
@@ -36,3 +36,13 @@ createPSW conditionCodes =
         Bitwise.or
         0
         [ seven, six, five, four, three, two, one, zero ]
+
+
+readPSW : ByteValue -> List MachineStateDiffEvent
+readPSW psw =
+    [ SetCpu (SetFlag (SetFlagZ (64 == Bitwise.and psw 64)))
+    , SetCpu (SetFlag (SetFlagS (128 == Bitwise.and psw 128)))
+    , SetCpu (SetFlag (SetFlagP (4 == Bitwise.and psw 4)))
+    , SetCpu (SetFlag (SetFlagCY (1 == Bitwise.and psw 1)))
+    , SetCpu (SetFlag (SetFlagAC (16 == Bitwise.and psw 16)))
+    ]
