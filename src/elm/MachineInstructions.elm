@@ -1017,7 +1017,7 @@ jz firstArg secondArg machineState =
     else
         let
             newPc = 
-                machineState.cpuState.pc + 3
+                getPC machineState + 3
         in
         Events [
             setPC newPc 
@@ -1091,7 +1091,7 @@ jc firstArg secondArg machineState =
     else
         let
             newPc =
-                machineState.cpuState.pc + 3
+                getPC machineState + 3
         in
         Events
             [ setPC newPc
