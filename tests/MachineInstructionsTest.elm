@@ -888,6 +888,32 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ret machineState)
             ]
+        , describe "0xca - jz"
+            [ test "z=0" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False False False) False 0, memory = fromList (range 0 0x01) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 3)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.jz 0 0 machineState)
+            , test "z=1" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes True False False False False) False 0, memory = fromList (range 0 0x01) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 16)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.jz 16 0 machineState)
+            ]
         , describe "0xcd - call"
             [ test "for sp=0x02 machine state" <|
                 \() ->
@@ -950,6 +976,32 @@ all =
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.push_d machineState)
+            ]
+        , describe "0xda - jc"
+            [ test "cy=0" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False False False) False 0, memory = fromList (range 0 0x01) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 3)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.jc 0 0 machineState)
+            , test "cy=1" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False True False) False 0, memory = fromList (range 0 0x01) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 16)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.jc 16 0 machineState)
             ]
         , describe "0xe1 - pop_h"
             [ test "for zero machine state" <|

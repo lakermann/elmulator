@@ -1001,7 +1001,28 @@ createRet memSpLow memSpHigh machineState =
         , setPC newPC
         ]
 
+-- 0xca 
 
+jz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+jz firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.z then
+        let
+            newPc =
+                getAddressLE firstArg secondArg
+        in
+        Events [
+            setPC newPc 
+        ]
+        
+    else
+        let
+            newPc = 
+                machineState.cpuState.pc + 3
+        in
+        Events [
+            setPC newPc 
+        ]
+        
 
 -- 0xcd
 
@@ -1050,6 +1071,31 @@ pop_d machineState =
 push_d : MachineState -> MachineStateDiff
 push_d machineState =
     push_ (getD machineState) (getE machineState) machineState
+
+
+
+-- 0xda
+
+
+jc : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+jc firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.cy then
+        let
+            newPc =
+                getAddressLE firstArg secondArg 
+        in
+        Events
+            [ setPC newPc
+            ]
+
+    else
+        let
+            newPc =
+                machineState.cpuState.pc + 3
+        in
+        Events
+            [ setPC newPc
+            ]
 
 
 
