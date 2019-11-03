@@ -1180,20 +1180,23 @@ pop_psw machineState =
         newSp =
             getSP machineState + 2
 
+        newPc =
+            getPC machineState + 1
+
         memoryAccessResult =
             Memory.readMemory addressForA (getMemory machineState)
     in
     case ( pswAccessResult, memoryAccessResult ) of
         ( Memory.Valid psw, Memory.Valid byteValue ) ->
             Events
-                [ setRegisterA byteValue
-                , setFlagZ (0x01 == Bitwise.and psw 0x01)
-                , setFlagS (0x02 == Bitwise.and psw 0x02)
-                , setFlagP (0x04 == Bitwise.and psw 0x04)
-                , setFlagCY (0x05 == Bitwise.and psw 0x08)
-                , setFlagAC (0x10 == Bitwise.and psw 0x10)
-                , setSP newSp
-                ]
+                (List.concat
+                    [ (Psw.readPSW psw)
+                    , [ setRegisterA byteValue 
+                    , setSP newSp
+                    , setPC newPc 
+                    ]
+                    ]
+                )
 
         ( Memory.Invalid message, _ ) ->
             Failed (Just machineState) message

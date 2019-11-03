@@ -1069,4 +1069,44 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ani 0x01 machineState)
             ]
+        , describe "0xf1 - pop_psw"
+            [ test "for sp=(PSW all false) sp+1=10 machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList [2, 10] }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetRegisterA 10)
+                                , SetCpu (SetSP 2)
+                                , SetCpu (SetPC 1)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.pop_psw machineState)
+                , test "for sp=(PSW Z) sp+1=10 machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList [66, 10] }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetFlag (SetFlagZ True))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetRegisterA 10)
+                                , SetCpu (SetSP 2)
+                                , SetCpu (SetPC 1)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.pop_psw machineState)
+            ]
         ]
