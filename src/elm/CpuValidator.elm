@@ -455,6 +455,38 @@ validate machineState =
                        )
                )
             || (machineState.step
+                    == 40204
+                    && (machineState.cpuState.a
+                            /= 0x00
+                            || machineState.cpuState.b
+                            /= 0x00
+                            || machineState.cpuState.c
+                            /= 0x00
+                            || machineState.cpuState.d
+                            /= 0x00
+                            || machineState.cpuState.e
+                            /= 0x00
+                            || machineState.cpuState.h
+                            /= 0x29
+                            || machineState.cpuState.l
+                            /= 0x1C
+                            || machineState.cpuState.pc
+                            /= 0x09B1
+                            || machineState.cpuState.sp
+                            /= 0x23FC
+                            || machineState.cpuState.conditionCodes.ac
+                            /= False
+                            || machineState.cpuState.conditionCodes.cy
+                            /= False
+                            || machineState.cpuState.conditionCodes.s
+                            /= False
+                            || machineState.cpuState.conditionCodes.p
+                            /= True
+                            || machineState.cpuState.conditionCodes.z
+                            /= True
+                       )
+               )
+            || (machineState.step
                     == 45000
                     && (machineState.cpuState.a
                             /= 0x3F
