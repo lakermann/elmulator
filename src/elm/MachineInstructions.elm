@@ -787,6 +787,25 @@ mov_a_d machineState =
 
 
 
+-- 0x7b
+
+
+mov_a_e : MachineState -> MachineStateDiff
+mov_a_e machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newA =
+            getE machineState
+    in
+    Events
+        [ setRegisterA newA
+        , setPC newPc
+        ]
+
+
+
 -- 0x7c
 
 
@@ -1001,7 +1020,10 @@ createRet memSpLow memSpHigh machineState =
         , setPC newPC
         ]
 
--- 0xca 
+
+
+-- 0xca
+
 
 jz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jz firstArg secondArg machineState =
@@ -1010,19 +1032,20 @@ jz firstArg secondArg machineState =
             newPc =
                 getAddressLE firstArg secondArg
         in
-        Events [
-            setPC newPc 
-        ]
-        
+        Events
+            [ setPC newPc
+            ]
+
     else
         let
-            newPc = 
+            newPc =
                 getPC machineState + 3
         in
-        Events [
-            setPC newPc 
-        ]
-        
+        Events
+            [ setPC newPc
+            ]
+
+
 
 -- 0xcd
 
@@ -1082,7 +1105,7 @@ jc firstArg secondArg machineState =
     if machineState.cpuState.conditionCodes.cy then
         let
             newPc =
-                getAddressLE firstArg secondArg 
+                getAddressLE firstArg secondArg
         in
         Events
             [ setPC newPc
@@ -1190,11 +1213,11 @@ pop_psw machineState =
         ( Memory.Valid psw, Memory.Valid byteValue ) ->
             Events
                 (List.concat
-                    [ (Psw.readPSW psw)
-                    , [ setRegisterA byteValue 
-                    , setSP newSp
-                    , setPC newPc 
-                    ]
+                    [ Psw.readPSW psw
+                    , [ setRegisterA byteValue
+                      , setSP newSp
+                      , setPC newPc
+                      ]
                     ]
                 )
 

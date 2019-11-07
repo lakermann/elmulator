@@ -611,6 +611,27 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mov_l_a machineState)
             ]
+        , describe "0x7b - mov_a_e"
+            [ test "for a=0x00, e=0x01 machine state" <|
+                \() ->
+                    let
+                        a =
+                            0x00
+
+                        e =
+                            0x01
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 e 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x01)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.mov_a_e machineState)
+            ]
         , describe "0x77 - mov_m_a"
             [ test "for a=0x0D, h=0x01, l=0x02 machine state" <|
                 \() ->
@@ -1074,7 +1095,7 @@ all =
                 \() ->
                     let
                         machineState =
-                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList [2, 10] }
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList [ 2, 10 ] }
 
                         expectedMachineStateDiff =
                             Events
@@ -1089,11 +1110,11 @@ all =
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.pop_psw machineState)
-                , test "for sp=(PSW Z) sp+1=10 machine state" <|
+            , test "for sp=(PSW Z) sp+1=10 machine state" <|
                 \() ->
                     let
                         machineState =
-                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList [66, 10] }
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList [ 66, 10 ] }
 
                         expectedMachineStateDiff =
                             Events
