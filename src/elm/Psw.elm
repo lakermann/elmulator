@@ -3,6 +3,7 @@ module Psw exposing (..)
 import BitOperations exposing (flagToByte)
 import Bitwise
 import EmulatorState exposing (ByteValue, ConditionCodes, MachineStateDiffEvent(..), SetCpuStateEvent(..), SetFlagEvent(..))
+import String
 
 
 createPSW : ConditionCodes -> ByteValue
@@ -46,3 +47,44 @@ readPSW psw =
     , SetCpu (SetFlag (SetFlagCY (1 == Bitwise.and psw 1)))
     , SetCpu (SetFlag (SetFlagAC (16 == Bitwise.and psw 16)))
     ]
+
+
+createFlags : ConditionCodes -> String
+createFlags conditionCodes =
+    let
+        sFlag =
+            if conditionCodes.s then
+                "s"
+
+            else
+                "."
+
+        zFlag =
+            if conditionCodes.z then
+                "z"
+
+            else
+                "."
+
+        acFlag =
+            if conditionCodes.ac then
+                "(ac)"
+
+            else
+                "."
+
+        pFlag =
+            if conditionCodes.p then
+                "p"
+
+            else
+                "."
+
+        cyFlag =
+            if conditionCodes.s then
+                "(cy)"
+
+            else
+                "."
+    in
+    String.concat [ sFlag, zFlag, acFlag, pFlag, cyFlag ]

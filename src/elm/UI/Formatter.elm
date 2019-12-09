@@ -4,7 +4,7 @@ import BitOperations exposing (flagToByte)
 import EmulatorState exposing (AddressValue, EmulatorState(..), MachineState, Memory)
 import Hex
 import Memory
-import Psw exposing (createPSW)
+import Psw exposing (createFlags, createPSW)
 
 
 formatCpuState : MachineState -> String
@@ -21,7 +21,7 @@ formatRegisters machineState =
     , "e:   " ++ Hex.padX2 machineState.cpuState.e
     , "h:   " ++ Hex.padX2 machineState.cpuState.h
     , "l:   " ++ Hex.padX2 machineState.cpuState.l
-    , "psw: " ++ Hex.padX2 (createPSW machineState.cpuState.conditionCodes)
+    , "psw: " ++ Hex.padX2 (createPSW machineState.cpuState.conditionCodes) ++ " flags: " ++ createFlags machineState.cpuState.conditionCodes
     , "sp:  " ++ Hex.padX4 machineState.cpuState.sp
     , "pc:  " ++ Hex.padX4 machineState.cpuState.pc
     , "ie:  " ++ Hex.padX2 (flagToByte machineState.cpuState.intEnable)
@@ -50,17 +50,19 @@ formatRegisters machineState =
     , "-----------------------"
     ]
 
+
 displayMemory : AddressValue -> Int -> Memory -> String
 displayMemory address offset memory =
     let
-        memoryAccessResult = Memory.readMemory (address + offset) memory
-     in
-        case memoryAccessResult of
-            Memory.Valid byteValue ->
-                Hex.padX2 byteValue
+        memoryAccessResult =
+            Memory.readMemory (address + offset) memory
+    in
+    case memoryAccessResult of
+        Memory.Valid byteValue ->
+            Hex.padX2 byteValue
 
-            Memory.Invalid message ->
-                "ERROR: " ++ message
+        Memory.Invalid message ->
+            "ERROR: " ++ message
 
 
 cpustate : EmulatorState -> String
