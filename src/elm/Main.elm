@@ -3,6 +3,7 @@ module Main exposing (main)
 import Array exposing (Array)
 import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
+import Bootstrap.Form.Input as Input
 import Bootstrap.Grid as Grid
 import Browser
 import Browser.Events
@@ -50,12 +51,13 @@ main =
 type alias Model =
     { data : Maybe Bytes
     , currentCpuState : EmulatorState
+    , nsteps : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model Nothing (Invalid Nothing "No ROM loaded yet"), Cmd.none )
+    ( Model Nothing (Invalid Nothing "No ROM loaded yet") 0, Cmd.none )
 
 
 
@@ -155,6 +157,21 @@ update msg model =
         Reset ->
             init ()
 
+        StepsUpdated n ->
+            ( { model | nsteps = Maybe.withDefault 0 (String.toInt n) }, Cmd.none )
+
+        StepsSubmitted ->
+            case model.currentCpuState of
+                Valid currentCpuState ->
+                    ( { model | currentCpuState = nStep model.nsteps currentCpuState }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
 
 loadDataIntoMemory : Model -> Bytes -> Model
 loadDataIntoMemory _ data =
@@ -165,7 +182,7 @@ loadDataIntoMemory _ data =
         initialCpuState =
             Cpu.init decodedFile
     in
-    Model (Just data) initialCpuState
+    Model (Just data) initialCpuState 0
 
 
 
@@ -216,13 +233,16 @@ view model =
                     ]
                     [ text "(n)ext step" ]
                 , text "   "
+                , Input.text [ Input.id "steps", Input.onInput StepsUpdated, Input.value (String.fromInt model.nsteps) ]
+                , Button.button [ Button.outlinePrimary, Button.attrs [ onClick StepsSubmitted ] ] [ text "n(e)xt n steps" ]
+                , text "   "
                 , Button.button
                     [ Button.outlinePrimary
                     , Button.attrs
                         [ onClick (NextStepsRequested 20000)
                         ]
                     ]
-                    [ text "ne(x)t 20000 step" ]
+                    [ text "ne(x)t 20000 steps" ]
                 , text "   "
                 , Button.button
                     [ Button.outlinePrimary
