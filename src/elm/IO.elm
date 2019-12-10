@@ -14,18 +14,6 @@ io_in address machineState =
             Bitwise.or (Bitwise.shiftLeftBy machineState.shiftRegister.upper 8) machineState.shiftRegister.lower
     in
     case address of
-        1 ->
-            Events
-                [ SetCpu (SetRegisterA 1)
-                , SetCpu (SetPC newPc)
-                ]
-
-        2 ->
-            Events
-                [ SetCpu (SetRegisterA 0)
-                , SetCpu (SetPC newPc)
-                ]
-
         3 ->
             let
                 v =
