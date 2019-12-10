@@ -242,6 +242,23 @@ all =
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.rrc machineState)
+            , test "for a=0x00 machine state" <|
+                \() ->
+                    let
+                        a =
+                            0x00
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x00)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetPC 1)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rrc machineState)
             ]
         , describe "0x11 - lxi_d_d16"
             [ test "for zero machine state" <|
