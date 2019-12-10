@@ -81,7 +81,7 @@ createFlags conditionCodes =
                 "."
 
         cyFlag =
-            if conditionCodes.s then
+            if conditionCodes.cy then
                 "(cy)"
 
             else
