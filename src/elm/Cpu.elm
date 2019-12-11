@@ -49,9 +49,7 @@ checkForInterrupt : MachineState -> EmulatorState
 checkForInterrupt machineState =
     let
         intEnabled =
-            False
-
-        --machineState.cpuState.intEnable
+            machineState.cpuState.intEnable
     in
     if intEnabled then
         generateInterrupt machineState 2

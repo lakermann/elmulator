@@ -52,12 +52,14 @@ type alias Model =
     { data : Maybe Bytes
     , currentCpuState : EmulatorState
     , nsteps : Int
+    , ticks : Int
+    , ticksDiff : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model Nothing (Invalid Nothing "No ROM loaded yet") 0, Cmd.none )
+    ( Model Nothing (Invalid Nothing "No ROM loaded yet") 0 0 0, Cmd.none )
 
 
 
@@ -130,10 +132,18 @@ update msg model =
                     , Cmd.none
                     )
 
-        Emulation _ ->
+        Emulation posix ->
             case model.currentCpuState of
                 Valid currentCpuState ->
-                    ( { model | currentCpuState = nStep 100 currentCpuState }
+                    let
+                        lastTicks =
+                            model.ticks
+                    in
+                    ( { model
+                        | currentCpuState = nStep 2000 currentCpuState
+                        , ticks = Time.posixToMillis posix
+                        , ticksDiff = Time.posixToMillis posix - lastTicks
+                      }
                     , Cmd.none
                     )
 
@@ -182,7 +192,7 @@ loadDataIntoMemory _ data =
         initialCpuState =
             Cpu.init decodedFile
     in
-    Model (Just data) initialCpuState 0
+    Model (Just data) initialCpuState 0 0 0
 
 
 
@@ -267,6 +277,7 @@ view model =
                     , Grid.col []
                         [ h3 [] [ text "Machine State" ]
                         , pre [] [ text (cpustate model.currentCpuState) ]
+                        , pre [] [ text ("diff: " ++ String.fromInt model.ticksDiff ++ " ms") ]
                         ]
                     , Grid.col []
                         [ h3 [] [ text "Code" ]
@@ -293,6 +304,7 @@ screen emulatorState =
             224
 
         renderedScreen =
+            --toRenderable Nothing
             toRenderable (readGraphicsMemory emulatorState)
     in
     Canvas.toHtml ( width, height )
@@ -329,7 +341,6 @@ subscriptions _ =
     Sub.batch
         [ Browser.Events.onKeyDown keyDecoderDown
         , Browser.Events.onKeyUp keyDecoderUp
-
-        --, Time.every 1 Emulation
-        --, Time.every 17 TickInterrupt
+        , Time.every 1 Emulation
+        , Time.every 17 TickInterrupt
         ]
