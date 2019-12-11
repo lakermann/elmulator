@@ -178,6 +178,21 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.dad_b machineState)
             ]
+        , describe "0x0a - ldax_b"
+            [ test "for c=2" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 2 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList [ 0, 0, 10 ] }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 10)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.ldax_b machineState)
+            ]
         , describe "0x0d - dcr_c"
             [ test "for zero machine state" <|
                 \() ->
@@ -519,6 +534,18 @@ all =
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mvi_m_d8 0x0D machineState)
+            ]
+        , describe "0x37 - stc"
+            [ test "for zero machine state" <|
+                \() ->
+                    let
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetFlag (SetFlagCY True))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.stc allZeroMachineState)
             ]
         , describe "0x3a - lda"
             [ test "for zero machine state" <|

@@ -460,6 +460,33 @@ dad_b machineState =
 
 
 
+-- 0x0a
+
+
+ldax_b : MachineState -> MachineStateDiff
+ldax_b machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        memoryAddress =
+            getAddressLE (getC machineState) (getB machineState)
+
+        memoryAccessResult =
+            Memory.readMemory memoryAddress (getMemory machineState)
+    in
+    case memoryAccessResult of
+        Memory.Valid byteValue ->
+            Events
+                [ setRegisterA byteValue
+                , setPC newPc
+                ]
+
+        Memory.Invalid message ->
+            Failed (Just machineState) message
+
+
+
 -- 0x0d
 
 
@@ -670,6 +697,22 @@ mvi_m_d8 firstArg machineState =
             getAddressLE (getL machineState) (getH machineState)
     in
     mvi_d8_ (SetMemory address firstArg) machineState
+
+
+
+-- 0x37
+
+
+stc : MachineState -> MachineStateDiff
+stc machineState =
+    let
+        newPc =
+            getPC machineState + 1
+    in
+    Events
+        [ setFlagCY True
+        , setPC newPc
+        ]
 
 
 
