@@ -11,7 +11,7 @@ import Bytes exposing (Bytes)
 import Canvas exposing (Renderable, rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
-import Cpu exposing (checkForInterrupt, interrupt, keyPressed, keyReleased, nStep)
+import Cpu exposing (checkForInterrupt, interrupt, keyPressed, keyReleased, nStep, nStep_withInterrupt)
 import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
@@ -54,12 +54,13 @@ type alias Model =
     , nsteps : Int
     , ticks : Int
     , ticksDiff : Int
+    , ticksDiffReal : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model Nothing (Invalid Nothing "No ROM loaded yet") 0 0 0, Cmd.none )
+    ( Model Nothing (Invalid Nothing "No ROM loaded yet") 0 0 0 0, Cmd.none )
 
 
 
@@ -143,6 +144,28 @@ update msg model =
                         | currentCpuState = nStep 2000 currentCpuState
                         , ticks = Time.posixToMillis posix
                         , ticksDiff = Time.posixToMillis posix - lastTicks
+                        , ticksDiffReal = Time.posixToMillis posix - lastTicks
+                      }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
+        EmulationWithInterrupt posix ->
+            case model.currentCpuState of
+                Valid currentCpuState ->
+                    let
+                        lastTicks =
+                            model.ticks
+                    in
+                    ( { model
+                        | currentCpuState = nStep_withInterrupt 680000 currentCpuState
+                        , ticks = Time.posixToMillis posix
+                        , ticksDiff = (Time.posixToMillis posix - lastTicks) // 340
+                        , ticksDiffReal = Time.posixToMillis posix - lastTicks
                       }
                     , Cmd.none
                     )
@@ -192,7 +215,7 @@ loadDataIntoMemory _ data =
         initialCpuState =
             Cpu.init decodedFile
     in
-    Model (Just data) initialCpuState 0 0 0
+    Model (Just data) initialCpuState 0 0 0 0
 
 
 
@@ -278,6 +301,7 @@ view model =
                         [ h3 [] [ text "Machine State" ]
                         , pre [] [ text (cpustate model.currentCpuState) ]
                         , pre [] [ text ("diff: " ++ String.fromInt model.ticksDiff ++ " ms") ]
+                        , pre [] [ text ("diff: " ++ String.fromInt model.ticksDiffReal ++ " ms (real)") ]
                         ]
                     , Grid.col []
                         [ h3 [] [ text "Code" ]
@@ -341,6 +365,8 @@ subscriptions _ =
     Sub.batch
         [ Browser.Events.onKeyDown keyDecoderDown
         , Browser.Events.onKeyUp keyDecoderUp
-        , Time.every 1 Emulation
-        , Time.every 17 TickInterrupt
+
+        --, Time.every 1 Emulation
+        --, Time.every 17 TickInterrupt
+        , Time.every 340 EmulationWithInterrupt
         ]

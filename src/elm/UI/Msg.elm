@@ -11,6 +11,7 @@ type Msg
     | RomLoaded Bytes
     | NextStepsRequested Int
     | Emulation Time.Posix
+    | EmulationWithInterrupt Time.Posix
     | KeyDown GameKey
     | KeyUp GameKey
     | Reset

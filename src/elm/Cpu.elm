@@ -45,6 +45,37 @@ nStep n machineState =
         ns
 
 
+nStep_withInterrupt : Int -> MachineState -> EmulatorState
+nStep_withInterrupt n machineState =
+    let
+        ns =
+            oneStep machineState
+    in
+    if n > 1 then
+        case ns of
+            Valid cs ->
+                if modBy n 33333 == 0 then
+                    let
+                        newNs =
+                            checkForInterrupt cs
+                    in
+                    case newNs of
+                        Valid ncs ->
+                            nStep_withInterrupt (n - 1) ncs
+
+                        Invalid _ _ ->
+                            newNs
+
+                else
+                    nStep_withInterrupt (n - 1) cs
+
+            Invalid _ _ ->
+                ns
+
+    else
+        ns
+
+
 checkForInterrupt : MachineState -> EmulatorState
 checkForInterrupt machineState =
     let
@@ -374,7 +405,7 @@ initShiftRegister =
 
 initPorts : Ports
 initPorts =
-    Ports 1 0
+    Ports 14 8
 
 
 keyPressed : GameKey -> MachineState -> EmulatorState
