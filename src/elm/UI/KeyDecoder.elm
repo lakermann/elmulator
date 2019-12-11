@@ -31,6 +31,9 @@ keyDecoderDown =
                     "d" ->
                         Decode.succeed (KeyDown Right)
 
+                    "e" ->
+                        Decode.succeed StepsSubmitted
+
                     "s" ->
                         Decode.succeed (KeyDown Space)
 
