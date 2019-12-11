@@ -700,6 +700,15 @@ lda firstArg secondArg machineState =
 
 
 
+-- 0x3d
+
+
+dcr_a : MachineState -> MachineStateDiff
+dcr_a machineState =
+    dcr_ (\value -> setRegisterA value) (getA machineState) machineState
+
+
+
 -- 0x3e
 
 
