@@ -26,6 +26,7 @@ formatRegisters machineState =
     , "pc:  " ++ Hex.padX4 machineState.cpuState.pc
     , "ie:  " ++ Hex.padX2 (flagToByte machineState.cpuState.intEnable)
     , "cycleCount: " ++ String.fromInt machineState.cpuState.cycleCount
+    , "step: " ++ String.fromInt machineState.step
     , "-----------------------"
     , "sr l:  " ++ Hex.padX2 machineState.shiftRegister.lower
     , "sr u:  " ++ Hex.padX2 machineState.shiftRegister.upper
