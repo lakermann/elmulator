@@ -164,17 +164,13 @@ getFlagZ machineState =
 -- general
 
 
-logic_flags_a : MachineState -> List MachineStateDiffEvent
-logic_flags_a machineState =
-    let
-        regA =
-            getA machineState
-    in
+logic_flags_a : RegisterValue -> List MachineStateDiffEvent
+logic_flags_a newA =
     [ setFlagCY False
     , setFlagAC False
-    , setFlagZ (regA == 0)
-    , setFlagS (0x80 == Bitwise.and regA 0x80)
-    , setFlagP (ConditionCodesFlags.pFlag regA)
+    , setFlagZ (ConditionCodesFlags.zFlag newA)
+    , setFlagS (ConditionCodesFlags.sFlag newA)
+    , setFlagP (ConditionCodesFlags.pFlag newA)
     ]
 
 
@@ -842,13 +838,16 @@ ana_a machineState =
     let
         newPc =
             getPC machineState + 1
+
+        newA =
+            Bitwise.and (getA machineState) (getA machineState)
     in
     Events
         (List.concat
-            [ [ setRegisterA (Bitwise.and (getA machineState) (getA machineState))
+            [ [ setRegisterA newA
               , setPC newPc
               ]
-            , logic_flags_a machineState
+            , logic_flags_a newA
             ]
         )
 
@@ -862,13 +861,16 @@ xra_a machineState =
     let
         newPc =
             getPC machineState + 1
+
+        newA =
+            Bitwise.xor (getA machineState) (getA machineState)
     in
     Events
         (List.concat
-            [ [ setRegisterA (Bitwise.xor (getA machineState) (getA machineState))
+            [ [ setRegisterA newA
               , setPC newPc
               ]
-            , logic_flags_a machineState
+            , logic_flags_a newA
             ]
         )
 
@@ -931,7 +933,7 @@ adi_d8 firstArg machineState =
         , setFlagZ (0 == Bitwise.and x 0xFF)
         , setFlagS (0x80 == Bitwise.and x 0x80)
         , setFlagP (ConditionCodesFlags.pFlag (Bitwise.and x 0xFF))
-        , setFlagCY (ConditionCodesFlags.cyFlagAdd x)
+        , setFlagCY (ConditionCodesFlags.cyFlag x)
         , setPC newPc
         ]
 
@@ -1156,8 +1158,10 @@ ani firstArg machineState =
     in
     Events
         (List.concat
-            [ [ setRegisterA newA, setPC newPc ]
-            , logic_flags_a machineState
+            [ [ setRegisterA newA
+              , setPC newPc
+              ]
+            , logic_flags_a newA
             ]
         )
 

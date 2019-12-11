@@ -30,8 +30,8 @@ pFlag result =
         False
 
 
-cyFlagAdd : Int -> Bool
-cyFlagAdd result =
+cyFlag : Int -> Bool
+cyFlag result =
     if result > 255 then
         True
 
@@ -39,6 +39,6 @@ cyFlagAdd result =
         False
 
 
-acFalg : Bool
-acFalg =
+acFlag : Int -> Bool
+acFlag result =
     False

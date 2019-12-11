@@ -75,14 +75,14 @@ all =
                 \() ->
                     let
                         cFlag =
-                            ConditionCodesFlags.cyFlagAdd 256
+                            ConditionCodesFlags.cyFlag 256
                     in
                     Expect.equal True cFlag
             , test "128" <|
                 \() ->
                     let
                         cFlag =
-                            ConditionCodesFlags.cyFlagAdd 128
+                            ConditionCodesFlags.cyFlag 128
                     in
                     Expect.equal False cFlag
             ]
