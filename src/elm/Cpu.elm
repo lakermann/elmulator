@@ -54,7 +54,7 @@ nStep_withInterrupt n machineState =
     if n > 1 then
         case ns of
             Valid cs ->
-                if modBy n 33333 == 0 then
+                if modBy 333 n == 0 then
                     let
                         newNs =
                             checkForInterrupt cs

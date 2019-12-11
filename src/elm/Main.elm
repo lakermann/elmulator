@@ -162,9 +162,9 @@ update msg model =
                             model.ticks
                     in
                     ( { model
-                        | currentCpuState = nStep_withInterrupt 680000 currentCpuState
+                        | currentCpuState = nStep_withInterrupt 20000 currentCpuState
                         , ticks = Time.posixToMillis posix
-                        , ticksDiff = (Time.posixToMillis posix - lastTicks) // 340
+                        , ticksDiff = (Time.posixToMillis posix - lastTicks) // 1000
                         , ticksDiffReal = Time.posixToMillis posix - lastTicks
                       }
                     , Cmd.none
@@ -368,5 +368,5 @@ subscriptions _ =
 
         --, Time.every 1 Emulation
         --, Time.every 17 TickInterrupt
-        , Time.every 340 EmulationWithInterrupt
+        , Time.every 1000 EmulationWithInterrupt
         ]
