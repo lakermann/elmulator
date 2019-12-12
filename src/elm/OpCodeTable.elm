@@ -206,7 +206,7 @@ opCodeTable =
         , ( 0xAD, OpCodeData "XRA L" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xAE, OpCodeData "XRA M" 7 (OneByte unimplementedInstructionZero) )
         , ( 0xAF, OpCodeData "XRA A" 4 (OneByte MachineInstructions.xra_a) )
-        , ( 0xB0, OpCodeData "ORA B" 4 (OneByte unimplementedInstructionZero) )
+        , ( 0xB0, OpCodeData "ORA B" 4 (OneByte MachineInstructions.ora_b) )
         , ( 0xB1, OpCodeData "ORA C" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xB2, OpCodeData "ORA D" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xB3, OpCodeData "ORA E" 4 (OneByte unimplementedInstructionZero) )

@@ -403,6 +403,27 @@ ana_ registerValue machineState =
         )
 
 
+ora_ : ByteValue -> MachineState -> MachineStateDiff
+ora_ value machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newA =
+            Bitwise.or (getA machineState) value
+    in
+    Events
+        (List.concat
+            [ [ setRegisterA newA
+              , setPC newPc
+              , setFlagCY False
+              , setFlagAC False
+              ]
+            , flags_ZSP newA
+            ]
+        )
+
+
 
 -- 0x00
 
@@ -1237,6 +1258,15 @@ xra_a machineState =
             , logic_flags_a newA
             ]
         )
+
+
+
+-- 0xb0
+
+
+ora_b : MachineState -> MachineStateDiff
+ora_b machineState =
+    ora_ (getB machineState) machineState
 
 
 

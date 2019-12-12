@@ -1198,6 +1198,32 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.xra_a machineState)
             ]
+        , describe "0x0b - ora_b"
+            [ test "for a=3, b=5 machine state" <|
+                \() ->
+                    let
+                        a =
+                            3
+
+                        b =
+                            5
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 7)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.ora_b machineState)
+            ]
         , describe "0xc0 - rnz"
             [ test "for z=True" <|
                 \() ->
