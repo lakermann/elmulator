@@ -677,6 +677,75 @@ mvi_h_d8 firstArg machineState =
 
 
 
+-- 0x27 27 -- DAA
+--(Decimal Adjust Accumulator)
+--The eight-bit number in the accumulator is adjusted
+--to form two four-bit Binary-Coded-Decimal digits by
+--the following process:
+--1. If the value of the least significant 4 bits of the
+--   accumulator is greater than 9 or if the AC flag
+--   is set, 6 is added to the accumulator.
+--2. If the value of the most significant 4 bits of the
+--   accumulator is now greater than 9, or if the CY
+--   flag is set, 6 is added to the most significant 4
+--   bits of the accumulator.
+--NOTE: All flags are affected.
+
+
+daa : MachineState -> MachineStateDiff
+daa machineState =
+    let
+        currentA =
+            getA machineState
+
+        lower =
+            Bitwise.and 15 currentA
+
+        newPc =
+            getPC machineState + 1
+    in
+    if lower > 9 || machineState.cpuState.conditionCodes.ac then
+        let
+            newA =
+                currentA + 6
+
+            newLower =
+                Bitwise.and 15 newA
+
+            newUpper =
+                Bitwise.and 240 newA
+        in
+        if newUpper > 9 || machineState.cpuState.conditionCodes.cy then
+            let
+                newnewA =
+                    Bitwise.or (Bitwise.shiftLeftBy 4 (newUpper + 6)) newLower
+            in
+            Events
+                [ setRegisterA (modBy 256 newnewA)
+                , setPC newPc
+                , setFlagCY (newnewA > 255)
+                , setFlagAC (Bitwise.and 16 (Bitwise.and lower 6) == 16)
+                , setFlagZ (ConditionCodesFlags.zFlag newnewA)
+                , setFlagS (ConditionCodesFlags.sFlag newnewA)
+                , setFlagP (ConditionCodesFlags.pFlag newnewA)
+                ]
+
+        else
+            Events
+                [ setRegisterA (modBy 256 newA)
+                , setPC newPc
+                , setFlagCY (newA > 255)
+                , setFlagAC (Bitwise.and 16 (Bitwise.and lower 6) == 16)
+                , setFlagZ (ConditionCodesFlags.zFlag newA)
+                , setFlagS (ConditionCodesFlags.sFlag newA)
+                , setFlagP (ConditionCodesFlags.pFlag newA)
+                ]
+
+    else
+        Events [ setPC newPc ]
+
+
+
 -- 0x29
 
 
