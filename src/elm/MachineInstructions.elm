@@ -788,6 +788,15 @@ mov_h_m machineState =
 
 
 
+-- 0x67
+
+
+mov_h_a : MachineState -> MachineStateDiff
+mov_h_a machineState =
+    mov_m_ (\data -> setRegisterA data) machineState
+
+
+
 -- 0x6f
 
 
