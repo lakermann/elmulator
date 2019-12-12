@@ -190,7 +190,7 @@ opCodeTable =
         , ( 0x9D, OpCodeData "SBB L" 4 (OneByte unimplementedInstructionZero) )
         , ( 0x9E, OpCodeData "SBB M" 7 (OneByte unimplementedInstructionZero) )
         , ( 0x9F, OpCodeData "SBB A" 4 (OneByte unimplementedInstructionZero) )
-        , ( 0xA0, OpCodeData "ANA B" 4 (OneByte unimplementedInstructionZero) )
+        , ( 0xA0, OpCodeData "ANA B" 4 (OneByte MachineInstructions.ana_b) )
         , ( 0xA1, OpCodeData "ANA C" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xA2, OpCodeData "ANA D" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xA3, OpCodeData "ANA E" 4 (OneByte unimplementedInstructionZero) )

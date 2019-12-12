@@ -1178,6 +1178,38 @@ mov_a_m machineState =
 
 
 
+-- 0xa0
+
+
+ana_b : MachineState -> MachineStateDiff
+ana_b machineState =
+    let
+        currentA =
+            getA machineState
+
+        lowerA =
+            Bitwise.and 0x0F currentA
+
+        newPc =
+            getPC machineState + 1
+
+        b =
+            getB machineState
+
+        newA =
+            Bitwise.and currentA b
+    in
+    Events
+        [ setRegisterA (modBy 256 newA)
+        , setFlagCY False
+        , setFlagZ (newA == 0)
+        , setFlagS (Bitwise.and 128 newA == 128)
+        , setFlagP (modBy 2 newA == 0)
+        , setPC newPc
+        ]
+
+
+
 -- 0xa7
 
 

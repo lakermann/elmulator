@@ -1085,6 +1085,54 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mov_a_m machineState)
             ]
+        , describe "0xa0 - ana_b"
+            [ test "for a=5, b=5 machine state" <|
+                \() ->
+                    let
+                        a =
+                            5
+
+                        b =
+                            5
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 5)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.ana_b machineState)
+            , test "for a=128, b=133 machine state" <|
+                \() ->
+                    let
+                        a =
+                            128
+
+                        b =
+                            133
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 128)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS True))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.ana_b machineState)
+            ]
         , describe "0xa7 - ana_a"
             [ test "for a=0x80 machine state" <|
                 \() ->
