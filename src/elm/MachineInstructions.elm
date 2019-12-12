@@ -451,6 +451,32 @@ mvi_b_d8 firstArg machineState =
 
 
 
+-- 0x07
+
+
+rlc : MachineState -> MachineStateDiff
+rlc machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        currentA =
+            getA machineState
+
+        newA =
+            modBy 256 (Bitwise.or (Bitwise.shiftLeftBy 1 currentA) (Bitwise.shiftRightBy 7 currentA))
+
+        newCy =
+            Bitwise.and 128 currentA == 128
+    in
+    Events
+        [ setRegisterA newA
+        , setFlagCY newCy
+        , setPC newPc
+        ]
+
+
+
 -- 0x09
 
 

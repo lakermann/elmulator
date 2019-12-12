@@ -149,6 +149,36 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mvi_b_d8 0x0D allZeroMachineState)
             ]
+        , describe "0x07 - rlc"
+            [ test "for a=0x01 machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 1 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x02)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rlc machineState)
+            , test "for a=128 machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 128 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x01)
+                                , SetCpu (SetFlag (SetFlagCY True))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rlc machineState)
+            ]
         , describe "0x09 - dad_b"
             [ test "for b=0x01, c=0x02, h=0x03, l=0x04 machine state" <|
                 \() ->
