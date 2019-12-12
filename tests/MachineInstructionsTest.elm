@@ -996,6 +996,32 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.pop_b machineState)
             ]
+        , describe "0xb6 - ora_m"
+            [ test "for h=0x00, l=0x04 machine state" <|
+                \() ->
+                    let
+                        h =
+                            0x00
+
+                        l =
+                            4
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 1 0 0 0 0 h l 0 0 allFalseConditionCodes False 0, memory = fromList (range 0 0x04) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x05)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.ora_m machineState)
+            ]
         , describe "0xc2 - jnz"
             [ test "for zero machine state" <|
                 \() ->

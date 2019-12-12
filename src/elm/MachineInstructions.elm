@@ -1022,6 +1022,41 @@ xra_a machineState =
 
 
 
+-- 0xb6
+
+
+ora_m : MachineState -> MachineStateDiff
+ora_m machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        memoryAddress =
+            getAddressLE (getL machineState) (getH machineState)
+
+        memoryAccessResult =
+            Memory.readMemory memoryAddress (getMemory machineState)
+    in
+    case memoryAccessResult of
+        Memory.Valid byteValue ->
+            let
+                newA =
+                    Bitwise.or (getA machineState) byteValue
+            in
+            Events
+                (List.concat
+                    [ [ setRegisterA newA
+                      , setPC newPc
+                      ]
+                    , logic_flags_a newA
+                    ]
+                )
+
+        Memory.Invalid message ->
+            Failed (Just machineState) message
+
+
+
 -- 0xc1
 
 

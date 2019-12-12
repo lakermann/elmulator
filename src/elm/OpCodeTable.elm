@@ -212,7 +212,7 @@ opCodeTable =
         , ( 0xB3, OpCodeData "ORA E" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xB4, OpCodeData "ORA H" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xB5, OpCodeData "ORA L" 4 (OneByte unimplementedInstructionZero) )
-        , ( 0xB6, OpCodeData "ORA M" 7 (OneByte unimplementedInstructionZero) )
+        , ( 0xB6, OpCodeData "ORA M" 7 (OneByte MachineInstructions.ora_m) )
         , ( 0xB7, OpCodeData "ORA A" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xB8, OpCodeData "CMP B" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xB9, OpCodeData "CMP C" 4 (OneByte unimplementedInstructionZero) )
