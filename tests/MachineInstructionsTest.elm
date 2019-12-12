@@ -1380,6 +1380,44 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.jz 16 0 machineState)
             ]
+        , describe "0xcc - cz"
+            [ test "for z=False machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 3)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.cz 5 0 machineState)
+            , test "for z=True, sp=10 machine state" <|
+                \() ->
+                    let
+                        pc =
+                            0x0402
+
+                        sp =
+                            10
+
+                        z =
+                            True
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 sp pc (ConditionCodes z False False False False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetMemory 9 0x04
+                                , SetMemory 8 0x02
+                                , SetCpu (SetSP 8)
+                                , SetCpu (SetPC 5)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.cz 5 0 machineState)
+            ]
         , describe "0xcd - call"
             [ test "for sp=0x02 machine state" <|
                 \() ->

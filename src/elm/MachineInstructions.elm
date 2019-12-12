@@ -1453,6 +1453,41 @@ jz firstArg secondArg machineState =
 
 
 
+-- 0xcc
+
+
+cz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+cz firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.z then
+        let
+            newPc =
+                getAddressLE firstArg secondArg
+
+            newSp =
+                getSP machineState - 2
+
+            memoryForH =
+                getSP machineState - 1
+
+            memoryForL =
+                getSP machineState - 2
+        in
+        Events
+            [ setMemory memoryForH (Bitwise.and (Bitwise.shiftRightBy 8 (getPC machineState)) 0x0F)
+            , setMemory memoryForL (Bitwise.and (getPC machineState) 0x0F)
+            , setSP newSp
+            , setPC newPc
+            ]
+
+    else
+        let
+            newPc =
+                getPC machineState + 3
+        in
+        Events [ setPC newPc ]
+
+
+
 -- 0xcd
 
 

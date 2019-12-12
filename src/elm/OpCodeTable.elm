@@ -234,7 +234,7 @@ opCodeTable =
         , ( 0xC9, OpCodeData "RET" 10 (OneByte MachineInstructions.ret) )
         , ( 0xCA, OpCodeData "JZ adr" 10 (ThreeBytes MachineInstructions.jz) )
         , ( 0xCB, OpCodeData "-" 0 (OneByte unknownInstruction) )
-        , ( 0xCC, OpCodeData "CZ adr" 10 (ThreeBytes unimplementedInstructionTwo) )
+        , ( 0xCC, OpCodeData "CZ adr" 10 (ThreeBytes MachineInstructions.cz) )
         , ( 0xCD, OpCodeData "CALL adr" 17 (ThreeBytes MachineInstructions.call) )
         , ( 0xCE, OpCodeData "ACI D8" 7 (TwoBytes unimplementedInstructionOne) )
         , ( 0xCF, OpCodeData "RST 1" 11 (OneByte unimplementedInstructionZero) )
