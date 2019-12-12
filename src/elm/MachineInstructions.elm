@@ -1198,6 +1198,52 @@ push_d machineState =
 
 
 
+-- 0xd8
+
+
+rc : MachineState -> MachineStateDiff
+rc machineState =
+    if machineState.cpuState.conditionCodes.cy then
+        let
+            newSp =
+                getSP machineState + 2
+
+            addressForH =
+                getSP machineState + 1
+
+            addressForL =
+                getSP machineState
+
+            hMemoryAccessResult =
+                Memory.readMemory addressForH machineState.memory
+
+            lMemoryAccessResult =
+                Memory.readMemory addressForL machineState.memory
+        in
+        case ( hMemoryAccessResult, lMemoryAccessResult ) of
+            ( Memory.Valid hByteValue, Memory.Valid lByteValue ) ->
+                Events
+                    [ setSP newSp
+                    , setPC (BitOperations.getAddressLE lByteValue hByteValue)
+                    ]
+
+            ( Memory.Valid _, Memory.Invalid message ) ->
+                Failed (Just machineState) message
+
+            ( Memory.Invalid message, _ ) ->
+                Failed (Just machineState) message
+
+    else
+        let
+            newPc =
+                getPC machineState + 1
+        in
+        Events
+            [ setPC newPc
+            ]
+
+
+
 -- 0xda
 
 

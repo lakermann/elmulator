@@ -1164,6 +1164,33 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.push_d machineState)
             ]
+        , describe "0xd8 - rc"
+            [ test "cy=0" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False False False) False 0, memory = fromList (range 0 0x01) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 1)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rc machineState)
+            , test "cy=1" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 5 0 (ConditionCodes False False False True False) False 0, memory = fromList (range 0 0x10) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetSP 7)
+                                , SetCpu (SetPC 0x0605)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rc machineState)
+            ]
         , describe "0xda - jc"
             [ test "cy=0" <|
                 \() ->

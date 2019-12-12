@@ -246,7 +246,7 @@ opCodeTable =
         , ( 0xD5, OpCodeData "PUSH D" 11 (OneByte MachineInstructions.push_d) )
         , ( 0xD6, OpCodeData "SUI D8" 7 (TwoBytes unimplementedInstructionOne) )
         , ( 0xD7, OpCodeData "RST 2" 11 (OneByte unimplementedInstructionZero) )
-        , ( 0xD8, OpCodeData "RC" 11 (OneByte unimplementedInstructionZero) )
+        , ( 0xD8, OpCodeData "RC" 11 (OneByte MachineInstructions.rc) )
         , ( 0xD9, OpCodeData "-" 0 (OneByte unknownInstruction) )
         , ( 0xDA, OpCodeData "JC adr" 10 (ThreeBytes MachineInstructions.jc) )
         , ( 0xDB, OpCodeData "IN D8" 10 (TwoBytes IO.io_in) )
