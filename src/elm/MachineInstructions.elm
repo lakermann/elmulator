@@ -1012,17 +1012,7 @@ mov_b_m machineState =
 
 mov_c_a : MachineState -> MachineStateDiff
 mov_c_a machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newC =
-            getA machineState
-    in
-    Events
-        [ setRegisterC newC
-        , setPC newPc
-        ]
+    mov_r_r_ (\data -> SetRegisterC data) getA machineState
 
 
 
@@ -1040,17 +1030,7 @@ mov_d_m machineState =
 
 mov_d_a : MachineState -> MachineStateDiff
 mov_d_a machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newD =
-            getA machineState
-    in
-    Events
-        [ setRegisterD newD
-        , setPC newPc
-        ]
+    mov_r_r_ (\data -> SetRegisterD data) getA machineState
 
 
 
@@ -1068,17 +1048,7 @@ mov_e_m machineState =
 
 mov_e_a : MachineState -> MachineStateDiff
 mov_e_a machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newE =
-            getA machineState
-    in
-    Events
-        [ setRegisterE newE
-        , setPC newPc
-        ]
+    mov_r_r_ (\data -> SetRegisterE data) getA machineState
 
 
 
@@ -1096,7 +1066,7 @@ mov_h_m machineState =
 
 mov_h_a : MachineState -> MachineStateDiff
 mov_h_a machineState =
-    mov_m_ (\data -> setRegisterA data) machineState
+    mov_r_r_ (\data -> SetRegisterH data) getA machineState
 
 
 
@@ -1105,17 +1075,7 @@ mov_h_a machineState =
 
 mov_l_a : MachineState -> MachineStateDiff
 mov_l_a machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newL =
-            getA machineState
-    in
-    Events
-        [ setRegisterL newL
-        , setPC newPc
-        ]
+    mov_r_r_ (\data -> SetRegisterL data) getA machineState
 
 
 
@@ -1133,17 +1093,7 @@ mov_m_a machineState =
 
 mov_a_b : MachineState -> MachineStateDiff
 mov_a_b machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newA =
-            getB machineState
-    in
-    Events
-        [ setRegisterA newA
-        , setPC newPc
-        ]
+    mov_r_r_ (\data -> SetRegisterA data) getB machineState
 
 
 
@@ -1161,17 +1111,7 @@ mov_a_c machineState =
 
 mov_a_d : MachineState -> MachineStateDiff
 mov_a_d machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newA =
-            getD machineState
-    in
-    Events
-        [ setRegisterA newA
-        , setPC newPc
-        ]
+    mov_r_r_ (\data -> SetRegisterA data) getD machineState
 
 
 
@@ -1180,17 +1120,7 @@ mov_a_d machineState =
 
 mov_a_e : MachineState -> MachineStateDiff
 mov_a_e machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newA =
-            getE machineState
-    in
-    Events
-        [ setRegisterA newA
-        , setPC newPc
-        ]
+    mov_r_r_ (\data -> SetRegisterA data) getE machineState
 
 
 
@@ -1199,17 +1129,7 @@ mov_a_e machineState =
 
 mov_a_h : MachineState -> MachineStateDiff
 mov_a_h machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newA =
-            getH machineState
-    in
-    Events
-        [ setRegisterA newA
-        , setPC newPc
-        ]
+    mov_r_r_ (\data -> SetRegisterA data) getH machineState
 
 
 
@@ -1218,17 +1138,7 @@ mov_a_h machineState =
 
 mov_a_l : MachineState -> MachineStateDiff
 mov_a_l machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newA =
-            getL machineState
-    in
-    Events
-        [ setRegisterA newA
-        , setPC newPc
-        ]
+    mov_r_r_ (\data -> SetRegisterA data) getL machineState
 
 
 
