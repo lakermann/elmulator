@@ -770,6 +770,34 @@ mov_d_m machineState =
 
 
 
+--0x57
+
+
+mov_d_a : MachineState -> MachineStateDiff
+mov_d_a machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newD =
+            getA machineState
+    in
+    Events
+        [ setRegisterD newD
+        , setPC newPc
+        ]
+
+
+
+-- 0x5e
+
+
+mov_e_m : MachineState -> MachineStateDiff
+mov_e_m machineState =
+    mov_m_ (\data -> setRegisterE data) machineState
+
+
+
 -- 0x5f
 
 
@@ -786,15 +814,6 @@ mov_e_a machineState =
         [ setRegisterE newE
         , setPC newPc
         ]
-
-
-
--- 0x5e
-
-
-mov_e_m : MachineState -> MachineStateDiff
-mov_e_m machineState =
-    mov_m_ (\data -> setRegisterE data) machineState
 
 
 
