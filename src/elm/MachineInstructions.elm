@@ -761,6 +761,25 @@ mvi_a_d8 firstArg machineState =
 
 
 
+-- 0x4f
+
+
+mov_c_a : MachineState -> MachineStateDiff
+mov_c_a machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newC =
+            getA machineState
+    in
+    Events
+        [ setRegisterC newC
+        , setPC newPc
+        ]
+
+
+
 -- 0x56
 
 
