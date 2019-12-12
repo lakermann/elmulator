@@ -770,6 +770,15 @@ mvi_a_d8 firstArg machineState =
 
 
 
+-- 0x46
+
+
+mov_b_m : MachineState -> MachineStateDiff
+mov_b_m machineState =
+    mov_m_ (\data -> setRegisterB data) machineState
+
+
+
 -- 0x4f
 
 
