@@ -1644,6 +1644,29 @@ push_psw machineState =
 
 
 
+-- 0xf6
+
+
+ori_d8 : ByteValue -> MachineState -> MachineStateDiff
+ori_d8 firstArg machineState =
+    let
+        newA =
+            Bitwise.or (getA machineState) firstArg
+
+        newPc =
+            getPC machineState + 2
+    in
+    Events
+        (List.concat
+            [ [ setRegisterA newA
+              , setPC newPc
+              ]
+            , logic_flags_a newA
+            ]
+        )
+
+
+
 -- 0xfb
 
 

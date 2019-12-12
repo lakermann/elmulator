@@ -276,7 +276,7 @@ opCodeTable =
         , ( 0xF3, OpCodeData "DI" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xF4, OpCodeData "CP adr" 17 (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xF5, OpCodeData "PUSH PSW" 11 (OneByte MachineInstructions.push_psw) )
-        , ( 0xF6, OpCodeData "ORI D8" 7 (TwoBytes unimplementedInstructionOne) )
+        , ( 0xF6, OpCodeData "ORI D8" 7 (TwoBytes MachineInstructions.ori_d8) )
         , ( 0xF7, OpCodeData "RST 6" 11 (OneByte unimplementedInstructionZero) )
         , ( 0xF8, OpCodeData "RM" 11 (OneByte unimplementedInstructionZero) )
         , ( 0xF9, OpCodeData "SPHL" 5 (OneByte unimplementedInstructionZero) )

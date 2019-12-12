@@ -1602,4 +1602,48 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.pop_psw machineState)
             ]
+        , describe "0xf6 - ori_d8"
+            [ test "for a=0, in 10 machine state" <|
+                \() ->
+                    let
+                        a =
+                            0
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 10)
+                                , SetCpu (SetPC 2)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.ori_d8 10 machineState)
+            , test "for a=0, in 0 machine state" <|
+                \() ->
+                    let
+                        a =
+                            0
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0)
+                                , SetCpu (SetPC 2)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetFlag (SetFlagZ True))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.ori_d8 0 machineState)
+            ]
         ]
