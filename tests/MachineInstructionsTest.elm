@@ -1101,11 +1101,11 @@ all =
                         expectedMachineStateDiff =
                             Events
                                 [ SetCpu (SetRegisterA 5)
+                                , SetCpu (SetPC 0x01)
                                 , SetCpu (SetFlag (SetFlagCY False))
                                 , SetCpu (SetFlag (SetFlagZ False))
                                 , SetCpu (SetFlag (SetFlagS False))
                                 , SetCpu (SetFlag (SetFlagP False))
-                                , SetCpu (SetPC 0x01)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ana_b machineState)
@@ -1124,11 +1124,11 @@ all =
                         expectedMachineStateDiff =
                             Events
                                 [ SetCpu (SetRegisterA 128)
+                                , SetCpu (SetPC 0x01)
                                 , SetCpu (SetFlag (SetFlagCY False))
                                 , SetCpu (SetFlag (SetFlagZ False))
                                 , SetCpu (SetFlag (SetFlagS True))
                                 , SetCpu (SetFlag (SetFlagP True))
-                                , SetCpu (SetPC 0x01)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ana_b machineState)
@@ -1148,7 +1148,6 @@ all =
                                 [ SetCpu (SetRegisterA 0x80)
                                 , SetCpu (SetPC 0x01)
                                 , SetCpu (SetFlag (SetFlagCY False))
-                                , SetCpu (SetFlag (SetFlagAC False))
                                 , SetCpu (SetFlag (SetFlagZ False))
                                 , SetCpu (SetFlag (SetFlagS True))
                                 , SetCpu (SetFlag (SetFlagP True))
@@ -1169,7 +1168,6 @@ all =
                                 [ SetCpu (SetRegisterA 0x00)
                                 , SetCpu (SetPC 0x01)
                                 , SetCpu (SetFlag (SetFlagCY False))
-                                , SetCpu (SetFlag (SetFlagAC False))
                                 , SetCpu (SetFlag (SetFlagZ True))
                                 , SetCpu (SetFlag (SetFlagS False))
                                 , SetCpu (SetFlag (SetFlagP True))

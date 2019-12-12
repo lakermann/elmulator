@@ -4,6 +4,7 @@ import BitOperations exposing (combineBytes, getAddressLE)
 import Bitwise
 import ConditionCodesFlags
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..))
+import LogicFlags exposing (flags_ZSP)
 import Memory
 import Psw
 
@@ -380,6 +381,26 @@ push_ firstArg secondArg machineState =
         , setSP newSp
         , setPC newPc
         ]
+
+
+ana_ : ByteValue -> MachineState -> MachineStateDiff
+ana_ registerValue machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newA =
+            Bitwise.and (getA machineState) registerValue
+    in
+    Events
+        (List.concat
+            [ [ setRegisterA newA
+              , setPC newPc
+              , setFlagCY False
+              ]
+            , flags_ZSP newA
+            ]
+        )
 
 
 
@@ -1183,30 +1204,7 @@ mov_a_m machineState =
 
 ana_b : MachineState -> MachineStateDiff
 ana_b machineState =
-    let
-        currentA =
-            getA machineState
-
-        lowerA =
-            Bitwise.and 0x0F currentA
-
-        newPc =
-            getPC machineState + 1
-
-        b =
-            getB machineState
-
-        newA =
-            Bitwise.and currentA b
-    in
-    Events
-        [ setRegisterA (modBy 256 newA)
-        , setFlagCY False
-        , setFlagZ (newA == 0)
-        , setFlagS (Bitwise.and 128 newA == 128)
-        , setFlagP (modBy 2 newA == 0)
-        , setPC newPc
-        ]
+    ana_ (getB machineState) machineState
 
 
 
@@ -1215,21 +1213,7 @@ ana_b machineState =
 
 ana_a : MachineState -> MachineStateDiff
 ana_a machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newA =
-            Bitwise.and (getA machineState) (getA machineState)
-    in
-    Events
-        (List.concat
-            [ [ setRegisterA newA
-              , setPC newPc
-              ]
-            , logic_flags_a newA
-            ]
-        )
+    ana_ (getA machineState) machineState
 
 
 

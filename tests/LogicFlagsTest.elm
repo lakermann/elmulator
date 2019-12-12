@@ -1,6 +1,7 @@
 module LogicFlagsTest exposing (..)
 
 import Expect
+import LogicFlags exposing (flags_ZSP)
 import MachineInstructions exposing (logic_flags_a, setFlagAC, setFlagCY, setFlagP, setFlagS, setFlagZ)
 import Test exposing (Test, describe, test)
 
@@ -54,5 +55,46 @@ all =
                             ]
                     in
                     Expect.equal (logic_flags_a newA) expectedMachineStateDiffEvents
+            ]
+        , describe "flags_ZSP"
+            [ test "0" <|
+                \() ->
+                    let
+                        value =
+                            0
+
+                        expectedEvents =
+                            [ setFlagZ True
+                            , setFlagS False
+                            , setFlagP True
+                            ]
+                    in
+                    Expect.equal expectedEvents (flags_ZSP value)
+            , test "2" <|
+                \() ->
+                    let
+                        value =
+                            2
+
+                        expectedEvents =
+                            [ setFlagZ False
+                            , setFlagS False
+                            , setFlagP True
+                            ]
+                    in
+                    Expect.equal expectedEvents (flags_ZSP value)
+            , test "133" <|
+                \() ->
+                    let
+                        value =
+                            133
+
+                        expectedEvents =
+                            [ setFlagZ False
+                            , setFlagS True
+                            , setFlagP False
+                            ]
+                    in
+                    Expect.equal expectedEvents (flags_ZSP value)
             ]
         ]
