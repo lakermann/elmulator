@@ -424,6 +424,18 @@ ora_ value machineState =
         )
 
 
+mov_r_r_ : (ByteValue -> SetCpuStateEvent) -> (MachineState -> ByteValue) -> MachineState -> MachineStateDiff
+mov_r_r_ setRegisterEvent fromRegister machineState =
+    let
+        newPc =
+            getPC machineState + 1
+    in
+    Events
+        [ SetCpu (setRegisterEvent (fromRegister machineState))
+        , setPC newPc
+        ]
+
+
 
 -- 0x00
 
@@ -1132,6 +1144,15 @@ mov_a_b machineState =
         [ setRegisterA newA
         , setPC newPc
         ]
+
+
+
+-- 0x79
+
+
+mov_a_c : MachineState -> MachineStateDiff
+mov_a_c machineState =
+    mov_r_r_ (\data -> SetRegisterA data) getC machineState
 
 
 

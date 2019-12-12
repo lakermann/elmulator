@@ -989,6 +989,24 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mov_a_b machineState)
             ]
+        , describe "0x79 - mov_a_c"
+            [ test "for c=10 machine state" <|
+                \() ->
+                    let
+                        c =
+                            10
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 c 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 10)
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.mov_a_c machineState)
+            ]
         , describe "0x7a - mov_a_d"
             [ test "for d=0x02 machine state" <|
                 \() ->
