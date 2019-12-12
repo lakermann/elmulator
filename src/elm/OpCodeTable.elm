@@ -76,7 +76,7 @@ opCodeTable =
         , ( 0x2B, OpCodeData "DCX H" 5 (OneByte unimplementedInstructionZero) )
         , ( 0x2C, OpCodeData "INR L" 5 (OneByte unimplementedInstructionZero) )
         , ( 0x2D, OpCodeData "DCR L" 5 (OneByte unimplementedInstructionZero) )
-        , ( 0x2E, OpCodeData "MVI L, D8" 7 (TwoBytes unimplementedInstructionOne) )
+        , ( 0x2E, OpCodeData "MVI L, D8" 7 (TwoBytes MachineInstructions.mvi_l_d8) )
         , ( 0x2F, OpCodeData "CMA" 4 (OneByte unimplementedInstructionZero) )
         , ( 0x30, OpCodeData "SIM" 4 (OneByte unimplementedInstructionZero) )
         , ( 0x31, OpCodeData "LXI SP, D16" 10 (ThreeBytes MachineInstructions.lxi_sp_d16) )

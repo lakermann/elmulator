@@ -618,6 +618,15 @@ dad_h machineState =
 
 
 
+-- 0x2e
+
+
+mvi_l_d8 : ByteValue -> MachineState -> MachineStateDiff
+mvi_l_d8 firstArg machineState =
+    mvi_d8_ (setRegisterL firstArg) machineState
+
+
+
 -- 0x31
 
 
