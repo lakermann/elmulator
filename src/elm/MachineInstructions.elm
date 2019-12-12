@@ -1276,9 +1276,6 @@ ora_b machineState =
 ora_m : MachineState -> MachineStateDiff
 ora_m machineState =
     let
-        newPc =
-            getPC machineState + 1
-
         memoryAddress =
             getAddressLE (getL machineState) (getH machineState)
 
@@ -1287,18 +1284,7 @@ ora_m machineState =
     in
     case memoryAccessResult of
         Memory.Valid byteValue ->
-            let
-                newA =
-                    Bitwise.or (getA machineState) byteValue
-            in
-            Events
-                (List.concat
-                    [ [ setRegisterA newA
-                      , setPC newPc
-                      ]
-                    , logic_flags_a newA
-                    ]
-                )
+            ora_ byteValue machineState
 
         Memory.Invalid message ->
             Failed (Just machineState) message
