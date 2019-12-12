@@ -1080,6 +1080,32 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.pop_b machineState)
             ]
+        , describe "0xc4 - cnz"
+            [ test "for z=0 machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 0x0A)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.cnz 10 0 machineState)
+            , test "for z=1 machine state" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes True False False False False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 3)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.cnz 0 10 machineState)
+            ]
         , describe "0xb6 - ora_m"
             [ test "for h=0x00, l=0x04 machine state" <|
                 \() ->

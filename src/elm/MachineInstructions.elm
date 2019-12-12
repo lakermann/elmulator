@@ -1151,6 +1151,27 @@ jmp firstArg secondArg _ =
 
 
 
+-- 0xc4
+
+
+cnz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+cnz firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.z then
+        let
+            newPc =
+                getPC machineState + 3
+        in
+        Events [ setPC newPc ]
+
+    else
+        let
+            newPc =
+                getAddressLE firstArg secondArg
+        in
+        Events [ setPC newPc ]
+
+
+
 -- 0xc5
 
 

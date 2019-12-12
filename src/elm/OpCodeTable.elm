@@ -226,7 +226,7 @@ opCodeTable =
         , ( 0xC1, OpCodeData "POP B" 10 (OneByte MachineInstructions.pop_b) )
         , ( 0xC2, OpCodeData "JNZ adr" 10 (ThreeBytes MachineInstructions.jnz) )
         , ( 0xC3, OpCodeData "JMP adr" 10 (ThreeBytes MachineInstructions.jmp) )
-        , ( 0xC4, OpCodeData "CNZ adr" 17 (ThreeBytes unimplementedInstructionTwo) )
+        , ( 0xC4, OpCodeData "CNZ adr" 17 (ThreeBytes MachineInstructions.cnz) )
         , ( 0xC5, OpCodeData "PUSH B" 11 (OneByte MachineInstructions.push_b) )
         , ( 0xC6, OpCodeData "ADI D8" 7 (TwoBytes MachineInstructions.adi_d8) )
         , ( 0xC7, OpCodeData "RST 0" 11 (OneByte unimplementedInstructionZero) )
