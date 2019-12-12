@@ -617,6 +617,39 @@ ldax_d machineState =
 
 
 
+-- 0x1f
+
+
+rar : MachineState -> MachineStateDiff
+rar machineState =
+    let
+        currentA =
+            getA machineState
+
+        newCy =
+            Bitwise.and 1 currentA == 1
+
+        newAWithoutCarry =
+            Bitwise.shiftRightBy 1 currentA
+
+        newA =
+            if machineState.cpuState.conditionCodes.cy then
+                newAWithoutCarry + 128
+
+            else
+                newAWithoutCarry
+
+        newPc =
+            getPC machineState + 1
+    in
+    Events
+        [ setRegisterA newA
+        , setFlagCY newCy
+        , setPC newPc
+        ]
+
+
+
 -- 0x21
 
 

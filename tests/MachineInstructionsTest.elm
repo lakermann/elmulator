@@ -409,6 +409,88 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ldax_d machineState)
             ]
+        , describe "0x1f - rar"
+            [ test "for a=1, cy=False machine state" <|
+                \() ->
+                    let
+                        a =
+                            1
+
+                        cy =
+                            False
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 (ConditionCodes False False False cy False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0)
+                                , SetCpu (SetFlag (SetFlagCY True))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rar machineState)
+            , test "for a=1, cy=True machine state" <|
+                \() ->
+                    let
+                        a =
+                            1
+
+                        cy =
+                            True
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 (ConditionCodes False False False cy False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 128)
+                                , SetCpu (SetFlag (SetFlagCY True))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rar machineState)
+            , test "for a=4, cy=True machine state" <|
+                \() ->
+                    let
+                        a =
+                            4
+
+                        cy =
+                            True
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 (ConditionCodes False False False cy False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 130)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rar machineState)
+            , test "for a=0, cy=False machine state" <|
+                \() ->
+                    let
+                        a =
+                            0
+
+                        cy =
+                            False
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 (ConditionCodes False False False cy False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rar machineState)
+            ]
         , describe "0x21 - lxi_h_d16"
             [ test "for zero machine state" <|
                 \() ->
