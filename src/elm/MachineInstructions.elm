@@ -305,8 +305,8 @@ mov_m_ diffEvent machineState =
             Failed (Just machineState) message
 
 
-mov_register_ : ByteValue -> MachineState -> MachineStateDiff
-mov_register_ firstArg machineState =
+move_m_r_ : (MachineState -> ByteValue) -> MachineState -> MachineStateDiff
+move_m_r_ fromRegister machineState =
     let
         memoryAddress =
             getAddressLE (getL machineState) (getH machineState)
@@ -315,7 +315,7 @@ mov_register_ firstArg machineState =
             getPC machineState + 1
     in
     Events
-        [ setMemory memoryAddress firstArg
+        [ setMemory memoryAddress (fromRegister machineState)
         , setPC newPc
         ]
 
@@ -1079,12 +1079,12 @@ mov_l_a machineState =
 
 
 
---0x77
+-- 0x77
 
 
 mov_m_a : MachineState -> MachineStateDiff
 mov_m_a machineState =
-    mov_register_ (getA machineState) machineState
+    move_m_r_ getA machineState
 
 
 
