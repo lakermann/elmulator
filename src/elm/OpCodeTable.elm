@@ -222,7 +222,7 @@ opCodeTable =
         , ( 0xBD, OpCodeData "CMP L" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xBE, OpCodeData "CMP M" 7 (OneByte unimplementedInstructionZero) )
         , ( 0xBF, OpCodeData "CMP A" 4 (OneByte unimplementedInstructionZero) )
-        , ( 0xC0, OpCodeData "RNZ" 11 (OneByte unimplementedInstructionZero) )
+        , ( 0xC0, OpCodeData "RNZ" 11 (OneByte MachineInstructions.rnz) )
         , ( 0xC1, OpCodeData "POP B" 10 (OneByte MachineInstructions.pop_b) )
         , ( 0xC2, OpCodeData "JNZ adr" 10 (ThreeBytes MachineInstructions.jnz) )
         , ( 0xC3, OpCodeData "JMP adr" 10 (ThreeBytes MachineInstructions.jmp) )

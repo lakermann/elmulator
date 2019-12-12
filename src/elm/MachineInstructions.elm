@@ -1259,6 +1259,54 @@ ora_m machineState =
 
 
 
+-- 0xc0
+
+
+rnz : MachineState -> MachineStateDiff
+rnz machineState =
+    if machineState.cpuState.conditionCodes.z then
+        let
+            newPc =
+                getPC machineState + 1
+        in
+        Events [ setPC newPc ]
+
+    else
+        let
+            addressLow =
+                getSP machineState
+
+            addressHigh =
+                getSP machineState + 1
+
+            newSp =
+                getSP machineState + 2
+
+            lowMemoryAccessResult =
+                Memory.readMemory addressLow machineState.memory
+
+            highMemoryAccessResult =
+                Memory.readMemory addressHigh machineState.memory
+        in
+        case ( lowMemoryAccessResult, highMemoryAccessResult ) of
+            ( Memory.Valid lowByteValue, Memory.Valid highByteValue ) ->
+                let
+                    newPc =
+                        getAddressLE lowByteValue highByteValue
+                in
+                Events
+                    [ setSP newSp
+                    , setPC newPc
+                    ]
+
+            ( Memory.Valid _, Memory.Invalid message ) ->
+                Failed (Just machineState) message
+
+            ( Memory.Invalid message, _ ) ->
+                Failed (Just machineState) message
+
+
+
 -- 0xc1
 
 

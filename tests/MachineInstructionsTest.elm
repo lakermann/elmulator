@@ -1152,6 +1152,39 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.xra_a machineState)
             ]
+        , describe "0xc0 - rnz"
+            [ test "for z=True" <|
+                \() ->
+                    let
+                        z =
+                            True
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes z False False False False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 0x01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rnz machineState)
+            , test "for z=False" <|
+                \() ->
+                    let
+                        z =
+                            False
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes z False False False False) False 0, memory = fromList (range 0 5) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetSP 2)
+                                , SetCpu (SetPC 0x0100)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rnz machineState)
+            ]
         , describe "0xc1 - pop_b"
             [ test "for a=0x00 machine state" <|
                 \() ->
