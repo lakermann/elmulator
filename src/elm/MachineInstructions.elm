@@ -653,6 +653,43 @@ dad_h machineState =
 
 
 
+-- 0x2a
+
+
+lhld : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+lhld firstArg secondArg machineState =
+    let
+        addressForL =
+            getAddressLE firstArg secondArg
+
+        addressForH =
+            getAddressLE firstArg secondArg + 1
+
+        memoryAccessResultL =
+            Memory.readMemory addressForL (getMemory machineState)
+
+        memoryAccessResultH =
+            Memory.readMemory addressForH (getMemory machineState)
+
+        newPc =
+            getPC machineState + 3
+    in
+    case ( memoryAccessResultL, memoryAccessResultH ) of
+        ( Memory.Valid byteValueL, Memory.Valid byteValueH ) ->
+            Events
+                [ setRegisterL byteValueL
+                , setRegisterH byteValueH
+                , setPC newPc
+                ]
+
+        ( Memory.Valid _, Memory.Invalid message ) ->
+            Failed (Just machineState) message
+
+        ( Memory.Invalid message, _ ) ->
+            Failed (Just machineState) message
+
+
+
 -- 0x2e
 
 
