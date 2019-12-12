@@ -282,8 +282,8 @@ dad_ firstRegister secondRegister machineState =
         ]
 
 
-mov_m_ : (ByteValue -> MachineStateDiffEvent) -> MachineState -> MachineStateDiff
-mov_m_ diffEvent machineState =
+mov_r_m_ : (ByteValue -> SetCpuStateEvent) -> MachineState -> MachineStateDiff
+mov_r_m_ setRegisterEvent machineState =
     let
         memoryAddress =
             getAddressLE (getL machineState) (getH machineState)
@@ -295,9 +295,9 @@ mov_m_ diffEvent machineState =
             Memory.readMemory memoryAddress (getMemory machineState)
     in
     case memoryAccessResult of
-        Memory.Valid byteValue ->
+        Memory.Valid valueFromMemory ->
             Events
-                [ diffEvent byteValue
+                [ SetCpu (setRegisterEvent valueFromMemory)
                 , setPC newPc
                 ]
 
@@ -1003,7 +1003,7 @@ mvi_a_d8 firstArg machineState =
 
 mov_b_m : MachineState -> MachineStateDiff
 mov_b_m machineState =
-    mov_m_ (\data -> setRegisterB data) machineState
+    mov_r_m_ (\data -> SetRegisterB data) machineState
 
 
 
@@ -1021,7 +1021,7 @@ mov_c_a machineState =
 
 mov_d_m : MachineState -> MachineStateDiff
 mov_d_m machineState =
-    mov_m_ (\data -> setRegisterD data) machineState
+    mov_r_m_ (\data -> SetRegisterD data) machineState
 
 
 
@@ -1039,7 +1039,7 @@ mov_d_a machineState =
 
 mov_e_m : MachineState -> MachineStateDiff
 mov_e_m machineState =
-    mov_m_ (\data -> setRegisterE data) machineState
+    mov_r_m_ (\data -> SetRegisterE data) machineState
 
 
 
@@ -1057,7 +1057,7 @@ mov_e_a machineState =
 
 mov_h_m : MachineState -> MachineStateDiff
 mov_h_m machineState =
-    mov_m_ (\data -> setRegisterH data) machineState
+    mov_r_m_ (\data -> SetRegisterH data) machineState
 
 
 
@@ -1147,7 +1147,7 @@ mov_a_l machineState =
 
 mov_a_m : MachineState -> MachineStateDiff
 mov_a_m machineState =
-    mov_m_ (\data -> setRegisterA data) machineState
+    mov_r_m_ (\data -> SetRegisterA data) machineState
 
 
 
