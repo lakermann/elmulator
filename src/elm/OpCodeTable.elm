@@ -52,7 +52,7 @@ opCodeTable =
         , ( 0x13, OpCodeData "INX D" 5 (OneByte MachineInstructions.inx_d) )
         , ( 0x14, OpCodeData "INR D" 5 (OneByte unimplementedInstructionZero) )
         , ( 0x15, OpCodeData "DCR D" 5 (OneByte unimplementedInstructionZero) )
-        , ( 0x16, OpCodeData "MVI D, D8" 7 (TwoBytes unimplementedInstructionOne) )
+        , ( 0x16, OpCodeData "MVI D, D8" 7 (TwoBytes MachineInstructions.mvi_d_d8) )
         , ( 0x17, OpCodeData "RAL" 4 (OneByte unimplementedInstructionZero) )
         , ( 0x18, OpCodeData "-" 0 (OneByte unknownInstruction) )
         , ( 0x19, OpCodeData "DAD D" 10 (OneByte MachineInstructions.dad_d) )

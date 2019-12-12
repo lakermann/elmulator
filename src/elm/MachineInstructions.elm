@@ -572,6 +572,15 @@ inx_d machineState =
 
 
 
+-- 0x16
+
+
+mvi_d_d8 : ByteValue -> MachineState -> MachineStateDiff
+mvi_d_d8 firstArg machineState =
+    mvi_d8_ (setRegisterD firstArg) machineState
+
+
+
 -- 0x19
 
 
