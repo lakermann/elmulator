@@ -457,6 +457,29 @@ add_r_ fromRegister machineState =
         )
 
 
+inr_r_ : (ByteValue -> SetCpuStateEvent) -> (MachineState -> ByteValue) -> MachineState -> MachineStateDiff
+inr_r_ setRegisterEvent fromRegister machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        currentRegisterValue =
+            fromRegister machineState
+
+        newRegisterValue =
+            currentRegisterValue + 1
+    in
+    Events
+        (List.concat
+            [ [ SetCpu (setRegisterEvent (modBy 256 newRegisterValue))
+              , setPC newPc
+              , check_flag_AC currentRegisterValue 1
+              ]
+            , flags_ZSP newRegisterValue
+            ]
+        )
+
+
 
 -- 0x00
 
@@ -505,6 +528,15 @@ stax_b machineState =
 inx_b : MachineState -> MachineStateDiff
 inx_b machineState =
     inx_ (getB machineState) (\data -> setRegisterB data) (getC machineState) (\data -> setRegisterC data) machineState
+
+
+
+-- 0x04
+
+
+inr_b : MachineState -> MachineStateDiff
+inr_b machineState =
+    inr_r_ (\data -> SetRegisterB data) getB machineState
 
 
 

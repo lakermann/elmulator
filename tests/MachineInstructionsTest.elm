@@ -103,6 +103,48 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff2 (MachineInstructions.inx_b machineState)
             ]
+        , describe "0x04 - inr_b"
+            [ test "for b=4 machine state" <|
+                \() ->
+                    let
+                        b =
+                            4
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterB 0x05)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.inr_b machineState)
+            , test "for b=15 machine state" <|
+                \() ->
+                    let
+                        b =
+                            15
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterB 0x10)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagAC True))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.inr_b machineState)
+            ]
         , describe "0x05 - dcr_b"
             [ test "for zero machine state" <|
                 \() ->
