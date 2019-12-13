@@ -90,7 +90,7 @@ opCodeTable =
         , ( 0x39, OpCodeData "DAD SP" 10 (OneByte unimplementedInstructionZero) )
         , ( 0x3A, OpCodeData "LDA adr" 13 (ThreeBytes MachineInstructions.lda) )
         , ( 0x3B, OpCodeData "DCX SP" 5 (OneByte unimplementedInstructionZero) )
-        , ( 0x3C, OpCodeData "INR A" 5 (OneByte unimplementedInstructionZero) )
+        , ( 0x3C, OpCodeData "INR A" 5 (OneByte MachineInstructions.inr_a) )
         , ( 0x3D, OpCodeData "DCR A" 5 (OneByte MachineInstructions.dcr_a) )
         , ( 0x3E, OpCodeData "MVI A,D8" 7 (TwoBytes MachineInstructions.mvi_a_d8) )
         , ( 0x3F, OpCodeData "CMC" 4 (OneByte unimplementedInstructionZero) )

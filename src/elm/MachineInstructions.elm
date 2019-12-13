@@ -1093,6 +1093,15 @@ lda firstArg secondArg machineState =
 
 
 
+-- 0x3c
+
+
+inr_a : MachineState -> MachineStateDiff
+inr_a machineState =
+    inr_r_ (\data -> SetRegisterA data) getA machineState
+
+
+
 -- 0x3d
 
 

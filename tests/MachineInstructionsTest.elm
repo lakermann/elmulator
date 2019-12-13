@@ -799,6 +799,28 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.lda 0x02 0x03 machineState)
             ]
+        , describe "0x3c - inr_a"
+            [ test "for a=7 machine state" <|
+                \() ->
+                    let
+                        a =
+                            7
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x08)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.inr_a machineState)
+            ]
         , describe "0x3d - dcr_a"
             [ test "for a=1" <|
                 \() ->
