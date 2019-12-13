@@ -682,6 +682,15 @@ ldax_b machineState =
 
 
 
+-- 0x0b
+
+
+dcx_b : MachineState -> MachineStateDiff
+dcx_b machineState =
+    dcx_rp_ getB getC machineState
+
+
+
 -- 0x0d
 
 
