@@ -1906,6 +1906,34 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.pop_d machineState)
             ]
+        , describe "0xd2 - jnc"
+            [ test "for cy=True machine state" <|
+                \() ->
+                    let
+                        cy =
+                            True
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False cy False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events [ SetCpu (SetPC 0x03) ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.jnc 0x04 0x17 machineState)
+            , test "for cy=False machine state" <|
+                \() ->
+                    let
+                        cy =
+                            False
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False cy False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events [ SetCpu (SetPC 0x1704) ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.jnc 0x04 0x17 machineState)
+            ]
         , describe "0xd4 - cnc"
             [ test "for pc=10, sp=10 machine state" <|
                 \() ->

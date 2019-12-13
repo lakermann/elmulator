@@ -528,6 +528,15 @@ xra_r_ fromRegister machineState =
         )
 
 
+j_ : ByteValue -> ByteValue -> MachineStateDiff
+j_ firstArg secondArg =
+    let
+        newPc =
+            getAddressLE firstArg secondArg
+    in
+    Events [ setPC newPc ]
+
+
 
 -- 0x00
 
@@ -1436,11 +1445,15 @@ pop_b machineState =
 
 jnz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jnz firstArg secondArg machineState =
-    if False == getFlagZ machineState then
-        Events [ setPC (getAddressLE firstArg secondArg) ]
+    if machineState.cpuState.conditionCodes.z then
+        let
+            nwePc =
+                getPC machineState + 3
+        in
+        Events [ setPC nwePc ]
 
     else
-        Events [ setPC (getPC machineState + 3) ]
+        j_ firstArg secondArg
 
 
 
@@ -1449,7 +1462,7 @@ jnz firstArg secondArg machineState =
 
 jmp : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jmp firstArg secondArg _ =
-    Events [ setPC (getAddressLE firstArg secondArg) ]
+    j_ firstArg secondArg
 
 
 
@@ -1568,22 +1581,14 @@ ret machineState =
 jz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jz firstArg secondArg machineState =
     if machineState.cpuState.conditionCodes.z then
-        let
-            newPc =
-                getAddressLE firstArg secondArg
-        in
-        Events
-            [ setPC newPc
-            ]
+        j_ firstArg secondArg
 
     else
         let
             newPc =
                 getPC machineState + 3
         in
-        Events
-            [ setPC newPc
-            ]
+        Events [ setPC newPc ]
 
 
 
@@ -1660,6 +1665,23 @@ pop_d machineState =
 
 
 
+-- 0xd2
+
+
+jnc : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+jnc firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.cy then
+        let
+            newPc =
+                getPC machineState + 3
+        in
+        Events [ setPC newPc ]
+
+    else
+        j_ firstArg secondArg
+
+
+
 -- 0xd3
 -- see IO
 -- 0xd4
@@ -1711,22 +1733,14 @@ rc machineState =
 jc : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jc firstArg secondArg machineState =
     if machineState.cpuState.conditionCodes.cy then
-        let
-            newPc =
-                getAddressLE firstArg secondArg
-        in
-        Events
-            [ setPC newPc
-            ]
+        j_ firstArg secondArg
 
     else
         let
             newPc =
                 getPC machineState + 3
         in
-        Events
-            [ setPC newPc
-            ]
+        Events [ setPC newPc ]
 
 
 
