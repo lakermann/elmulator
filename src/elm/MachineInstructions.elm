@@ -4,7 +4,7 @@ import BitOperations exposing (combineBytes, getAddressLE)
 import Bitwise
 import ConditionCodesFlags
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..))
-import LogicFlags exposing (flags_ZSP)
+import LogicFlags exposing (check_flag_AC, check_flag_CY, flags_ZSP)
 import Memory
 import Psw
 
@@ -434,6 +434,27 @@ mov_r_r_ setRegisterEvent fromRegister machineState =
         [ SetCpu (setRegisterEvent (fromRegister machineState))
         , setPC newPc
         ]
+
+
+add_r_ : (MachineState -> ByteValue) -> MachineState -> MachineStateDiff
+add_r_ fromRegister machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newA =
+            getA machineState + fromRegister machineState
+    in
+    Events
+        (List.concat
+            [ [ setRegisterA (modBy 256 newA)
+              , setPC newPc
+              , check_flag_CY newA
+              , check_flag_AC (getA machineState) (fromRegister machineState)
+              ]
+            , flags_ZSP newA
+            ]
+        )
 
 
 
@@ -1148,6 +1169,15 @@ mov_a_l machineState =
 mov_a_m : MachineState -> MachineStateDiff
 mov_a_m machineState =
     mov_r_m_ (\data -> SetRegisterA data) machineState
+
+
+
+-- 0x80
+
+
+add_b : MachineState -> MachineStateDiff
+add_b machineState =
+    add_r_ getB machineState
 
 
 

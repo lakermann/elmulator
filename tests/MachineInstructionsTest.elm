@@ -1100,6 +1100,80 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.mov_a_m machineState)
             ]
+        , describe "0x80 - add_b"
+            [ test "for a=10, b=1 machine state" <|
+                \() ->
+                    let
+                        a =
+                            10
+
+                        b =
+                            1
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 11)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.add_b machineState)
+            , test "for a=10, b=10 machine state" <|
+                \() ->
+                    let
+                        a =
+                            10
+
+                        b =
+                            10
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 20)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC True))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.add_b machineState)
+            , test "for a=255, b=255 machine state" <|
+                \() ->
+                    let
+                        a =
+                            255
+
+                        b =
+                            255
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 254)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagCY True))
+                                , SetCpu (SetFlag (SetFlagAC True))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS True))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.add_b machineState)
+            ]
         , describe "0xa0 - ana_b"
             [ test "for a=5, b=5 machine state" <|
                 \() ->
