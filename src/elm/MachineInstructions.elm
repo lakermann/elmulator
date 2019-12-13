@@ -1155,6 +1155,15 @@ mov_l_a machineState =
 
 
 
+-- 0x70
+
+
+mov_m_b : MachineState -> MachineStateDiff
+mov_m_b machineState =
+    move_m_r_ getB machineState
+
+
+
 -- 0x77
 
 
