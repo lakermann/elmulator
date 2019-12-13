@@ -1834,6 +1834,19 @@ ani firstArg machineState =
 
 
 
+-- 0xe9
+
+
+pchl : MachineState -> MachineStateDiff
+pchl machineState =
+    let
+        newPc =
+            Bitwise.or (Bitwise.shiftLeftBy 8 (getH machineState)) (getL machineState)
+    in
+    Events [ setPC newPc ]
+
+
+
 -- 0xeb
 
 

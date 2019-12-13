@@ -263,7 +263,7 @@ opCodeTable =
         , ( 0xE6, OpCodeData "ANI D8" 7 (TwoBytes MachineInstructions.ani) )
         , ( 0xE7, OpCodeData "RST 4" 11 (OneByte unimplementedInstructionZero) )
         , ( 0xE8, OpCodeData "RPE" 11 (OneByte unimplementedInstructionZero) )
-        , ( 0xE9, OpCodeData "PCHL" 5 (OneByte unimplementedInstructionZero) )
+        , ( 0xE9, OpCodeData "PCHL" 5 (OneByte MachineInstructions.pchl) )
         , ( 0xEA, OpCodeData "JPE adr" 10 (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xEB, OpCodeData "XCHG" 5 (OneByte MachineInstructions.xchg) )
         , ( 0xEC, OpCodeData "CPE adr" 17 (ThreeBytes unimplementedInstructionTwo) )

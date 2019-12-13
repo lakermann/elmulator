@@ -1962,6 +1962,24 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ani 0x01 machineState)
             ]
+        , describe "0xe9 - pchl"
+            [ test "for h=3, l=6 machine state" <|
+                \() ->
+                    let
+                        h =
+                            0x03
+
+                        l =
+                            0x06
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 h l 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events [ SetCpu (SetPC 0x0306) ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.pchl machineState)
+            ]
         , describe "0xf1 - pop_psw"
             [ test "for sp=(PSW all false) sp+1=10 machine state" <|
                 \() ->
