@@ -1452,6 +1452,32 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.ana_a machineState)
             ]
+        , describe "0xa8 - xra_b"
+            [ test "for a=0x04, b=0x07 machine state" <|
+                \() ->
+                    let
+                        a =
+                            0x04
+
+                        b =
+                            0x07
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState a b 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetRegisterA 0x03)
+                                , SetCpu (SetPC 0x01)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagAC False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.xra_b machineState)
+            ]
         , describe "0xaf - xra_a"
             [ test "for a=0x00 machine state" <|
                 \() ->

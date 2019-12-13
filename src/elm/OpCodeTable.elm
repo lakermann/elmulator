@@ -198,7 +198,7 @@ opCodeTable =
         , ( 0xA5, OpCodeData "ANA L" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xA6, OpCodeData "ANA M" 7 (OneByte unimplementedInstructionZero) )
         , ( 0xA7, OpCodeData "ANA A" 4 (OneByte MachineInstructions.ana_a) )
-        , ( 0xA8, OpCodeData "XRA B" 4 (OneByte unimplementedInstructionZero) )
+        , ( 0xA8, OpCodeData "XRA B" 4 (OneByte MachineInstructions.xra_b) )
         , ( 0xA9, OpCodeData "XRA C" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xAA, OpCodeData "XRA D" 4 (OneByte unimplementedInstructionZero) )
         , ( 0xAB, OpCodeData "XRA E" 4 (OneByte unimplementedInstructionZero) )

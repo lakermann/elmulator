@@ -507,6 +507,27 @@ dcx_rp_ registerHigh registerLow machineState =
             Failed (Just machineState) message
 
 
+xra_r_ : (MachineState -> ByteValue) -> MachineState -> MachineStateDiff
+xra_r_ fromRegister machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        newA =
+            Bitwise.xor (getA machineState) (fromRegister machineState)
+    in
+    Events
+        (List.concat
+            [ [ setRegisterA newA
+              , setPC newPc
+              , setFlagCY False
+              , setFlagAC False
+              ]
+            , flags_ZSP newA
+            ]
+        )
+
+
 
 -- 0x00
 
@@ -1336,26 +1357,21 @@ ana_a machineState =
 
 
 
+-- 0xa8
+
+
+xra_b : MachineState -> MachineStateDiff
+xra_b machineState =
+    xra_r_ getB machineState
+
+
+
 --0xaf
 
 
 xra_a : MachineState -> MachineStateDiff
 xra_a machineState =
-    let
-        newPc =
-            getPC machineState + 1
-
-        newA =
-            Bitwise.xor (getA machineState) (getA machineState)
-    in
-    Events
-        (List.concat
-            [ [ setRegisterA newA
-              , setPC newPc
-              ]
-            , logic_flags_a newA
-            ]
-        )
+    xra_r_ getA machineState
 
 
 
