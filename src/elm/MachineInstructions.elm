@@ -1757,6 +1757,51 @@ pop_h machineState =
 
 
 
+-- 0xe3
+
+
+xthl : MachineState -> MachineStateDiff
+xthl machineState =
+    let
+        newPc =
+            getPC machineState + 1
+
+        currentL =
+            getL machineState
+
+        currentH =
+            getH machineState
+
+        addressForL =
+            getSP machineState
+
+        addressForH =
+            getSP machineState + 1
+
+        memoryAccessResultForL =
+            Memory.readMemory addressForL (getMemory machineState)
+
+        memoryAccessResultForH =
+            Memory.readMemory addressForH (getMemory machineState)
+    in
+    case ( memoryAccessResultForL, memoryAccessResultForH ) of
+        ( Memory.Valid valueL, Memory.Valid valueH ) ->
+            Events
+                [ setRegisterL valueL
+                , setRegisterH valueH
+                , setMemory addressForL currentL
+                , setMemory addressForH currentH
+                , setPC newPc
+                ]
+
+        ( Memory.Invalid message, _ ) ->
+            Failed (Just machineState) message
+
+        ( Memory.Valid _, Memory.Invalid message ) ->
+            Failed (Just machineState) message
+
+
+
 -- 0xe5
 
 

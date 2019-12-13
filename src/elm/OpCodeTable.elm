@@ -257,7 +257,7 @@ opCodeTable =
         , ( 0xE0, OpCodeData "RPO" 11 (OneByte unimplementedInstructionZero) )
         , ( 0xE1, OpCodeData "POP H" 10 (OneByte MachineInstructions.pop_h) )
         , ( 0xE2, OpCodeData "JPO adr" 10 (ThreeBytes unimplementedInstructionTwo) )
-        , ( 0xE3, OpCodeData "XTHL" 18 (OneByte unimplementedInstructionZero) )
+        , ( 0xE3, OpCodeData "XTHL" 18 (OneByte MachineInstructions.xthl) )
         , ( 0xE4, OpCodeData "CPO adr" 17 (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xE5, OpCodeData "PUSH H" 11 (OneByte MachineInstructions.push_h) )
         , ( 0xE6, OpCodeData "ANI D8" 7 (TwoBytes MachineInstructions.ani) )
