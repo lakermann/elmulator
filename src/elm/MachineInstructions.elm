@@ -480,6 +480,33 @@ inr_r_ setRegisterEvent fromRegister machineState =
         )
 
 
+dcx_rp_ : (MachineState -> ByteValue) -> (MachineState -> ByteValue) -> MachineState -> MachineStateDiff
+dcx_rp_ registerHigh registerLow machineState =
+    let
+        newPC =
+            getPC machineState + 1
+
+        memoryAddress =
+            getAddressLE (registerLow machineState) (registerHigh machineState)
+
+        memoryAccessResult =
+            Memory.readMemory memoryAddress (getMemory machineState)
+    in
+    case memoryAccessResult of
+        Memory.Valid memoryValue ->
+            let
+                newMemoryValue =
+                    memoryValue - 1
+            in
+            Events
+                [ setMemory memoryAddress newMemoryValue
+                , setPC newPC
+                ]
+
+        Memory.Invalid message ->
+            Failed (Just machineState) message
+
+
 
 -- 0x00
 
@@ -919,6 +946,16 @@ lhld firstArg secondArg machineState =
 
         ( Memory.Invalid message, _ ) ->
             Failed (Just machineState) message
+
+
+
+-- 0x2b -- DCX H
+-- it decreases the memory location pointed by HL pair by 1.
+
+
+dcx_h : MachineState -> MachineStateDiff
+dcx_h machineState =
+    dcx_rp_ getH getL machineState
 
 
 

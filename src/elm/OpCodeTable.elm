@@ -73,7 +73,7 @@ opCodeTable =
         , ( 0x28, OpCodeData "-" 0 (OneByte unknownInstruction) )
         , ( 0x29, OpCodeData "DAD H" 10 (OneByte MachineInstructions.dad_h) )
         , ( 0x2A, OpCodeData "LHLD adr" 16 (ThreeBytes MachineInstructions.lhld) )
-        , ( 0x2B, OpCodeData "DCX H" 5 (OneByte unimplementedInstructionZero) )
+        , ( 0x2B, OpCodeData "DCX H" 5 (OneByte MachineInstructions.dcx_h) )
         , ( 0x2C, OpCodeData "INR L" 5 (OneByte unimplementedInstructionZero) )
         , ( 0x2D, OpCodeData "DCR L" 5 (OneByte unimplementedInstructionZero) )
         , ( 0x2E, OpCodeData "MVI L, D8" 7 (TwoBytes MachineInstructions.mvi_l_d8) )
