@@ -537,6 +537,21 @@ j_ firstArg secondArg =
     Events [ setPC newPc ]
 
 
+stax_rp_ : (MachineState -> ByteValue) -> (MachineState -> ByteValue) -> MachineState -> MachineStateDiff
+stax_rp_ registerHigh registerLow machineState =
+    let
+        address =
+            getAddressLE (registerLow machineState) (registerHigh machineState)
+
+        newPc =
+            getPC machineState + 1
+    in
+    Events
+        [ setMemory address (getA machineState)
+        , setPC newPc
+        ]
+
+
 
 -- 0x00
 
@@ -565,17 +580,7 @@ lxi_b_d16 firstArg secondArg machineState =
 
 stax_b : MachineState -> MachineStateDiff
 stax_b machineState =
-    let
-        address =
-            combineBytes (getB machineState) (getC machineState)
-
-        newPc =
-            getPC machineState + 1
-    in
-    Events
-        [ setMemory address (getA machineState)
-        , setPC newPc
-        ]
+    stax_rp_ getB getC machineState
 
 
 
@@ -724,6 +729,15 @@ rrc machineState =
 lxi_d_d16 : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 lxi_d_d16 firstArg secondArg machineState =
     lxi_d16_ (setRegisterD secondArg) (setRegisterE firstArg) machineState
+
+
+
+-- 0x12
+
+
+stax_d : MachineState -> MachineStateDiff
+stax_d machineState =
+    stax_rp_ getD getE machineState
 
 
 
