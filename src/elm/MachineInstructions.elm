@@ -1414,6 +1414,15 @@ ora_b machineState =
 
 
 
+-- 0xb4
+
+
+ora_h : MachineState -> MachineStateDiff
+ora_h machineState =
+    ora_ (getH machineState) machineState
+
+
+
 -- 0xb6
 
 
