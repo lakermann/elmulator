@@ -1192,6 +1192,15 @@ mov_e_a machineState =
 
 
 
+-- 0x61
+
+
+mov_h_c : MachineState -> MachineStateDiff
+mov_h_c machineState =
+    mov_r_r_ (\data -> SetRegisterH data) getC machineState
+
+
+
 -- 0x66
 
 
