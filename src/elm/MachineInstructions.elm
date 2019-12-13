@@ -1367,11 +1367,7 @@ cnz firstArg secondArg machineState =
         Events [ setPC newPc ]
 
     else
-        let
-            newPc =
-                getAddressLE firstArg secondArg
-        in
-        Events [ setPC newPc ]
+        call firstArg secondArg machineState
 
 
 
@@ -1523,25 +1519,7 @@ jz firstArg secondArg machineState =
 cz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 cz firstArg secondArg machineState =
     if machineState.cpuState.conditionCodes.z then
-        let
-            newPc =
-                getAddressLE firstArg secondArg
-
-            newSp =
-                getSP machineState - 2
-
-            memoryForH =
-                getSP machineState - 1
-
-            memoryForL =
-                getSP machineState - 2
-        in
-        Events
-            [ setMemory memoryForH (Bitwise.and (Bitwise.shiftRightBy 8 (getPC machineState)) 0x0F)
-            , setMemory memoryForL (Bitwise.and (getPC machineState) 0x0F)
-            , setSP newSp
-            , setPC newPc
-            ]
+        call firstArg secondArg machineState
 
     else
         let
@@ -1558,13 +1536,13 @@ cz firstArg secondArg machineState =
 call : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 call firstArg secondArg machineState =
     let
-        data =
+        returnAddress =
             getPC machineState + 3
 
-        memoryOne =
+        memoryForH =
             getSP machineState - 1
 
-        memoryTwo =
+        memoryForL =
             getSP machineState - 2
 
         newSp =
@@ -1574,8 +1552,8 @@ call firstArg secondArg machineState =
             getAddressLE firstArg secondArg
     in
     Events
-        [ setMemory memoryOne (Bitwise.and (Bitwise.shiftRightBy 8 data) 0xFF)
-        , setMemory memoryTwo (Bitwise.and data 0xFF)
+        [ setMemory memoryForH (Bitwise.and (Bitwise.shiftRightBy 8 returnAddress) 0xFF)
+        , setMemory memoryForL (Bitwise.and returnAddress 0xFF)
         , setSP newSp
         , setPC newPc
         ]
@@ -1593,6 +1571,23 @@ pop_d machineState =
 
 -- 0xd3
 -- see IO
+-- 0xd4
+
+
+cnc : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+cnc firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.cy then
+        let
+            newPc =
+                getPC machineState + 3
+        in
+        Events [ setPC newPc ]
+
+    else
+        call firstArg secondArg machineState
+
+
+
 -- 0xd5
 
 

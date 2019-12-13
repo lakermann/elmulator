@@ -1398,12 +1398,21 @@ all =
             [ test "for z=0 machine state" <|
                 \() ->
                     let
+                        pc =
+                            0x3056
+
+                        sp =
+                            0x02
+
                         machineState =
-                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 allFalseConditionCodes False 0 }
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 sp pc allFalseConditionCodes False 0 }
 
                         expectedMachineStateDiff =
                             Events
-                                [ SetCpu (SetPC 0x0A)
+                                [ SetMemory 0x01 0x30
+                                , SetMemory 0x00 0x59
+                                , SetCpu (SetSP 0x00)
+                                , SetCpu (SetPC 0x0A)
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.cnz 10 0 machineState)
@@ -1627,7 +1636,7 @@ all =
                         expectedMachineStateDiff =
                             Events
                                 [ SetMemory 9 0x04
-                                , SetMemory 8 0x02
+                                , SetMemory 8 0x05
                                 , SetCpu (SetSP 8)
                                 , SetCpu (SetPC 5)
                                 ]
@@ -1670,6 +1679,29 @@ all =
                                 ]
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.pop_d machineState)
+            ]
+        , describe "0xd4 - cnc"
+            [ test "for pc=10, sp=10 machine state" <|
+                \() ->
+                    let
+                        pc =
+                            10
+
+                        sp =
+                            10
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 sp pc allFalseConditionCodes False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetMemory 9 0
+                                , SetMemory 8 13
+                                , SetCpu (SetSP 8)
+                                , SetCpu (SetPC 0x0A01)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.cnc 0x01 0x0A machineState)
             ]
         , describe "0xd5 - push_d"
             [ test "for d=0x01, e=0x02, sp=0x03 machine state" <|
