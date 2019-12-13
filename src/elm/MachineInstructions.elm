@@ -734,6 +734,29 @@ lxi_h_d16 firstArg secondArg machineState =
 
 
 
+-- 0x22
+
+
+shld_d16 : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+shld_d16 firstArg secondArg machineState =
+    let
+        newPc =
+            getPC machineState + 3
+
+        addressForL =
+            getAddressLE firstArg secondArg
+
+        addressForH =
+            getAddressLE firstArg secondArg + 1
+    in
+    Events
+        [ setMemory addressForL (getL machineState)
+        , setMemory addressForH (getH machineState)
+        , setPC newPc
+        ]
+
+
+
 -- 0x23
 
 

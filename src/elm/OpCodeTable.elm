@@ -64,7 +64,7 @@ opCodeTable =
         , ( 0x1F, OpCodeData "RAR" 4 (OneByte MachineInstructions.rar) )
         , ( 0x20, OpCodeData "RIM" 4 (OneByte unimplementedInstructionZero) )
         , ( 0x21, OpCodeData "LXI H,D16" 10 (ThreeBytes MachineInstructions.lxi_h_d16) )
-        , ( 0x22, OpCodeData "SHLD adr" 16 (ThreeBytes unimplementedInstructionTwo) )
+        , ( 0x22, OpCodeData "SHLD adr" 16 (ThreeBytes MachineInstructions.shld_d16) )
         , ( 0x23, OpCodeData "INX H" 5 (OneByte MachineInstructions.inx_h) )
         , ( 0x24, OpCodeData "INR H" 5 (OneByte unimplementedInstructionZero) )
         , ( 0x25, OpCodeData "DCR H" 5 (OneByte unimplementedInstructionZero) )

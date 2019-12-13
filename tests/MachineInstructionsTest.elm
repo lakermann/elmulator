@@ -504,6 +504,28 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.lxi_h_d16 0x02 0x03 allZeroMachineState)
             ]
+        , describe "0x22 - shld_d16"
+            [ test "for l=13, h=34 machine state" <|
+                \() ->
+                    let
+                        l =
+                            13
+
+                        h =
+                            34
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 h l 0 0 allFalseConditionCodes False 0, memory = fromList (range 0 10) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetMemory 5 13
+                                , SetMemory 6 34
+                                , SetCpu (SetPC 3)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.shld_d16 0x05 0x00 machineState)
+            ]
         , describe "0x23 - inx_h"
             [ test "for zero machine state" <|
                 \() ->
