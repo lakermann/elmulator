@@ -11,6 +11,7 @@ import Bytes exposing (Bytes)
 import Canvas exposing (Renderable, rect, shapes)
 import Canvas.Settings exposing (fill)
 import Color exposing (Color)
+import Config exposing (clock, speed, steps_per_clock)
 import Cpu exposing (checkForInterrupt, interrupt, keyPressed, keyReleased, nStep, nStep_withInterrupt)
 import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
 import File exposing (File)
@@ -53,8 +54,8 @@ type alias Model =
     , currentCpuState : EmulatorState
     , nsteps : Int
     , ticks : Int
-    , ticksDiff : Int
-    , ticksDiffReal : Int
+    , ticksDiff : Float
+    , ticksDiffReal : Float
     }
 
 
@@ -143,8 +144,8 @@ update msg model =
                     ( { model
                         | currentCpuState = nStep 2000 currentCpuState
                         , ticks = Time.posixToMillis posix
-                        , ticksDiff = Time.posixToMillis posix - lastTicks
-                        , ticksDiffReal = Time.posixToMillis posix - lastTicks
+                        , ticksDiff = toFloat (Time.posixToMillis posix - lastTicks)
+                        , ticksDiffReal = toFloat (Time.posixToMillis posix - lastTicks)
                       }
                     , Cmd.none
                     )
@@ -162,10 +163,10 @@ update msg model =
                             model.ticks
                     in
                     ( { model
-                        | currentCpuState = nStep_withInterrupt 20000 currentCpuState
+                        | currentCpuState = nStep_withInterrupt steps_per_clock currentCpuState
                         , ticks = Time.posixToMillis posix
-                        , ticksDiff = (Time.posixToMillis posix - lastTicks) // 1000
-                        , ticksDiffReal = Time.posixToMillis posix - lastTicks
+                        , ticksDiff = toFloat (Time.posixToMillis posix - lastTicks)
+                        , ticksDiffReal = toFloat (Time.posixToMillis posix - lastTicks)
                       }
                     , Cmd.none
                     )
@@ -300,8 +301,8 @@ view model =
                     , Grid.col []
                         [ h3 [] [ text "Machine State" ]
                         , pre [] [ text (cpustate model.currentCpuState) ]
-                        , pre [] [ text ("diff: " ++ String.fromInt model.ticksDiff ++ " ms") ]
-                        , pre [] [ text ("diff: " ++ String.fromInt model.ticksDiffReal ++ " ms (real)") ]
+                        , pre [] [ text ("speed: " ++ String.fromFloat speed ++ " ms for 1ms") ]
+                        , pre [] [ text ("clock diff: " ++ String.fromFloat (model.ticksDiffReal - clock) ++ " ms") ]
                         ]
                     , Grid.col []
                         [ h3 [] [ text "Code" ]
@@ -368,5 +369,5 @@ subscriptions _ =
 
         --, Time.every 1 Emulation
         --, Time.every 17 TickInterrupt
-        , Time.every 1000 EmulationWithInterrupt
+        , Time.every clock EmulationWithInterrupt
         ]

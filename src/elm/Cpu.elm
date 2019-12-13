@@ -2,6 +2,7 @@ module Cpu exposing (..)
 
 import Array exposing (Array)
 import Bitwise
+import Config exposing (interrupt_every)
 import CpuValidator exposing (validate)
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, CpuState, EmulatorState(..), Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, Ports, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..), SetPortEvent(..), SetShiftRegisterEvent(..), ShiftRegister)
 import IO exposing (pressLeft, pressRight, pressSpace, relaseLeft, relaseRight, relaseSpace)
@@ -54,7 +55,7 @@ nStep_withInterrupt n machineState =
     if n > 1 then
         case ns of
             Valid cs ->
-                if modBy 333 n == 0 then
+                if modBy interrupt_every machineState.step == 0 then
                     let
                         newNs =
                             checkForInterrupt cs
