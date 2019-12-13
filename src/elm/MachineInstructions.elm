@@ -1418,38 +1418,7 @@ rnz machineState =
         Events [ setPC newPc ]
 
     else
-        let
-            addressLow =
-                getSP machineState
-
-            addressHigh =
-                getSP machineState + 1
-
-            newSp =
-                getSP machineState + 2
-
-            lowMemoryAccessResult =
-                Memory.readMemory addressLow machineState.memory
-
-            highMemoryAccessResult =
-                Memory.readMemory addressHigh machineState.memory
-        in
-        case ( lowMemoryAccessResult, highMemoryAccessResult ) of
-            ( Memory.Valid lowByteValue, Memory.Valid highByteValue ) ->
-                let
-                    newPc =
-                        getAddressLE lowByteValue highByteValue
-                in
-                Events
-                    [ setSP newSp
-                    , setPC newPc
-                    ]
-
-            ( Memory.Valid _, Memory.Invalid message ) ->
-                Failed (Just machineState) message
-
-            ( Memory.Invalid message, _ ) ->
-                Failed (Just machineState) message
+        ret machineState
 
 
 
@@ -1539,40 +1508,14 @@ adi_d8 firstArg machineState =
 rz : MachineState -> MachineStateDiff
 rz machineState =
     if machineState.cpuState.conditionCodes.z then
-        let
-            firstMemoryAccessResult =
-                Memory.readMemory machineState.cpuState.sp machineState.memory
-
-            secondMemoryAccessResult =
-                Memory.readMemory (machineState.cpuState.sp + 1) machineState.memory
-        in
-        case ( firstMemoryAccessResult, secondMemoryAccessResult ) of
-            ( Memory.Valid spLow, Memory.Valid spHigh ) ->
-                createRz spLow spHigh machineState
-
-            ( Memory.Valid _, Memory.Invalid message ) ->
-                Failed (Just machineState) message
-
-            ( Memory.Invalid message, _ ) ->
-                Failed (Just machineState) message
+        ret machineState
 
     else
-        Events [ setPC (machineState.cpuState.pc + 1) ]
-
-
-createRz : Int -> Int -> (MachineState -> MachineStateDiff)
-createRz spLow spHigh machineState =
-    let
-        newSp =
-            machineState.cpuState.sp + 2
-
-        newPc =
-            Bitwise.or spLow (Bitwise.shiftLeftBy 8 spHigh)
-    in
-    Events
-        [ setSP newSp
-        , setPC newPc
-        ]
+        let
+            newPc =
+                getPC machineState + 1
+        in
+        Events [ setPC newPc ]
 
 
 
@@ -1582,39 +1525,40 @@ createRz spLow spHigh machineState =
 ret : MachineState -> MachineStateDiff
 ret machineState =
     let
+        addressLow =
+            getSP machineState
+
+        addressHigh =
+            getSP machineState + 1
+
         memSpLow =
-            Memory.readMemory (getSP machineState) (getMemory machineState)
+            Memory.readMemory addressLow (getMemory machineState)
 
         memSpHigh =
-            Memory.readMemory (getSP machineState + 1) (getMemory machineState)
+            Memory.readMemory addressHigh (getMemory machineState)
     in
     case ( memSpLow, memSpHigh ) of
         ( Memory.Valid spLowByteValue, Memory.Valid spHighByteValue ) ->
-            createRet spLowByteValue spHighByteValue machineState
+            let
+                newSp =
+                    getSP machineState + 2
+
+                memSpHighShifted =
+                    Bitwise.shiftLeftBy 8 spHighByteValue
+
+                newPC =
+                    Bitwise.or spLowByteValue memSpHighShifted
+            in
+            Events
+                [ setSP newSp
+                , setPC newPC
+                ]
 
         ( Memory.Valid _, Memory.Invalid message ) ->
             Failed (Just machineState) message
 
         ( Memory.Invalid message, _ ) ->
             Failed (Just machineState) message
-
-
-createRet : ByteValue -> ByteValue -> (MachineState -> MachineStateDiff)
-createRet memSpLow memSpHigh machineState =
-    let
-        newSp =
-            getSP machineState + 2
-
-        memSpHighShifted =
-            Bitwise.shiftLeftBy 8 memSpHigh
-
-        newPC =
-            Bitwise.or memSpLow memSpHighShifted
-    in
-    Events
-        [ setSP newSp
-        , setPC newPC
-        ]
 
 
 
@@ -1690,6 +1634,23 @@ call firstArg secondArg machineState =
 
 
 
+-- 0xd0
+
+
+rnc : MachineState -> MachineStateDiff
+rnc machineState =
+    if machineState.cpuState.conditionCodes.cy then
+        let
+            newPc =
+                getPC machineState + 1
+        in
+        Events [ setPC newPc ]
+
+    else
+        ret machineState
+
+
+
 -- 0xd1
 
 
@@ -1733,43 +1694,14 @@ push_d machineState =
 rc : MachineState -> MachineStateDiff
 rc machineState =
     if machineState.cpuState.conditionCodes.cy then
-        let
-            newSp =
-                getSP machineState + 2
-
-            addressForH =
-                getSP machineState + 1
-
-            addressForL =
-                getSP machineState
-
-            hMemoryAccessResult =
-                Memory.readMemory addressForH machineState.memory
-
-            lMemoryAccessResult =
-                Memory.readMemory addressForL machineState.memory
-        in
-        case ( hMemoryAccessResult, lMemoryAccessResult ) of
-            ( Memory.Valid hByteValue, Memory.Valid lByteValue ) ->
-                Events
-                    [ setSP newSp
-                    , setPC (BitOperations.getAddressLE lByteValue hByteValue)
-                    ]
-
-            ( Memory.Valid _, Memory.Invalid message ) ->
-                Failed (Just machineState) message
-
-            ( Memory.Invalid message, _ ) ->
-                Failed (Just machineState) message
+        ret machineState
 
     else
         let
             newPc =
                 getPC machineState + 1
         in
-        Events
-            [ setPC newPc
-            ]
+        Events [ setPC newPc ]
 
 
 

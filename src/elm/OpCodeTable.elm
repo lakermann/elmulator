@@ -238,7 +238,7 @@ opCodeTable =
         , ( 0xCD, OpCodeData "CALL adr" 17 (ThreeBytes MachineInstructions.call) )
         , ( 0xCE, OpCodeData "ACI D8" 7 (TwoBytes unimplementedInstructionOne) )
         , ( 0xCF, OpCodeData "RST 1" 11 (OneByte unimplementedInstructionZero) )
-        , ( 0xD0, OpCodeData "RNC" 11 (OneByte unimplementedInstructionZero) )
+        , ( 0xD0, OpCodeData "RNC" 11 (OneByte MachineInstructions.rnc) )
         , ( 0xD1, OpCodeData "POP D" 10 (OneByte MachineInstructions.pop_d) )
         , ( 0xD2, OpCodeData "JNC adr" 10 (ThreeBytes unimplementedInstructionTwo) )
         , ( 0xD3, OpCodeData "OUT D8" 10 (TwoBytes IO.io_out) )

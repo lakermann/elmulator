@@ -1855,6 +1855,40 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.call 0x02 0x03 machineState)
             ]
+        , describe "0xd0 - rnc"
+            [ test "for c=True machine state" <|
+                \() ->
+                    let
+                        cy =
+                            True
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False cy False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events [ SetCpu (SetPC 0x01) ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rnc machineState)
+            , test "for c=False machine state" <|
+                \() ->
+                    let
+                        cy =
+                            False
+
+                        sp =
+                            5
+
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 sp 0 (ConditionCodes False False False cy False) False 0, memory = fromList (range 0 10) }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetSP 7)
+                                , SetCpu (SetPC 0x0605)
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.rnc machineState)
+            ]
         , describe "0xd1 - pop_d"
             [ test "for zero machine state" <|
                 \() ->
