@@ -1120,6 +1120,15 @@ mov_b_m machineState =
 
 
 
+-- 0x47
+
+
+mov_b_a : MachineState -> MachineStateDiff
+mov_b_a machineState =
+    mov_r_r_ (\data -> SetRegisterB data) getA machineState
+
+
+
 -- 0x4f
 
 
