@@ -273,14 +273,15 @@ all =
                             0x01
 
                         c =
-                            0x07
+                            0x05
 
                         machineState =
-                            { allZeroMachineState | cpuState = CpuState 0 b c 0 0 0 0 0 0 allFalseConditionCodes False 0, memory = fromList (range 0 0x0107) }
+                            { allZeroMachineState | cpuState = CpuState 0 b c 0 0 0 0 0 0 allFalseConditionCodes False 0 }
 
                         expectedMachineStateDiff =
                             Events
-                                [ SetMemory 0x0107 0x0106
+                                [ SetCpu (SetRegisterB 0x01)
+                                , SetCpu (SetRegisterC 0x04)
                                 , SetCpu (SetPC 0x01)
                                 ]
                     in
@@ -704,11 +705,12 @@ all =
                             5
 
                         machineState =
-                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 h l 0 0 allFalseConditionCodes False 0, memory = fromList (range 0 6) }
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 h l 0 0 allFalseConditionCodes False 0 }
 
                         expectedMachineStateDiff =
                             Events
-                                [ SetMemory 5 4
+                                [ SetCpu (SetRegisterH 0)
+                                , SetCpu (SetRegisterL 4)
                                 , SetCpu (SetPC 0x01)
                                 ]
                     in

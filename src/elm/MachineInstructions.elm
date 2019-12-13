@@ -480,31 +480,29 @@ inr_r_ setRegisterEvent fromRegister machineState =
         )
 
 
-dcx_rp_ : (MachineState -> ByteValue) -> (MachineState -> ByteValue) -> MachineState -> MachineStateDiff
-dcx_rp_ registerHigh registerLow machineState =
+dcx_rp_ : (MachineState -> ByteValue) -> (ByteValue -> SetCpuStateEvent) -> (MachineState -> ByteValue) -> (ByteValue -> SetCpuStateEvent) -> MachineState -> MachineStateDiff
+dcx_rp_ registerHigh highRegisterEvent registerLow lowRegisterEvent machineState =
     let
         newPC =
             getPC machineState + 1
 
-        memoryAddress =
+        currentRegisterPairValue =
             getAddressLE (registerLow machineState) (registerHigh machineState)
 
-        memoryAccessResult =
-            Memory.readMemory memoryAddress (getMemory machineState)
-    in
-    case memoryAccessResult of
-        Memory.Valid memoryValue ->
-            let
-                newMemoryValue =
-                    memoryValue - 1
-            in
-            Events
-                [ setMemory memoryAddress newMemoryValue
-                , setPC newPC
-                ]
+        newValue =
+            currentRegisterPairValue - 1
 
-        Memory.Invalid message ->
-            Failed (Just machineState) message
+        newHigh =
+            Bitwise.shiftRightBy 8 (Bitwise.and 0xFF00 newValue)
+
+        newLow =
+            Bitwise.and 0xFF newValue
+    in
+    Events
+        [ SetCpu (highRegisterEvent newHigh)
+        , SetCpu (lowRegisterEvent newLow)
+        , setPC newPC
+        ]
 
 
 xra_r_ : (MachineState -> ByteValue) -> MachineState -> MachineStateDiff
@@ -687,7 +685,7 @@ ldax_b machineState =
 
 dcx_b : MachineState -> MachineStateDiff
 dcx_b machineState =
-    dcx_rp_ getB getC machineState
+    dcx_rp_ getB (\data -> SetRegisterB data) getC (\data -> SetRegisterC data) machineState
 
 
 
@@ -1008,7 +1006,7 @@ lhld firstArg secondArg machineState =
 
 dcx_h : MachineState -> MachineStateDiff
 dcx_h machineState =
-    dcx_rp_ getH getL machineState
+    dcx_rp_ getH (\data -> SetRegisterH data) getL (\data -> SetRegisterL data) machineState
 
 
 
