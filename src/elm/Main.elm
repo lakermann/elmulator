@@ -23,6 +23,7 @@ import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
+import Maybe exposing (withDefault)
 import Memory exposing (readMemorySlice)
 import Task
 import Time
@@ -51,6 +52,7 @@ main =
 
 type alias Model =
     { data : Maybe Bytes
+    , disassembledProgram : Maybe String
     , currentCpuState : EmulatorState
     , nsteps : Int
     , ticks : Int
@@ -61,7 +63,7 @@ type alias Model =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model Nothing (Invalid Nothing "No ROM loaded yet") 0 0 0 0, Cmd.none )
+    ( Model Nothing Nothing (Invalid Nothing "No ROM loaded yet") 0 0 0 0, Cmd.none )
 
 
 
@@ -215,8 +217,11 @@ loadDataIntoMemory _ data =
 
         initialCpuState =
             Cpu.init decodedFile
+
+        disassembledProgram =
+            disassemble data
     in
-    Model (Just data) initialCpuState 0 0 0 0
+    Model (Just data) (Just disassembledProgram) initialCpuState 0 0 0 0
 
 
 
@@ -306,7 +311,7 @@ view model =
                         ]
                     , Grid.col []
                         [ h3 [] [ text "Code" ]
-                        , div [ class "code-wrapper" ] [ pre [] [ text (disassemble content) ] ]
+                        , div [ class "code-wrapper" ] [ pre [] [ text (withDefault "" model.disassembledProgram) ] ]
                         ]
                     ]
                 ]
