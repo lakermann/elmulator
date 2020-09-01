@@ -187,8 +187,8 @@ update msg model =
                             screen model.currentCpuState
                     in
                     ( { model
-                    | screen = renderedScreen
-                    }
+                        | screen = renderedScreen
+                      }
                     , Cmd.none
                     )
 
@@ -196,7 +196,6 @@ update msg model =
                     ( model
                     , Cmd.none
                     )
-
 
         InterruptRequested ->
             case model.currentCpuState of
@@ -343,7 +342,11 @@ pageHeader =
         [ h1 [] [ text "Elmulator ", p [ class "lead" ] [ text "A 8080 Emulator written in Elm" ] ]
         ]
 
+
+
 -- TODO: Clean up screen rendering (magic constants, green scren handling, etc.)
+
+
 screen : EmulatorState -> Html Msg
 screen emulatorState =
     let
@@ -368,24 +371,26 @@ toRenderable maybeGraphicsMemory =
             renderScreen (toPixels graphicsMemory)
 
         Nothing ->
-             greenScreen
+            greenScreen
+
 
 greenScreenHtml : Html Msg
 greenScreenHtml =
-     let
+    let
         width =
             256
 
         height =
             224
-
     in
     Canvas.toHtml ( width, height )
         []
         greenScreen
 
+
 greenScreen : List Renderable
-greenScreen = [ shapes [ fill Color.green ] [ rect ( 0, 0 ) 256 224 ] ]
+greenScreen =
+    [ shapes [ fill Color.green ] [ rect ( 0, 0 ) 256 224 ] ]
 
 
 readGraphicsMemory : EmulatorState -> Maybe (Array ByteValue)

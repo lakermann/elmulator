@@ -1,8 +1,8 @@
 module MachineInstructions exposing (..)
 
-import BitOperations exposing (combineBytes, getAddressLE)
-import Bitwise
-import ConditionCodesFlags
+import BitOperations exposing (getAddressLE)
+import Bitwise exposing (complement)
+import ConditionCodesFlags exposing (cyFlag)
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..))
 import LogicFlags exposing (check_flag_AC, check_flag_CY, flags_ZSP)
 import Memory
@@ -1737,6 +1737,33 @@ cnc firstArg secondArg machineState =
 push_d : MachineState -> MachineStateDiff
 push_d machineState =
     push_ (getD machineState) (getE machineState) machineState
+
+
+
+-- 0xd6
+
+
+sui_d8 : ByteValue -> MachineState -> MachineStateDiff
+sui_d8 firstArg machineState =
+    let
+        newPc =
+            getPC machineState + 2
+
+        newA =
+            getA machineState + complement firstArg + 1
+
+        newCY =
+            cyFlag newA
+    in
+    Events
+        (List.concat
+            [ [ setPC newPc
+              , setRegisterA newA
+              , setFlagCY newCY
+              ]
+            , flags_ZSP newA
+            ]
+        )
 
 
 
