@@ -161,6 +161,15 @@ getFlagZ machineState =
     conditionCodes.z
 
 
+getFlagCY : MachineState -> Flag
+getFlagCY machineState =
+    let
+        conditionCodes =
+            getConditionCodes machineState
+    in
+    conditionCodes.cy
+
+
 
 -- general
 
@@ -1064,7 +1073,7 @@ dcr_m : MachineState -> MachineStateDiff
 dcr_m machineState =
     let
         newPc =
-            machineState.cpuState.pc + 1
+            getPC machineState + 1
 
         memoryAccessResult =
             Memory.readMemory (getAddressLE machineState.cpuState.l machineState.cpuState.h) machineState.memory
@@ -1449,7 +1458,7 @@ ora_m machineState =
 
 rnz : MachineState -> MachineStateDiff
 rnz machineState =
-    if machineState.cpuState.conditionCodes.z then
+    if getFlagZ machineState then
         let
             newPc =
                 getPC machineState + 1
@@ -1475,7 +1484,7 @@ pop_b machineState =
 
 jnz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jnz firstArg secondArg machineState =
-    if machineState.cpuState.conditionCodes.z then
+    if getFlagZ machineState then
         let
             nwePc =
                 getPC machineState + 3
@@ -1501,7 +1510,7 @@ jmp firstArg secondArg _ =
 
 cnz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 cnz firstArg secondArg machineState =
-    if machineState.cpuState.conditionCodes.z then
+    if getFlagZ machineState then
         let
             newPc =
                 getPC machineState + 3
@@ -1550,7 +1559,7 @@ adi_d8 firstArg machineState =
 
 rz : MachineState -> MachineStateDiff
 rz machineState =
-    if machineState.cpuState.conditionCodes.z then
+    if getFlagZ machineState then
         ret machineState
 
     else
@@ -1610,7 +1619,7 @@ ret machineState =
 
 jz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jz firstArg secondArg machineState =
-    if machineState.cpuState.conditionCodes.z then
+    if getFlagZ machineState then
         j_ firstArg secondArg
 
     else
@@ -1627,7 +1636,7 @@ jz firstArg secondArg machineState =
 
 cz : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 cz firstArg secondArg machineState =
-    if machineState.cpuState.conditionCodes.z then
+    if getFlagZ machineState then
         call firstArg secondArg machineState
 
     else
@@ -1674,7 +1683,7 @@ call firstArg secondArg machineState =
 
 rnc : MachineState -> MachineStateDiff
 rnc machineState =
-    if machineState.cpuState.conditionCodes.cy then
+    if getFlagCY machineState then
         let
             newPc =
                 getPC machineState + 1
@@ -1700,7 +1709,7 @@ pop_d machineState =
 
 jnc : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jnc firstArg secondArg machineState =
-    if machineState.cpuState.conditionCodes.cy then
+    if getFlagCY machineState then
         let
             newPc =
                 getPC machineState + 3
@@ -1719,7 +1728,7 @@ jnc firstArg secondArg machineState =
 
 cnc : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 cnc firstArg secondArg machineState =
-    if machineState.cpuState.conditionCodes.cy then
+    if getFlagCY machineState then
         let
             newPc =
                 getPC machineState + 3
@@ -1772,7 +1781,7 @@ sui_d8 firstArg machineState =
 
 rc : MachineState -> MachineStateDiff
 rc machineState =
-    if machineState.cpuState.conditionCodes.cy then
+    if getFlagCY machineState then
         ret machineState
 
     else
@@ -1789,7 +1798,7 @@ rc machineState =
 
 jc : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
 jc firstArg secondArg machineState =
-    if machineState.cpuState.conditionCodes.cy then
+    if getFlagCY machineState then
         j_ firstArg secondArg
 
     else
