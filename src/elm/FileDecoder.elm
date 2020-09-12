@@ -1,8 +1,9 @@
-module FileDecoder exposing (decodeFile)
+module FileDecoder exposing (decodeFile, patchDecodedFile)
 
 import Bytes exposing (Bytes)
 import Bytes.Decode as Decode
 import EmulatorState exposing (ByteValue)
+import List
 
 
 decodeFile : Bytes -> List ByteValue
@@ -12,6 +13,19 @@ decodeFile rawData =
             bytesListDecoder Decode.unsignedInt8 (Bytes.width rawData)
     in
     Maybe.withDefault [] (Decode.decode listDecoder rawData)
+
+
+patchDecodedFile : List ByteValue -> List ByteValue
+patchDecodedFile decodedFile =
+    let
+        start =
+            List.take 111 decodedFile
+
+        endOne =
+            List.drop 112 decodedFile
+    in
+    List.concat
+        [ [ 0xC3, 0x00, 0x01 ], List.repeat 253 0, start, [ 0x07 ], endOne ]
 
 
 bytesListDecoder : Decode.Decoder a -> Int -> Decode.Decoder (List a)

@@ -16,7 +16,7 @@ import Cpu exposing (checkForInterrupt, interrupt, keyPressed, keyReleased, nSte
 import EmulatorState exposing (ByteValue, EmulatorState(..), MachineState)
 import File exposing (File)
 import File.Select as Select
-import FileDecoder exposing (decodeFile)
+import FileDecoder exposing (decodeFile, patchDecodedFile)
 import Graphics exposing (Pixel(..), renderScreen, toPixels)
 import Html exposing (Html, div, h1, h3, p, pre, text)
 import Html.Attributes exposing (class, height, width)
@@ -232,7 +232,7 @@ loadDataIntoMemory : Model -> Bytes -> Model
 loadDataIntoMemory _ data =
     let
         decodedFile =
-            decodeFile data
+            patchDecodedFile (decodeFile data)
 
         initialCpuState =
             Cpu.init decodedFile
@@ -251,7 +251,7 @@ disassemble : Bytes -> String
 disassemble data =
     let
         decodedFile =
-            decodeFile data
+            patchDecodedFile (decodeFile data)
 
         disassembledFile =
             disassembleToInstructions decodedFile
@@ -415,6 +415,6 @@ subscriptions _ =
 
         --, Time.every 1 Emulation
         --, Time.every 17 TickInterrupt
-        , Time.every 40 RenderScreen -- TODO: Probably should use cycle count, but this will do for now
-        , Time.every clock EmulationWithInterrupt
+        --, Time.every 40 RenderScreen -- TODO: Probably should use cycle count, but this will do for now
+        --, Time.every clock EmulationWithInterrupt
         ]
