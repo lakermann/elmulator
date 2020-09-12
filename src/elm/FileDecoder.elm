@@ -23,9 +23,12 @@ patchDecodedFile decodedFile =
 
         endOne =
             List.drop 112 decodedFile
+
+        withDAA =
+            List.concat
+                [ [ 0xC3, 0x00, 0x01 ], List.repeat 253 0, start, [ 0x07 ], endOne ]
     in
-    List.concat
-        [ [ 0xC3, 0x00, 0x01 ], List.repeat 253 0, start, [ 0x07 ], endOne ]
+    List.concat [ List.take 0x059C withDAA, [ 0xC3, 0xC2, 0x05 ], List.drop 0x059F withDAA ]
 
 
 bytesListDecoder : Decode.Decoder a -> Int -> Decode.Decoder (List a)
