@@ -215,7 +215,7 @@ apply machineStateDiff cpuState =
             --    Invalid (Just cpuState) "BUG HERE"
             --
             --else
-            validate (List.foldl applyEvent { cpuState | step = newStep } machineStateDiffEvents)
+            Valid (List.foldl applyEvent { cpuState | step = newStep } machineStateDiffEvents)
 
 
 invalidEvent : List MachineStateDiffEvent -> Bool

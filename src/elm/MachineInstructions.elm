@@ -3,6 +3,7 @@ module MachineInstructions exposing (..)
 import BitOperations exposing (getAddressLE)
 import Bitwise exposing (complement)
 import ConditionCodesFlags exposing (cyFlag)
+import Debug
 import EmulatorState exposing (AddressValue, ByteValue, ConditionCodes, Flag, MachineState, MachineStateDiff(..), MachineStateDiffEvent(..), Memory, RegisterValue, SetCpuStateEvent(..), SetFlagEvent(..))
 import LogicFlags exposing (check_flag_AC, check_flag_CY, flags_ZSP)
 import Memory
@@ -1677,6 +1678,66 @@ call firstArg secondArg machineState =
         ]
 
 
+call_debug : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+call_debug firstArg secondArg machineState =
+    let
+        address =
+            getAddressLE firstArg secondArg
+    in
+    if address == 5 then
+        if getC machineState == 9 then
+            let
+                offset =
+                    getAddressLE (getE machineState) (getD machineState)
+
+                printResult =
+                    print "" offset (getMemory machineState)
+            in
+            if printResult == 0 then
+                Failed (Just machineState) "FAILED"
+
+            else
+                Events
+                    [ setPC (getPC machineState + printResult) ]
+
+        else
+            Events [ setPC (getPC machineState + 3) ]
+
+    else if address == 0 then
+        Events (Debug.log "finished" [ setPC (getPC machineState + 3) ])
+
+    else
+        call firstArg secondArg machineState
+
+
+print : String -> Int -> Memory -> Int
+print string offset memory =
+    let
+        memoryAccess =
+            Memory.readMemory (offset + 3) memory
+    in
+    case memoryAccess of
+        Memory.Valid byteValue ->
+            let
+                newChar =
+                    Char.fromCode byteValue
+
+                newString =
+                    String.fromChar newChar
+            in
+            if string == " CPU HAS FAILED! ERROR EXIT=" then
+                Debug.log (String.concat [ string, newString ]) 0
+
+            else if newChar == '$' then
+                Debug.log (String.concat [ string, newString ]) 3
+
+            else
+                print (String.concat [ string, newString ]) (offset + 1) memory
+
+        Memory.Invalid message ->
+            0
+
+
 
 -- 0xd0
 
@@ -1821,6 +1882,23 @@ pop_h machineState =
 
 
 
+-- 0xe2
+
+
+jpo : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+jpo firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.p then
+        let
+            newPc =
+                getPC machineState + 3
+        in
+        Events [ setPC newPc ]
+
+    else
+        j_ firstArg secondArg
+
+
+
 -- 0xe3
 
 
@@ -1911,6 +1989,23 @@ pchl machineState =
 
 
 
+--0xae
+
+
+jpe : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+jpe firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.p then
+        j_ firstArg secondArg
+
+    else
+        let
+            newPc =
+                getPC machineState + 3
+        in
+        Events [ setPC newPc ]
+
+
+
 -- 0xeb
 
 
@@ -1977,6 +2072,23 @@ pop_psw machineState =
 
 
 
+-- 0xf2
+
+
+jp : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+jp firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.s then
+        let
+            newPc =
+                getPC machineState
+        in
+        Events [ setPC newPc ]
+
+    else
+        j_ firstArg secondArg
+
+
+
 -- 0xf5
 
 
@@ -2027,6 +2139,23 @@ ori_d8 firstArg machineState =
             , logic_flags_a newA
             ]
         )
+
+
+
+-- 0xfa
+
+
+jm : ByteValue -> ByteValue -> MachineState -> MachineStateDiff
+jm firstArg secondArg machineState =
+    if machineState.cpuState.conditionCodes.s then
+        j_ firstArg secondArg
+
+    else
+        let
+            newPc =
+                getPC machineState + 3
+        in
+        Events [ setPC newPc ]
 
 
 

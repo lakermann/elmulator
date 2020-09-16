@@ -3,6 +3,7 @@
 From <http://www.emulator101.com/8080-by-opcode.html>
 
 User manual at <http://www.nj7p.info/Manuals/PDFs/Intel/9800153B.pdf>
+<https://altairclone.com/downloads/manuals/8080%20Programmers%20Manual.pdf>
 
 | Opcode | Instruction | size | flags | function |
 |--------|-------------|------|-------|----------|
