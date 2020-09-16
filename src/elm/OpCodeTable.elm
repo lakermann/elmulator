@@ -1,5 +1,6 @@
 module OpCodeTable exposing (getOpCodeFromTable)
 
+import CpuDiag
 import Dict exposing (Dict)
 import EmulatorState exposing (ByteValue, MachineState, MachineStateDiff(..))
 import IO
@@ -235,7 +236,7 @@ opCodeTable =
         , ( 0xCA, OpCodeData "JZ adr" 10 (ThreeBytes MachineInstructions.jz) )
         , ( 0xCB, OpCodeData "-" 0 (OneByte unknownInstruction) )
         , ( 0xCC, OpCodeData "CZ adr" 10 (ThreeBytes MachineInstructions.cz) )
-        , ( 0xCD, OpCodeData "CALL adr" 17 (ThreeBytes MachineInstructions.call_debug) )
+        , ( 0xCD, OpCodeData "CALL adr" 17 (ThreeBytes CpuDiag.call_debug) )
         , ( 0xCE, OpCodeData "ACI D8" 7 (TwoBytes unimplementedInstructionOne) )
         , ( 0xCF, OpCodeData "RST 1" 11 (OneByte unimplementedInstructionZero) )
         , ( 0xD0, OpCodeData "RNC" 11 (OneByte MachineInstructions.rnc) )

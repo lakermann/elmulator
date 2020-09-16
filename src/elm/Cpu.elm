@@ -211,6 +211,8 @@ apply machineStateDiff cpuState =
             --else
             --    validate (List.foldl applyEvent { cpuState | step = newStep } machineStateDiffEvents)
             -- Enable above to search for an invalid event
+            --validate  (List.foldl applyEvent { cpuState | step = newStep } machineStateDiffEvents)
+            --
             --if List.member (SetCpu (SetPC 0x0164)) machineStateDiffEvents then
             --    Invalid (Just cpuState) "BUG HERE"
             --
