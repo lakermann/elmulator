@@ -16,6 +16,7 @@ type Msg
     | KeyUp GameKey
     | Reset
     | TickInterrupt Time.Posix
+    | RenderScreen Time.Posix
     | InterruptRequested
     | StepsUpdated String
     | StepsSubmitted

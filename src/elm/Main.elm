@@ -23,6 +23,7 @@ import Html.Attributes exposing (class, height, width)
 import Html.Events exposing (onClick)
 import Instruction exposing (Instruction, instructionToString)
 import InstructionDisassembler exposing (disassembleToInstructions)
+import Maybe exposing (withDefault)
 import Memory exposing (readMemorySlice)
 import Task
 import Time
@@ -51,17 +52,19 @@ main =
 
 type alias Model =
     { data : Maybe Bytes
+    , disassembledProgram : Maybe String
     , currentCpuState : EmulatorState
     , nsteps : Int
     , ticks : Int
     , ticksDiff : Float
     , ticksDiffReal : Float
+    , screen : Html Msg
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model Nothing (Invalid Nothing "No ROM loaded yet") 0 0 0 0, Cmd.none )
+    ( Model Nothing Nothing (Invalid Nothing "No ROM loaded yet") 0 0 0 0 greenScreenHtml, Cmd.none )
 
 
 
@@ -176,6 +179,24 @@ update msg model =
                     , Cmd.none
                     )
 
+        RenderScreen _ ->
+            case model.currentCpuState of
+                Valid _ ->
+                    let
+                        renderedScreen =
+                            screen model.currentCpuState
+                    in
+                    ( { model
+                        | screen = renderedScreen
+                      }
+                    , Cmd.none
+                    )
+
+                Invalid _ _ ->
+                    ( model
+                    , Cmd.none
+                    )
+
         InterruptRequested ->
             case model.currentCpuState of
                 Valid currentCpuState ->
@@ -215,8 +236,11 @@ loadDataIntoMemory _ data =
 
         initialCpuState =
             Cpu.init decodedFile
+
+        disassembledProgram =
+            disassemble data
     in
-    Model (Just data) initialCpuState 0 0 0 0
+    Model (Just data) (Just disassembledProgram) initialCpuState 0 0 0 0 greenScreenHtml
 
 
 
@@ -255,7 +279,7 @@ view model =
                     ]
                 ]
 
-        Just content ->
+        Just _ ->
             Grid.container []
                 [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
                 , pageHeader
@@ -296,7 +320,7 @@ view model =
                 , Grid.row []
                     [ Grid.col []
                         [ h3 [] [ text "Screen" ]
-                        , screen model.currentCpuState
+                        , model.screen
                         ]
                     , Grid.col []
                         [ h3 [] [ text "Machine State" ]
@@ -306,7 +330,7 @@ view model =
                         ]
                     , Grid.col []
                         [ h3 [] [ text "Code" ]
-                        , div [ class "code-wrapper" ] [ pre [] [ text (disassemble content) ] ]
+                        , div [ class "code-wrapper" ] [ pre [] [ text (withDefault "" model.disassembledProgram) ] ]
                         ]
                     ]
                 ]
@@ -319,7 +343,11 @@ pageHeader =
         ]
 
 
-screen : EmulatorState -> Html msg
+
+-- TODO: Clean up screen rendering (magic constants, green scren handling, etc.)
+
+
+screen : EmulatorState -> Html Msg
 screen emulatorState =
     let
         width =
@@ -329,7 +357,6 @@ screen emulatorState =
             224
 
         renderedScreen =
-            --toRenderable Nothing
             toRenderable (readGraphicsMemory emulatorState)
     in
     Canvas.toHtml ( width, height )
@@ -344,7 +371,26 @@ toRenderable maybeGraphicsMemory =
             renderScreen (toPixels graphicsMemory)
 
         Nothing ->
-            [ shapes [ fill Color.green ] [ rect ( 0, 0 ) 256 224 ] ]
+            greenScreen
+
+
+greenScreenHtml : Html Msg
+greenScreenHtml =
+    let
+        width =
+            256
+
+        height =
+            224
+    in
+    Canvas.toHtml ( width, height )
+        []
+        greenScreen
+
+
+greenScreen : List Renderable
+greenScreen =
+    [ shapes [ fill Color.green ] [ rect ( 0, 0 ) 256 224 ] ]
 
 
 readGraphicsMemory : EmulatorState -> Maybe (Array ByteValue)
@@ -369,5 +415,6 @@ subscriptions _ =
 
         --, Time.every 1 Emulation
         --, Time.every 17 TickInterrupt
+        , Time.every 40 RenderScreen -- TODO: Probably should use cycle count, but this will do for now
         , Time.every clock EmulationWithInterrupt
         ]

@@ -2082,6 +2082,76 @@ all =
                     in
                     Expect.equal expectedMachineStateDiff (MachineInstructions.push_d machineState)
             ]
+        , describe "0xd6 - sui_d8"
+            [ test "0 - 1" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 0 0 0 0 0 0 0 0 0 (ConditionCodes False False False False False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 2)
+                                , SetCpu (SetRegisterA -1)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS True))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.sui_d8 1 machineState)
+            , test "1 - 0" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 1 0 0 0 0 0 0 0 0 (ConditionCodes False False False False False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 2)
+                                , SetCpu (SetRegisterA 1)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.sui_d8 0 machineState)
+            , test "10 - 5" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 10 0 0 0 0 0 0 0 0 (ConditionCodes False False False False False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 2)
+                                , SetCpu (SetRegisterA 5)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS False))
+                                , SetCpu (SetFlag (SetFlagP False))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.sui_d8 5 machineState)
+            , test "6 - 0x72" <|
+                \() ->
+                    let
+                        machineState =
+                            { allZeroMachineState | cpuState = CpuState 6 0 0 0 0 0 0 0 0 (ConditionCodes False False False False False) False 0 }
+
+                        expectedMachineStateDiff =
+                            Events
+                                [ SetCpu (SetPC 2)
+                                , SetCpu (SetRegisterA -108)
+                                , SetCpu (SetFlag (SetFlagCY False))
+                                , SetCpu (SetFlag (SetFlagZ False))
+                                , SetCpu (SetFlag (SetFlagS True))
+                                , SetCpu (SetFlag (SetFlagP True))
+                                ]
+                    in
+                    Expect.equal expectedMachineStateDiff (MachineInstructions.sui_d8 0x72 machineState)
+            ]
         , describe "0xd8 - rc"
             [ test "cy=0" <|
                 \() ->
