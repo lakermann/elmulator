@@ -22,3 +22,11 @@ jobs:
 
       - name: Run Tests
         run: npm test
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.2
+        if: github.ref == 'refs/heads/main'
+        with:
+          branch: gh-pages
+          folder: src
+

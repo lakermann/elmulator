@@ -1,4 +1,4 @@
-# Elm-ulator [![Build](https://github.com/lakermann/elmulator/actions/workflows/build.yml/badge.svg)](https://github.com/lakermann/elmulator/actions/workflows/build.yml) [![Deployment](https://github.com/lakermann/elmulator/actions/workflows/deployment.yml/badge.svg)](https://github.com/lakermann/elmulator/actions/workflows/deployment.yml)
+# Elm-ulator [![Build](https://github.com/lakermann/elmulator/actions/workflows/build.yml/badge.svg)](https://github.com/lakermann/elmulator/actions/workflows/build.yml)
 
 _by [Samuel Bucheli](https://github.com/SamuelBucheliZ), [Stefan Friedli](https://github.com/sfriedli) and [Lukas Akermann](https://github.com/lakermann)_
 
